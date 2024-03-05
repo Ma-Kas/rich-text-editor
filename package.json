@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@lexical/html": "^0.13.1",
     "@lexical/react": "^0.13.1",
     "@lexical/utils": "^0.13.1",
     "lexical": "^0.13.1",
