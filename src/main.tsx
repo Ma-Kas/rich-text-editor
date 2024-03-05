@@ -1,4 +1,3 @@
-import './pages/editor/setupEnv';
 import './styles/index.css';
 
 import * as React from 'react';
