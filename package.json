@@ -10,12 +10,27 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@lexical/code": "^0.13.1",
+    "@lexical/file": "^0.13.1",
     "@lexical/html": "^0.13.1",
+    "@lexical/link": "^0.13.1",
+    "@lexical/list": "^0.13.1",
+    "@lexical/mark": "^0.13.1",
+    "@lexical/markdown": "^0.13.1",
     "@lexical/react": "^0.13.1",
+    "@lexical/rich-text": "^0.13.1",
+    "@lexical/table": "^0.13.1",
+    "@lexical/text": "^0.13.1",
     "@lexical/utils": "^0.13.1",
+    "@lexical/yjs": "^0.13.1",
+    "katex": "^0.16.9",
     "lexical": "^0.13.1",
+    "lodash-es": "^4.17.21",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-error-boundary": "^4.0.13",
+    "y-websocket": "^1.5.4",
+    "yjs": "^13.6.14"
   },
   "devDependencies": {
     "@types/react": "^18.2.56",
@@ -26,6 +41,7 @@
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "prettier": "^3.2.5",
     "typescript": "^5.2.2",
     "vite": "^5.1.4"
   }
