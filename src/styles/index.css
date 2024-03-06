@@ -456,14 +456,6 @@ i.close {
   background-image: url(../pages/editor/images/icons/close.svg);
 }
 
-i.figma {
-  background-image: url(../pages/editor/images/icons/figma.svg);
-}
-
-i.poll {
-  background-image: url(../pages/editor/images/icons/card-checklist.svg);
-}
-
 i.columns {
   background-image: url(../pages/editor/images/icons/3-columns.svg);
 }

@@ -20,7 +20,6 @@ import { InlineImageNode } from './InlineImageNode';
 import { LayoutContainerNode } from './LayoutContainerNode';
 import { LayoutItemNode } from './LayoutItemNode';
 import { PageBreakNode } from './PageBreakNode';
-import { PollNode } from './PollNode';
 import { StickyNode } from './StickyNode';
 import { TweetNode } from './TweetNode';
 import { YouTubeNode } from './YouTubeNode';
@@ -39,7 +38,6 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   AutoLinkNode,
   LinkNode,
   OverflowNode,
-  PollNode,
   StickyNode,
   ImageNode,
   InlineImageNode,

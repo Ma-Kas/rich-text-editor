@@ -34,7 +34,6 @@ import { InsertEquationDialog } from '../EquationsPlugin';
 import { INSERT_IMAGE_COMMAND, InsertImageDialog } from '../ImagesPlugin';
 import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 import { INSERT_PAGE_BREAK } from '../PageBreakPlugin';
-import { InsertPollDialog } from '../PollPlugin';
 import { InsertTableDialog } from '../TablePlugin';
 
 class ComponentPickerOption extends MenuOption {
@@ -229,14 +228,6 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       icon: <i className='icon page-break' />,
       keywords: ['page break', 'divider'],
       onSelect: () => editor.dispatchCommand(INSERT_PAGE_BREAK, undefined),
-    }),
-    new ComponentPickerOption('Poll', {
-      icon: <i className='icon poll' />,
-      keywords: ['poll', 'vote'],
-      onSelect: () =>
-        showModal('Insert Poll', (onClose) => (
-          <InsertPollDialog activeEditor={editor} onClose={onClose} />
-        )),
     }),
     ...EmbedConfigs.map(
       (embedConfig) =>

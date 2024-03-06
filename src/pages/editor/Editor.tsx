@@ -34,7 +34,6 @@ import LinkPlugin from './plugins/LinkPlugin';
 import ListMaxIndentLevelPlugin from './plugins/ListMaxIndentLevelPlugin';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin';
 import PageBreakPlugin from './plugins/PageBreakPlugin';
-import PollPlugin from './plugins/PollPlugin';
 import TabFocusPlugin from './plugins/TabFocusPlugin';
 import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableCellResizer from './plugins/TableCellResizer';
@@ -117,7 +116,6 @@ export default function Editor(): JSX.Element {
           <ImagesPlugin />
           <InlineImagePlugin />
           <LinkPlugin />
-          <PollPlugin />
           <TwitterPlugin />
           <YouTubePlugin />
           {!isEditable && <LexicalClickableLinkPlugin />}
