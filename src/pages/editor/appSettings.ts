@@ -1,5 +1,4 @@
 export const DEFAULT_SETTINGS = {
-  disableBeforeInput: false,
   tableCellBackgroundColor: true,
   tableCellMerge: true,
 };

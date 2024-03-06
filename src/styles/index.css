@@ -76,7 +76,9 @@ header h1 {
   outline: 0;
   z-index: 0;
   overflow: auto;
-  resize: vertical;
+  /* Uncomment if wanting to allow user to manually resize
+  This will mess up auto-scaling when shrunk too small */
+  /* resize: vertical; */
 }
 
 .editor {
@@ -1683,13 +1685,13 @@ hr.selected {
   z-index: 3;
 }
 
-.PlaygroundEditorTheme__blockCursor {
+.EditorTheme__blockCursor {
   display: block;
   pointer-events: none;
   position: absolute;
 }
 
-.PlaygroundEditorTheme__blockCursor:after {
+.EditorTheme__blockCursor:after {
   content: '';
   display: block;
   position: absolute;

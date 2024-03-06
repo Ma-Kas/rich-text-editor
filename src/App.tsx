@@ -1,18 +1,18 @@
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import Editor from './pages/editor/Editor';
-import PlaygroundNodes from './pages/editor/nodes/PlaygroundNodes';
+import EditorNodes from './pages/editor/nodes/EditorNodes';
 import { TableContext } from './pages/editor/plugins/TablePlugin';
-import PlaygroundEditorTheme from './pages/editor/themes/PlaygroundEditorTheme';
+import EditorTheme from './pages/editor/themes/EditorTheme';
 
 const App = (): JSX.Element => {
   const initialConfig = {
     editorState: undefined,
-    namespace: 'Playground',
-    nodes: [...PlaygroundNodes],
+    namespace: 'Editor',
+    nodes: [...EditorNodes],
     onError: (error: Error) => {
       throw error;
     },
-    theme: PlaygroundEditorTheme,
+    theme: EditorTheme,
   };
 
   return (

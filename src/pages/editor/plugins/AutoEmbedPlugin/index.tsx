@@ -17,7 +17,7 @@ import { DialogActions } from '../../ui/Dialog';
 import { INSERT_TWEET_COMMAND } from '../TwitterPlugin';
 import { INSERT_YOUTUBE_COMMAND } from '../YouTubePlugin';
 
-interface PlaygroundEmbedConfig extends EmbedConfig {
+interface EditorEmbedConfig extends EmbedConfig {
   // Human readable name of the embeded content e.g. Tweet or Google Map.
   contentName: string;
 
@@ -31,7 +31,7 @@ interface PlaygroundEmbedConfig extends EmbedConfig {
   keywords: Array<string>;
 }
 
-export const YoutubeEmbedConfig: PlaygroundEmbedConfig = {
+export const YoutubeEmbedConfig: EditorEmbedConfig = {
   contentName: 'Youtube Video',
 
   exampleUrl: 'https://www.youtube.com/watch?v=jNQXAC9IVRw',
@@ -65,7 +65,7 @@ export const YoutubeEmbedConfig: PlaygroundEmbedConfig = {
   type: 'youtube-video',
 };
 
-export const TwitterEmbedConfig: PlaygroundEmbedConfig = {
+export const TwitterEmbedConfig: EditorEmbedConfig = {
   // e.g. Tweet or Google Map.
   contentName: 'Tweet',
 
@@ -181,7 +181,7 @@ export function AutoEmbedDialog({
   embedConfig,
   onClose,
 }: {
-  embedConfig: PlaygroundEmbedConfig;
+  embedConfig: EditorEmbedConfig;
   onClose: () => void;
 }): JSX.Element {
   const [text, setText] = useState('');
@@ -244,14 +244,14 @@ export function AutoEmbedDialog({
 export default function AutoEmbedPlugin(): JSX.Element {
   const [modal, showModal] = useModal();
 
-  const openEmbedModal = (embedConfig: PlaygroundEmbedConfig) => {
+  const openEmbedModal = (embedConfig: EditorEmbedConfig) => {
     showModal(`Embed ${embedConfig.contentName}`, (onClose) => (
       <AutoEmbedDialog embedConfig={embedConfig} onClose={onClose} />
     ));
   };
 
   const getMenuOptions = (
-    activeEmbedConfig: PlaygroundEmbedConfig,
+    activeEmbedConfig: EditorEmbedConfig,
     embedFn: () => void,
     dismissFn: () => void
   ) => {
@@ -268,7 +268,7 @@ export default function AutoEmbedPlugin(): JSX.Element {
   return (
     <>
       {modal}
-      <LexicalAutoEmbedPlugin<PlaygroundEmbedConfig>
+      <LexicalAutoEmbedPlugin<EditorEmbedConfig>
         embedConfigs={EmbedConfigs}
         onOpenEmbedModalForConfig={openEmbedModal}
         getMenuOptions={getMenuOptions}

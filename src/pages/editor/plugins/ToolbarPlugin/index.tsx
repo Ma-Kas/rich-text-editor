@@ -88,7 +88,7 @@ const blockTypeToBlockName = {
   h5: 'Heading 5',
   h6: 'Heading 6',
   number: 'Numbered List',
-  paragraph: 'Normal',
+  paragraph: 'Paragraph',
   quote: 'Quote',
 };
 
@@ -268,7 +268,7 @@ function BlockFormatDropDown({
         onClick={formatParagraph}
       >
         <i className='icon paragraph' />
-        <span className='text'>Normal</span>
+        <span className='text'>Paragraph</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'h1')}
@@ -1032,7 +1032,7 @@ export default function ToolbarPlugin({
               className='item'
             >
               <i className='icon horizontal-rule' />
-              <span className='text'>Horizontal Rule</span>
+              <span className='text'>Divider</span>
             </DropDownItem>
             <DropDownItem
               onClick={() => {
@@ -1110,7 +1110,7 @@ export default function ToolbarPlugin({
               className='item'
             >
               <i className='icon caret-right' />
-              <span className='text'>Collapsible container</span>
+              <span className='text'>Expandable List</span>
             </DropDownItem>
             {EmbedConfigs.map((embedConfig) => (
               <DropDownItem

@@ -150,9 +150,7 @@ function getMouseInfo(event: MouseEvent): {
   const target = event.target;
 
   if (target && target instanceof HTMLElement) {
-    const codeDOMNode = target.closest<HTMLElement>(
-      'code.PlaygroundEditorTheme__code'
-    );
+    const codeDOMNode = target.closest<HTMLElement>('code.EditorTheme__code');
     const isOutside = !(
       codeDOMNode ||
       target.closest<HTMLElement>('div.code-action-menu-container')
