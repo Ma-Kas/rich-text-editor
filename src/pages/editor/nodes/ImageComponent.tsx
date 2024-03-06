@@ -34,14 +34,9 @@ import {
 } from 'lexical';
 
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
-
-import { useSettings } from '../context/SettingsContext';
-import { useSharedHistoryContext } from '../context/SharedHistoryContext';
 import EmojisPlugin from '../plugins/EmojisPlugin';
-import KeywordsPlugin from '../plugins/KeywordsPlugin';
 import LinkPlugin from '../plugins/LinkPlugin';
 
-import TreeViewPlugin from '../plugins/TreeViewPlugin';
 import ContentEditable from '../ui/ContentEditable';
 import ImageResizer from '../ui/ImageResizer';
 import Placeholder from '../ui/Placeholder';
@@ -344,11 +339,6 @@ export default function ImageComponent({
     setIsResizing(true);
   };
 
-  const { historyState } = useSharedHistoryContext();
-  const {
-    settings: { showNestedEditorTreeView },
-  } = useSettings();
-
   const draggable = isSelected && $isNodeSelection(selection) && !isResizing;
   const isFocused = isSelected || isResizing;
   return (
@@ -376,8 +366,7 @@ export default function ImageComponent({
               <LinkPlugin />
               <EmojisPlugin />
               <HashtagPlugin />
-              <KeywordsPlugin />
-              <HistoryPlugin externalHistoryState={historyState} />
+              <HistoryPlugin />
               <RichTextPlugin
                 contentEditable={
                   <ContentEditable className='ImageNode__contentEditable' />
@@ -389,7 +378,6 @@ export default function ImageComponent({
                 }
                 ErrorBoundary={LexicalErrorBoundary}
               />
-              {showNestedEditorTreeView === true ? <TreeViewPlugin /> : null}
             </LexicalNestedComposer>
           </div>
         )}

@@ -4,14 +4,12 @@ import './StickyNode.css';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { LexicalNestedComposer } from '@lexical/react/LexicalNestedComposer';
 import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin';
 import { $getNodeByKey } from 'lexical';
 import { useEffect, useRef } from 'react';
 import useLayoutEffect from '../../shared/src/useLayoutEffect';
 
-import { useSharedHistoryContext } from '../context/SharedHistoryContext';
 import StickyEditorTheme from '../themes/StickyEditorTheme';
 import ContentEditable from '../ui/ContentEditable';
 import Placeholder from '../ui/Placeholder';
@@ -179,8 +177,6 @@ export default function StickyComponent({
     });
   };
 
-  const { historyState } = useSharedHistoryContext();
-
   return (
     <div ref={stickyContainerRef} className='sticky-note-container'>
       <div
@@ -229,8 +225,6 @@ export default function StickyComponent({
           initialEditor={caption}
           initialTheme={StickyEditorTheme}
         >
-          <HistoryPlugin externalHistoryState={historyState} />
-
           <PlainTextPlugin
             contentEditable={
               <ContentEditable className='StickyNode__contentEditable' />

@@ -1,9 +1,6 @@
 export const DEFAULT_SETTINGS = {
   disableBeforeInput: false,
-  emptyEditor: false,
   shouldUseLexicalContextMenu: false,
-  showNestedEditorTreeView: false,
-  showTreeView: false,
   tableCellBackgroundColor: true,
   tableCellMerge: true,
 };

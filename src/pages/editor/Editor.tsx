@@ -14,7 +14,6 @@ import { useEffect, useState } from 'react';
 import { CAN_USE_DOM } from '../shared/src/canUseDOM';
 
 import { useSettings } from './context/SettingsContext';
-import { useSharedHistoryContext } from './context/SharedHistoryContext';
 import ActionsPlugin from './plugins/ActionsPlugin';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
@@ -34,7 +33,6 @@ import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 import FloatingTextFormatToolbarPlugin from './plugins/FloatingTextFormatToolbarPlugin';
 import ImagesPlugin from './plugins/ImagesPlugin';
 import InlineImagePlugin from './plugins/InlineImagePlugin';
-import KeywordsPlugin from './plugins/KeywordsPlugin';
 import { LayoutPlugin } from './plugins/LayoutPlugin/LayoutPlugin';
 import LinkPlugin from './plugins/LinkPlugin';
 import ListMaxIndentLevelPlugin from './plugins/ListMaxIndentLevelPlugin';
@@ -45,17 +43,14 @@ import TabFocusPlugin from './plugins/TabFocusPlugin';
 import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableCellResizer from './plugins/TableCellResizer';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
-import TreeViewPlugin from './plugins/TreeViewPlugin';
 import TwitterPlugin from './plugins/TwitterPlugin';
 import YouTubePlugin from './plugins/YouTubePlugin';
 import ContentEditable from './ui/ContentEditable';
 import Placeholder from './ui/Placeholder';
 
 export default function Editor(): JSX.Element {
-  const { historyState } = useSharedHistoryContext();
   const {
     settings: {
-      showTreeView,
       shouldUseLexicalContextMenu,
       tableCellMerge,
       tableCellBackgroundColor,
@@ -103,10 +98,9 @@ export default function Editor(): JSX.Element {
         <AutoEmbedPlugin />
         <EmojisPlugin />
         <HashtagPlugin />
-        <KeywordsPlugin />
         <AutoLinkPlugin />
         <>
-          <HistoryPlugin externalHistoryState={historyState} />
+          <HistoryPlugin />
           <RichTextPlugin
             contentEditable={
               <div className='editor-scroller'>
@@ -166,7 +160,6 @@ export default function Editor(): JSX.Element {
         {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
         <ActionsPlugin />
       </div>
-      {showTreeView && <TreeViewPlugin />}
     </>
   );
 }
