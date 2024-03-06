@@ -532,10 +532,6 @@ i.user {
   background-image: url(../pages/editor/images/icons/user.svg);
 }
 
-i.equation {
-  background-image: url(../pages/editor/images/icons/plus-slash-minus.svg);
-}
-
 i.gif {
   background-image: url(../pages/editor/images/icons/filetype-gif.svg);
 }
@@ -1646,15 +1642,6 @@ button.toolbar-item.active i {
 
 .spacer {
   letter-spacing: -2px;
-}
-
-.editor-equation {
-  cursor: default;
-  user-select: none;
-}
-
-.editor-equation.focused {
-  outline: 2px solid rgb(60, 132, 244);
 }
 
 button.item i {

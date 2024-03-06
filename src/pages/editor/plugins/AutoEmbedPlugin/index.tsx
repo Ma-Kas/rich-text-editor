@@ -29,9 +29,6 @@ interface PlaygroundEmbedConfig extends EmbedConfig {
 
   // For extra searching.
   keywords: Array<string>;
-
-  // Embed a Figma Project.
-  description?: string;
 }
 
 export const YoutubeEmbedConfig: PlaygroundEmbedConfig = {
