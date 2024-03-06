@@ -18,7 +18,6 @@ import { ImageNode } from './ImageNode';
 import { InlineImageNode } from './InlineImageNode';
 import { LayoutContainerNode } from './LayoutContainerNode';
 import { LayoutItemNode } from './LayoutItemNode';
-import { PageBreakNode } from './PageBreakNode';
 import { StickyNode } from './StickyNode';
 import { TweetNode } from './TweetNode';
 import { YouTubeNode } from './YouTubeNode';
@@ -48,7 +47,6 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   CollapsibleContainerNode,
   CollapsibleContentNode,
   CollapsibleTitleNode,
-  PageBreakNode,
   LayoutContainerNode,
   LayoutItemNode,
 ];

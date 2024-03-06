@@ -32,7 +32,6 @@ import { LayoutPlugin } from './plugins/LayoutPlugin/LayoutPlugin';
 import LinkPlugin from './plugins/LinkPlugin';
 import ListMaxIndentLevelPlugin from './plugins/ListMaxIndentLevelPlugin';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin';
-import PageBreakPlugin from './plugins/PageBreakPlugin';
 import TabFocusPlugin from './plugins/TabFocusPlugin';
 import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableCellResizer from './plugins/TableCellResizer';
@@ -122,7 +121,6 @@ export default function Editor(): JSX.Element {
           <TabFocusPlugin />
           <TabIndentationPlugin />
           <CollapsiblePlugin />
-          <PageBreakPlugin />
           <LayoutPlugin />
           {floatingAnchorElem && !isSmallWidthViewport && (
             <>
