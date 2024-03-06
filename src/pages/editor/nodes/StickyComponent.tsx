@@ -10,7 +10,7 @@ import { $getNodeByKey } from 'lexical';
 import { useEffect, useRef } from 'react';
 import useLayoutEffect from '../../shared/src/useLayoutEffect';
 
-import StickyEditorTheme from '../themes/StickyEditorTheme';
+import StickyNoteTheme from '../themes/StickyNoteTheme';
 import ContentEditable from '../ui/ContentEditable';
 import Placeholder from '../ui/Placeholder';
 import { $isStickyNode } from './StickyNode';
@@ -223,7 +223,7 @@ export default function StickyComponent({
         </button>
         <LexicalNestedComposer
           initialEditor={caption}
-          initialTheme={StickyEditorTheme}
+          initialTheme={StickyNoteTheme}
         >
           <PlainTextPlugin
             contentEditable={

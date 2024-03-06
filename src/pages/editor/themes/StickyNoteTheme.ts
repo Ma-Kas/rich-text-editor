@@ -1,12 +1,12 @@
 import type { EditorThemeClasses } from 'lexical';
 
-import './StickyEditorTheme.css';
+import './StickyNoteTheme.css';
 
 import baseTheme from './EditorTheme';
 
 const theme: EditorThemeClasses = {
   ...baseTheme,
-  paragraph: 'StickyEditorTheme__paragraph',
+  paragraph: 'StickyNoteTheme__paragraph',
 };
 
 export default theme;
