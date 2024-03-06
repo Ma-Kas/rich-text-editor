@@ -172,7 +172,7 @@ export const TABLE: ElementTransformer = {
         // It's TableCellNode so it's just to make flow happy
         if ($isTableCellNode(cell)) {
           rowOutput.push(
-            $convertToMarkdownString(PLAYGROUND_TRANSFORMERS, cell).replace(
+            $convertToMarkdownString(EDITOR_TRANSFORMERS, cell).replace(
               /\n/g,
               '\\n'
             )
@@ -292,7 +292,7 @@ function getTableColumnsSize(table: TableNode) {
 const createTableCell = (textContent: string): TableCellNode => {
   textContent = textContent.replace(/\\n/g, '\n');
   const cell = $createTableCellNode(TableCellHeaderStates.NO_STATUS);
-  $convertFromMarkdownString(textContent, PLAYGROUND_TRANSFORMERS, cell);
+  $convertFromMarkdownString(textContent, EDITOR_TRANSFORMERS, cell);
   return cell;
 };
 
@@ -304,7 +304,7 @@ const mapToTableCells = (textContent: string): Array<TableCellNode> | null => {
   return match[1].split('|').map((text) => createTableCell(text));
 };
 
-export const PLAYGROUND_TRANSFORMERS: Array<Transformer> = [
+export const EDITOR_TRANSFORMERS: Array<Transformer> = [
   TABLE,
   HR,
   IMAGE,

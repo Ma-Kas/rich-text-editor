@@ -8,7 +8,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $createTextNode, $getRoot } from 'lexical';
 import { useCallback } from 'react';
 
-import { PLAYGROUND_TRANSFORMERS } from '../MarkdownTransformers';
+import { EDITOR_TRANSFORMERS } from '../MarkdownTransformers';
 
 const ActionsPlugin = (): JSX.Element => {
   const [editor] = useLexicalComposerContext();
@@ -20,10 +20,10 @@ const ActionsPlugin = (): JSX.Element => {
       if ($isCodeNode(firstChild) && firstChild.getLanguage() === 'markdown') {
         $convertFromMarkdownString(
           firstChild.getTextContent(),
-          PLAYGROUND_TRANSFORMERS
+          EDITOR_TRANSFORMERS
         );
       } else {
-        const markdown = $convertToMarkdownString(PLAYGROUND_TRANSFORMERS);
+        const markdown = $convertToMarkdownString(EDITOR_TRANSFORMERS);
         root
           .clear()
           .append(
