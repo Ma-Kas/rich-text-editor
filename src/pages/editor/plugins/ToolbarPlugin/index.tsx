@@ -8,7 +8,6 @@ import {
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import {
   $isListNode,
-  INSERT_CHECK_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
   ListNode,
@@ -81,7 +80,6 @@ import FontSize from './fontSize';
 
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',
-  check: 'Check List',
   code: 'Code Block',
   h1: 'Heading 1',
   h2: 'Heading 2',
@@ -218,14 +216,6 @@ function BlockFormatDropDown({
     }
   };
 
-  const formatCheckList = () => {
-    if (blockType !== 'check') {
-      editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
-    } else {
-      formatParagraph();
-    }
-  };
-
   const formatNumberedList = () => {
     if (blockType !== 'number') {
       editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
@@ -314,13 +304,6 @@ function BlockFormatDropDown({
       >
         <i className='icon numbered-list' />
         <span className='text'>Numbered List</span>
-      </DropDownItem>
-      <DropDownItem
-        className={'item ' + dropDownActiveClass(blockType === 'check')}
-        onClick={formatCheckList}
-      >
-        <i className='icon check-list' />
-        <span className='text'>Check List</span>
       </DropDownItem>
       <DropDownItem
         className={'item ' + dropDownActiveClass(blockType === 'quote')}

@@ -830,11 +830,6 @@ i.page-break,
   background-image: url(../pages/editor/images/icons/list-ul.svg);
 }
 
-.icon.check-list,
-.icon.check {
-  background-image: url(../pages/editor/images/icons/square-check.svg);
-}
-
 .icon.numbered-list,
 .icon.number {
   background-image: url(../pages/editor/images/icons/list-ol.svg);

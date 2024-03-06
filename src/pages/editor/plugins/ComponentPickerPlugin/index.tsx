@@ -1,6 +1,5 @@
 import { $createCodeNode } from '@lexical/code';
 import {
-  INSERT_CHECK_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
 } from '@lexical/list';
@@ -29,7 +28,7 @@ import * as ReactDOM from 'react-dom';
 import useModal from '../../hooks/useModal';
 import { EmbedConfigs } from '../AutoEmbedPlugin';
 import { INSERT_COLLAPSIBLE_COMMAND } from '../CollapsiblePlugin';
-import { INSERT_IMAGE_COMMAND, InsertImageDialog } from '../ImagesPlugin';
+import { InsertImageDialog } from '../ImagesPlugin';
 import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 import { InsertTableDialog } from '../TablePlugin';
 
@@ -177,12 +176,6 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       keywords: ['bulleted list', 'unordered list', 'ul'],
       onSelect: () =>
         editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined),
-    }),
-    new ComponentPickerOption('Check List', {
-      icon: <i className='icon check' />,
-      keywords: ['check list', 'todo list'],
-      onSelect: () =>
-        editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined),
     }),
     new ComponentPickerOption('Quote', {
       icon: <i className='icon quote' />,
