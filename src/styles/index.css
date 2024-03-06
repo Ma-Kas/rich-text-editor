@@ -1652,49 +1652,6 @@ button.toolbar-item.active i {
   background-size: contain;
 }
 
-.excalidraw-button {
-  border: 0;
-  padding: 0;
-  margin: 0;
-  background-color: transparent;
-}
-
-.excalidraw-button.selected {
-  outline: 2px solid rgb(60, 132, 244);
-  user-select: none;
-}
-
-.github-corner:hover .octo-arm {
-  animation: octocat-wave 560ms ease-in-out;
-}
-
-@keyframes octocat-wave {
-  0%,
-  100% {
-    transform: rotate(0);
-  }
-
-  20%,
-  60% {
-    transform: rotate(-25deg);
-  }
-
-  40%,
-  80% {
-    transform: rotate(10deg);
-  }
-}
-
-@media (max-width: 500px) {
-  .github-corner:hover .octo-arm {
-    animation: none;
-  }
-
-  .github-corner .octo-arm {
-    animation: octocat-wave 560ms ease-in-out;
-  }
-}
-
 .spacer {
   letter-spacing: -2px;
 }
