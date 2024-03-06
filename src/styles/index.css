@@ -59,10 +59,6 @@ header h1 {
   border-bottom-right-radius: 10px;
 }
 
-.editor-shell .editor-container.tree-view {
-  border-radius: 0;
-}
-
 .editor-shell .editor-container.plain-text {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -102,19 +98,6 @@ pre {
   font-size: 12px;
   overflow: auto;
   max-height: 400px;
-}
-
-.tree-view-output {
-  display: block;
-  background: #222;
-  color: #fff;
-  padding: 0;
-  font-size: 12px;
-  margin: 1px auto 10px auto;
-  position: relative;
-  overflow: hidden;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
 }
 
 pre::-webkit-scrollbar {
@@ -358,10 +341,6 @@ pre::-webkit-scrollbar-thumb {
 
 .auto-embed-menu {
   width: 150px;
-}
-
-.emoji-menu {
-  width: 200px;
 }
 
 i.palette {
@@ -955,11 +934,6 @@ i.page-break,
   cursor: grabbing;
 }
 
-.editor-shell .editor-image .image-caption-container .tree-view-output {
-  margin: 0;
-  border-radius: 0;
-}
-
 .editor-shell .editor-image .image-caption-container {
   display: block;
   position: absolute;
@@ -1099,11 +1073,6 @@ i.page-break,
   cursor: grabbing;
 }
 
-.editor-shell .inline-editor-image .image-caption-container .tree-view-output {
-  margin: 0;
-  border-radius: 0;
-}
-
 .editor-shell .inline-editor-image.position-full {
   margin: 1em 0 1em 0;
 }
@@ -1148,46 +1117,6 @@ i.page-break,
   overflow: hidden;
 }
 
-.emoji {
-  color: transparent;
-  caret-color: rgb(5, 5, 5);
-  background-size: 16px 16px;
-  background-position: center;
-  background-repeat: no-repeat;
-  vertical-align: middle;
-  margin: 0 -1px;
-}
-
-.emoji-inner {
-  padding: 0 0.15em;
-}
-
-.emoji-inner::selection {
-  color: transparent;
-  background-color: rgba(150, 150, 150, 0.4);
-}
-
-.emoji-inner::moz-selection {
-  color: transparent;
-  background-color: rgba(150, 150, 150, 0.4);
-}
-
-.emoji.happysmile {
-  background-image: url(images/emoji/1F642.png);
-}
-
-.emoji.veryhappysmile {
-  background-image: url(images/emoji/1F600.png);
-}
-
-.emoji.unhappysmile {
-  background-image: url(images/emoji/1F641.png);
-}
-
-.emoji.heart {
-  background-image: url(images/emoji/2764.png);
-}
-
 .keyword {
   color: rgb(241, 118, 94);
   font-weight: bold;
@@ -1199,11 +1128,6 @@ i.page-break,
   margin: 10px;
   bottom: 0;
   right: 0;
-}
-
-.actions.tree-view {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
 }
 
 .actions i {

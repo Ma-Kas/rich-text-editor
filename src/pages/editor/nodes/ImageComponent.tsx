@@ -34,7 +34,6 @@ import {
 } from 'lexical';
 
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import EmojisPlugin from '../plugins/EmojisPlugin';
 import LinkPlugin from '../plugins/LinkPlugin';
 
 import ContentEditable from '../ui/ContentEditable';
@@ -364,7 +363,6 @@ export default function ImageComponent({
             <LexicalNestedComposer initialEditor={caption}>
               <AutoFocusPlugin />
               <LinkPlugin />
-              <EmojisPlugin />
               <HashtagPlugin />
               <HistoryPlugin />
               <RichTextPlugin
