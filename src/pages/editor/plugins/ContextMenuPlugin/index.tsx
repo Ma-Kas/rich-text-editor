@@ -12,7 +12,6 @@ import {
   PASTE_COMMAND,
 } from 'lexical';
 import { useCallback, useMemo } from 'react';
-import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
 function ContextMenuItem({

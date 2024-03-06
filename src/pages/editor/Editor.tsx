@@ -1,7 +1,6 @@
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import LexicalClickableLinkPlugin from '@lexical/react/LexicalClickableLinkPlugin';
-import { CollaborationPlugin } from '@lexical/react/LexicalCollaborationPlugin';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
@@ -14,7 +13,6 @@ import useLexicalEditable from '@lexical/react/useLexicalEditable';
 import { useEffect, useState } from 'react';
 import { CAN_USE_DOM } from '../shared/src/canUseDOM';
 
-import { createWebsocketProvider } from './collaboration';
 import { useSettings } from './context/SettingsContext';
 import { useSharedHistoryContext } from './context/SharedHistoryContext';
 import ActionsPlugin from './plugins/ActionsPlugin';
@@ -53,15 +51,10 @@ import YouTubePlugin from './plugins/YouTubePlugin';
 import ContentEditable from './ui/ContentEditable';
 import Placeholder from './ui/Placeholder';
 
-const skipCollaborationInit =
-  // @ts-expect-error 'ddd
-  window.parent != null && window.parent.frames.right === window;
-
 export default function Editor(): JSX.Element {
   const { historyState } = useSharedHistoryContext();
   const {
     settings: {
-      isCollab,
       showTreeView,
       shouldUseLexicalContextMenu,
       tableCellMerge,
@@ -69,10 +62,7 @@ export default function Editor(): JSX.Element {
     },
   } = useSettings();
   const isEditable = useLexicalEditable();
-  const text = isCollab
-    ? 'Enter some collaborative rich text...'
-    : 'Enter some plain text...';
-  const placeholder = <Placeholder>{text}</Placeholder>;
+  const placeholder = <Placeholder>{'Enter some text...'}</Placeholder>;
   const [floatingAnchorElem, setFloatingAnchorElem] =
     useState<HTMLDivElement | null>(null);
   const [isSmallWidthViewport, setIsSmallWidthViewport] =
@@ -116,15 +106,7 @@ export default function Editor(): JSX.Element {
         <KeywordsPlugin />
         <AutoLinkPlugin />
         <>
-          {isCollab ? (
-            <CollaborationPlugin
-              id='main'
-              providerFactory={createWebsocketProvider}
-              shouldBootstrap={!skipCollaborationInit}
-            />
-          ) : (
-            <HistoryPlugin externalHistoryState={historyState} />
-          )}
+          <HistoryPlugin externalHistoryState={historyState} />
           <RichTextPlugin
             contentEditable={
               <div className='editor-scroller'>

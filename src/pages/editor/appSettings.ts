@@ -1,7 +1,6 @@
 export const DEFAULT_SETTINGS = {
   disableBeforeInput: false,
   emptyEditor: false,
-  isCollab: false,
   shouldUseLexicalContextMenu: false,
   showNestedEditorTreeView: false,
   showTreeView: false,

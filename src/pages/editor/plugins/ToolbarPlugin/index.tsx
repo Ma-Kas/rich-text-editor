@@ -63,7 +63,6 @@ import {
   UNDO_COMMAND,
 } from 'lexical';
 import { Dispatch, useCallback, useEffect, useState } from 'react';
-import * as React from 'react';
 import { IS_APPLE } from '../../../shared/src/environment';
 
 import useModal from '../../hooks/useModal';

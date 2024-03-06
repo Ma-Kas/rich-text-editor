@@ -2,7 +2,6 @@ import type { Option, Options, PollNode } from './PollNode';
 
 import './PollNode.css';
 
-import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
@@ -17,7 +16,6 @@ import {
   KEY_DELETE_COMMAND,
   NodeKey,
 } from 'lexical';
-import * as React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import Button from '../ui/Button';
@@ -46,7 +44,6 @@ function PollOptionComponent({
     onSelect?: () => void
   ) => void;
 }): JSX.Element {
-  const { clientID } = useCollaborationContext();
   const checkboxRef = useRef(null);
   const votesArray = option.votes;
   const checkedIndex = votesArray.indexOf(clientID);

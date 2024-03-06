@@ -94,15 +94,11 @@ function prepopulatedRichText() {
 
 const App = (): JSX.Element => {
   const {
-    settings: { isCollab, emptyEditor },
+    settings: { emptyEditor },
   } = useSettings();
 
   const initialConfig = {
-    editorState: isCollab
-      ? null
-      : emptyEditor
-        ? undefined
-        : prepopulatedRichText,
+    editorState: emptyEditor ? undefined : prepopulatedRichText,
     namespace: 'Playground',
     nodes: [...PlaygroundNodes],
     onError: (error: Error) => {
