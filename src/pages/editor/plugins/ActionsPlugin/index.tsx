@@ -1,5 +1,4 @@
 import { $createCodeNode, $isCodeNode } from '@lexical/code';
-import { exportFile, importFile } from '@lexical/file';
 import {
   $convertFromMarkdownString,
   $convertToMarkdownString,
@@ -11,7 +10,7 @@ import { useCallback } from 'react';
 
 import { PLAYGROUND_TRANSFORMERS } from '../MarkdownTransformers';
 
-export default function ActionsPlugin(): JSX.Element {
+const ActionsPlugin = (): JSX.Element => {
   const [editor] = useLexicalComposerContext();
 
   const handleMarkdownToggle = useCallback(() => {
@@ -38,27 +37,6 @@ export default function ActionsPlugin(): JSX.Element {
   return (
     <div className='actions'>
       <button
-        className='action-button import'
-        onClick={() => importFile(editor)}
-        title='Import'
-        aria-label='Import editor state from JSON'
-      >
-        <i className='import' />
-      </button>
-      <button
-        className='action-button export'
-        onClick={() =>
-          exportFile(editor, {
-            fileName: `Playground ${new Date().toISOString()}`,
-            source: 'Playground',
-          })
-        }
-        title='Export'
-        aria-label='Export editor state to JSON'
-      >
-        <i className='export' />
-      </button>
-      <button
         className='action-button'
         onClick={handleMarkdownToggle}
         title='Convert From Markdown'
@@ -68,4 +46,6 @@ export default function ActionsPlugin(): JSX.Element {
       </button>
     </div>
   );
-}
+};
+
+export default ActionsPlugin;

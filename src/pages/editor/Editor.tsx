@@ -14,14 +14,12 @@ import { useEffect, useState } from 'react';
 import { CAN_USE_DOM } from '../shared/src/canUseDOM';
 
 import { useSettings } from './context/SettingsContext';
-import ActionsPlugin from './plugins/ActionsPlugin';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
 import CodeHighlightPlugin from './plugins/CodeHighlightPlugin';
 import CollapsiblePlugin from './plugins/CollapsiblePlugin';
 import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
-import ContextMenuPlugin from './plugins/ContextMenuPlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
@@ -50,11 +48,7 @@ import Placeholder from './ui/Placeholder';
 
 export default function Editor(): JSX.Element {
   const {
-    settings: {
-      shouldUseLexicalContextMenu,
-      tableCellMerge,
-      tableCellBackgroundColor,
-    },
+    settings: { tableCellMerge, tableCellBackgroundColor },
   } = useSettings();
   const isEditable = useLexicalEditable();
   const placeholder = <Placeholder>{'Enter some text...'}</Placeholder>;
@@ -157,8 +151,6 @@ export default function Editor(): JSX.Element {
             </>
           )}
         </>
-        {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
-        <ActionsPlugin />
       </div>
     </>
   );
