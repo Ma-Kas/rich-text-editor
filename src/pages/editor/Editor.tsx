@@ -28,7 +28,6 @@ import { LayoutPlugin } from './plugins/LayoutPlugin/LayoutPlugin';
 import LinkPlugin from './plugins/LinkPlugin';
 import ListMaxIndentLevelPlugin from './plugins/ListMaxIndentLevelPlugin';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin';
-import TabFocusPlugin from './plugins/TabFocusPlugin';
 import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableCellResizer from './plugins/TableCellResizer';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
@@ -93,7 +92,6 @@ export default function Editor(): JSX.Element {
           <YouTubePlugin />
           {!isEditable && <LexicalClickableLinkPlugin />}
           <HorizontalRulePlugin />
-          <TabFocusPlugin />
           <TabIndentationPlugin />
           <CollapsiblePlugin />
           <LayoutPlugin />
