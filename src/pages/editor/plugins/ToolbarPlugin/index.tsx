@@ -367,6 +367,7 @@ function FontDropDown({
     <DropDown
       disabled={disabled}
       buttonClassName={'toolbar-item ' + style}
+      // Comment to hide label for currently selected font family
       buttonLabel={value}
       buttonIconClassName={
         style === 'font-family' ? 'icon block-type font-family' : ''
@@ -406,7 +407,8 @@ function ElementFormatDropdown({
   return (
     <DropDown
       disabled={disabled}
-      buttonLabel={formatOption.name}
+      // Uncomment to show label of current formatting option
+      // buttonLabel={formatOption.name}
       buttonIconClassName={`icon ${
         isRTL ? formatOption.iconRTL : formatOption.icon
       }`}
@@ -868,6 +870,7 @@ export default function ToolbarPlugin({
         </>
       )}
       {blockType === 'code' ? (
+        // Code Language Dropdown
         <DropDown
           disabled={!isEditable}
           buttonClassName='toolbar-item code-language'
@@ -985,12 +988,13 @@ export default function ToolbarPlugin({
             onChange={onBgColorSelect}
             title='bg color'
           />
+          {/* Text formatting dropdown */}
           <DropDown
             disabled={!isEditable}
             buttonClassName='toolbar-item spaced'
             buttonLabel=''
             buttonAriaLabel='Formatting options for additional text styles'
-            buttonIconClassName='icon dropdown-more'
+            buttonIconClassName='icon format-more'
           >
             <DropDownItem
               onClick={() => {
@@ -1042,10 +1046,19 @@ export default function ToolbarPlugin({
             </DropDownItem>
           </DropDown>
           <Divider />
+          <ElementFormatDropdown
+            disabled={!isEditable}
+            value={elementFormat}
+            editor={editor}
+            isRTL={isRTL}
+          />
+          <Divider />
+          {/* Insert Options Dropdown */}
           <DropDown
             disabled={!isEditable}
             buttonClassName='toolbar-item spaced'
-            buttonLabel='Insert'
+            // Uncomment to show Text on wide editor view
+            // buttonLabel='Insert'
             buttonAriaLabel='Insert specialized editor node'
             buttonIconClassName='icon plus'
           >
@@ -1136,7 +1149,7 @@ export default function ToolbarPlugin({
               }}
               className='item'
             >
-              <i className='icon caret-right' />
+              <i className='icon list-expandable' />
               <span className='text'>Expandable List</span>
             </DropDownItem>
             {EmbedConfigs.map((embedConfig) => (
@@ -1157,13 +1170,7 @@ export default function ToolbarPlugin({
           </DropDown>
         </>
       )}
-      <Divider />
-      <ElementFormatDropdown
-        disabled={!isEditable}
-        value={elementFormat}
-        editor={editor}
-        isRTL={isRTL}
-      />
+
       <Divider />
       <button
         className='toolbar-item'
