@@ -31,6 +31,10 @@ import {
 } from '@lexical/selection';
 import { $isTableNode } from '@lexical/table';
 import {
+  $convertFromMarkdownString,
+  $convertToMarkdownString,
+} from '@lexical/markdown';
+import {
   $findMatchingParent,
   $getNearestBlockElementAncestorOrThrow,
   $getNearestNodeOfType,
@@ -45,6 +49,7 @@ import {
   $isRangeSelection,
   $isRootOrShadowRoot,
   $isTextNode,
+  $createTextNode,
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
@@ -62,6 +67,7 @@ import {
   UNDO_COMMAND,
 } from 'lexical';
 import { Dispatch, useCallback, useEffect, useState } from 'react';
+import { EDITOR_TRANSFORMERS } from '../MarkdownTransformers';
 import { IS_APPLE } from '../../../shared/src/environment';
 
 import useModal from '../../hooks/useModal';
@@ -802,6 +808,27 @@ export default function ToolbarPlugin({
     [activeEditor, selectedElementKey]
   );
 
+  const handleMarkdownToggle = useCallback(() => {
+    editor.update(() => {
+      const root = $getRoot();
+      const firstChild = root.getFirstChild();
+      if ($isCodeNode(firstChild) && firstChild.getLanguage() === 'markdown') {
+        $convertFromMarkdownString(
+          firstChild.getTextContent(),
+          EDITOR_TRANSFORMERS
+        );
+      } else {
+        const markdown = $convertToMarkdownString(EDITOR_TRANSFORMERS);
+        root
+          .clear()
+          .append(
+            $createCodeNode('markdown').append($createTextNode(markdown))
+          );
+      }
+      root.selectEnd();
+    });
+  }, [editor]);
+
   return (
     <div className='toolbar'>
       <button
@@ -1137,7 +1164,15 @@ export default function ToolbarPlugin({
         editor={editor}
         isRTL={isRTL}
       />
-
+      <Divider />
+      <button
+        className='toolbar-item'
+        onClick={handleMarkdownToggle}
+        title='Toggle Markdown'
+        aria-label='Toggle Markdown'
+      >
+        <i className='format markdown' />
+      </button>
       {modal}
     </div>
   );

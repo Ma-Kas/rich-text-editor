@@ -13,7 +13,6 @@ import {
   DROP_COMMAND,
   LexicalEditor,
 } from 'lexical';
-import * as React from 'react';
 import {
   DragEvent as ReactDragEvent,
   useEffect,
