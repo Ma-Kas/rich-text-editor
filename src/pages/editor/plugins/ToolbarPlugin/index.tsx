@@ -72,7 +72,7 @@ import { IS_APPLE } from '../../../shared/src/environment';
 
 import useModal from '../../hooks/useModal';
 import { $createStickyNode } from '../../nodes/StickyNode';
-import NotDropDown, { NotDropDownItem } from '../../ui/BlockTypeList';
+import BlockTypeList, { BlockTypeListItem } from '../../ui/BlockTypeList';
 import DropDown, { DropDownItem } from '../../ui/DropDown';
 import DropdownColorPicker from '../../ui/DropdownColorPicker';
 import { getSelectedNode } from '../../utils/getSelectedNode';
@@ -191,13 +191,9 @@ function dropDownActiveClass(active: boolean) {
 function BlockTypeListMenu({
   editor,
   blockType,
-  rootType,
-  disabled = false,
 }: {
   blockType: keyof typeof blockTypeToBlockName;
-  rootType: keyof typeof rootTypeToRootName;
   editor: LexicalEditor;
-  disabled?: boolean;
 }): JSX.Element {
   const formatParagraph = () => {
     editor.update(() => {
@@ -263,70 +259,64 @@ function BlockTypeListMenu({
   };
 
   return (
-    <NotDropDown
-      disabled={disabled}
-      buttonClassName='toolbar-item block-controls'
-      buttonIconClassName={'icon block-type ' + blockType}
-      buttonLabel={blockTypeToBlockName[blockType]}
-      buttonAriaLabel='Formatting options for text style'
-    >
-      <NotDropDownItem
+    <BlockTypeList>
+      <BlockTypeListItem
         className={'item ' + dropDownActiveClass(blockType === 'paragraph')}
         onClick={formatParagraph}
       >
         <i className='icon paragraph' />
         <span className='text'>Paragraph</span>
-      </NotDropDownItem>
-      <NotDropDownItem
+      </BlockTypeListItem>
+      <BlockTypeListItem
         className={'item ' + dropDownActiveClass(blockType === 'h1')}
         onClick={() => formatHeading('h1')}
       >
         <i className='icon h1' />
         <span className='text'>Heading 1</span>
-      </NotDropDownItem>
-      <NotDropDownItem
+      </BlockTypeListItem>
+      <BlockTypeListItem
         className={'item ' + dropDownActiveClass(blockType === 'h2')}
         onClick={() => formatHeading('h2')}
       >
         <i className='icon h2' />
         <span className='text'>Heading 2</span>
-      </NotDropDownItem>
-      <NotDropDownItem
+      </BlockTypeListItem>
+      <BlockTypeListItem
         className={'item ' + dropDownActiveClass(blockType === 'h3')}
         onClick={() => formatHeading('h3')}
       >
         <i className='icon h3' />
         <span className='text'>Heading 3</span>
-      </NotDropDownItem>
-      <NotDropDownItem
+      </BlockTypeListItem>
+      <BlockTypeListItem
         className={'item ' + dropDownActiveClass(blockType === 'bullet')}
         onClick={formatBulletList}
       >
         <i className='icon bullet-list' />
         <span className='text'>Bullet List</span>
-      </NotDropDownItem>
-      <NotDropDownItem
+      </BlockTypeListItem>
+      <BlockTypeListItem
         className={'item ' + dropDownActiveClass(blockType === 'number')}
         onClick={formatNumberedList}
       >
         <i className='icon numbered-list' />
         <span className='text'>Numbered List</span>
-      </NotDropDownItem>
-      <NotDropDownItem
+      </BlockTypeListItem>
+      <BlockTypeListItem
         className={'item ' + dropDownActiveClass(blockType === 'quote')}
         onClick={formatQuote}
       >
         <i className='icon quote' />
         <span className='text'>Quote</span>
-      </NotDropDownItem>
-      <NotDropDownItem
+      </BlockTypeListItem>
+      <BlockTypeListItem
         className={'item ' + dropDownActiveClass(blockType === 'code')}
         onClick={formatCode}
       >
         <i className='icon code' />
         <span className='text'>Code Block</span>
-      </NotDropDownItem>
-    </NotDropDown>
+      </BlockTypeListItem>
+    </BlockTypeList>
   );
 }
 

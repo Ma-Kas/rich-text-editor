@@ -155,14 +155,10 @@ const ChangeBlockTypeFloatingToolbar = (
   }, [editor, updateChangeBlockTypeFloatingToolbar]);
 
   return (
-    <div ref={popupCharStylesEditorRef} className='floating-text-format-popup'>
+    <div ref={popupCharStylesEditorRef} className='floating-change-block-popup'>
       {editor.isEditable() && (
         <>
-          <BlockTypeListMenu
-            blockType='paragraph'
-            rootType='root'
-            editor={editor}
-          />
+          <BlockTypeListMenu blockType='code' editor={editor} />
         </>
       )}
     </div>

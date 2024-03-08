@@ -7,17 +7,15 @@ import {
   useRef,
   useState,
 } from 'react';
-import { createPortal } from 'react-dom';
 
-type DropDownContextType = {
+type BlockTypeListContextType = {
   registerItem: (ref: React.RefObject<HTMLButtonElement>) => void;
 };
 
-const DropDownContext = React.createContext<DropDownContextType | null>(null);
+const BlockTypeListContext =
+  React.createContext<BlockTypeListContextType | null>(null);
 
-const dropDownPadding = 4;
-
-function NotDropDownItem({
+function BlockTypeListItem({
   children,
   className,
   onClick,
@@ -30,13 +28,13 @@ function NotDropDownItem({
 }) {
   const ref = useRef<HTMLButtonElement>(null);
 
-  const dropDownContext = React.useContext(DropDownContext);
+  const blockTypeListContext = React.useContext(BlockTypeListContext);
 
-  if (dropDownContext === null) {
-    throw new Error('DropDownItem must be used within a DropDown');
+  if (blockTypeListContext === null) {
+    throw new Error('BlockTypeListItem must be used within a BlockTypeList');
   }
 
-  const { registerItem } = dropDownContext;
+  const { registerItem } = blockTypeListContext;
 
   useEffect(() => {
     if (ref && ref.current) {
@@ -57,13 +55,13 @@ function NotDropDownItem({
   );
 }
 
-function DropDownItems({
+function BlockTypeListItems({
   children,
-  dropDownRef,
+  typeListRef,
   onClose,
 }: {
   children: React.ReactNode;
-  dropDownRef: React.Ref<HTMLDivElement>;
+  typeListRef: React.Ref<HTMLDivElement>;
   onClose: () => void;
 }) {
   const [items, setItems] = useState<React.RefObject<HTMLButtonElement>[]>();
@@ -126,132 +124,31 @@ function DropDownItems({
   }, [items, highlightedItem]);
 
   return (
-    <DropDownContext.Provider value={contextValue}>
-      <div className='dropdown' ref={dropDownRef} onKeyDown={handleKeyDown}>
+    <BlockTypeListContext.Provider value={contextValue}>
+      <div className='dropdown' ref={typeListRef} onKeyDown={handleKeyDown}>
         {children}
       </div>
-    </DropDownContext.Provider>
+    </BlockTypeListContext.Provider>
   );
 }
 
-function NotDropDown({
-  disabled = false,
-  buttonLabel,
-  buttonAriaLabel,
-  buttonClassName,
-  buttonIconClassName,
-  children,
-  stopCloseOnClickSelf,
-}: {
-  disabled?: boolean;
-  buttonAriaLabel?: string;
-  buttonClassName: string;
-  buttonIconClassName?: string;
-  buttonLabel?: string;
-  children: ReactNode;
-  stopCloseOnClickSelf?: boolean;
-}): JSX.Element {
-  const dropDownRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const [showDropDown, setShowDropDown] = useState(false);
+function BlockTypeList({ children }: { children: ReactNode }): JSX.Element {
+  const typeListRef = useRef<HTMLDivElement>(null);
+  console.log(typeListRef);
 
+  // Set Whole Thing to Display None in here
   const handleClose = () => {
-    setShowDropDown(false);
-    if (buttonRef && buttonRef.current) {
-      buttonRef.current.focus();
-    }
+    typeListRef.current!.blur();
   };
-
-  useEffect(() => {
-    const button = buttonRef.current;
-    const dropDown = dropDownRef.current;
-
-    if (showDropDown && button !== null && dropDown !== null) {
-      const { top, left } = button.getBoundingClientRect();
-      dropDown.style.top = `${top + button.offsetHeight + dropDownPadding}px`;
-      dropDown.style.left = `${Math.min(
-        left,
-        window.innerWidth - dropDown.offsetWidth - 20
-      )}px`;
-    }
-  }, [dropDownRef, buttonRef, showDropDown]);
-
-  useEffect(() => {
-    const button = buttonRef.current;
-
-    if (button !== null && showDropDown) {
-      const handle = (event: MouseEvent) => {
-        const target = event.target;
-        if (stopCloseOnClickSelf) {
-          if (
-            dropDownRef.current &&
-            dropDownRef.current.contains(target as Node)
-          ) {
-            return;
-          }
-        }
-        if (!button.contains(target as Node)) {
-          setShowDropDown(false);
-        }
-      };
-      document.addEventListener('click', handle);
-
-      return () => {
-        document.removeEventListener('click', handle);
-      };
-    }
-    return;
-  }, [dropDownRef, buttonRef, showDropDown, stopCloseOnClickSelf]);
-
-  useEffect(() => {
-    const handleButtonPositionUpdate = () => {
-      if (showDropDown) {
-        const button = buttonRef.current;
-        const dropDown = dropDownRef.current;
-        if (button !== null && dropDown !== null) {
-          const { top } = button.getBoundingClientRect();
-          const newPosition = top + button.offsetHeight + dropDownPadding;
-          if (newPosition !== dropDown.getBoundingClientRect().top) {
-            dropDown.style.top = `${newPosition}px`;
-          }
-        }
-      }
-    };
-
-    document.addEventListener('scroll', handleButtonPositionUpdate);
-
-    return () => {
-      document.removeEventListener('scroll', handleButtonPositionUpdate);
-    };
-  }, [buttonRef, dropDownRef, showDropDown]);
 
   return (
     <>
-      <button
-        type='button'
-        disabled={disabled}
-        aria-label={buttonAriaLabel || buttonLabel}
-        className={buttonClassName}
-        onClick={() => setShowDropDown(!showDropDown)}
-        ref={buttonRef}
-      >
-        {buttonIconClassName && <span className={buttonIconClassName} />}
-        {buttonLabel && (
-          <span className='text dropdown-button-text'>{buttonLabel}</span>
-        )}
-        <i className='chevron-down' />
-      </button>
-
-      {showDropDown &&
-        createPortal(
-          <DropDownItems dropDownRef={dropDownRef} onClose={handleClose}>
-            {children}
-          </DropDownItems>,
-          document.body
-        )}
+      <BlockTypeListItems typeListRef={typeListRef} onClose={handleClose}>
+        {children}
+      </BlockTypeListItems>
     </>
   );
 }
 
-export default NotDropDown;
-export { NotDropDownItem };
+export default BlockTypeList;
+export { BlockTypeListItem };
