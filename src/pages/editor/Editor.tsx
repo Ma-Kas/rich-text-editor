@@ -21,7 +21,7 @@ import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
-import FloatingTextFormatToolbarPlugin from './plugins/FloatingTextFormatToolbarPlugin';
+// import FloatingTextFormatToolbarPlugin from './plugins/FloatingTextFormatToolbarPlugin';
 import ImagesPlugin from './plugins/ImagesPlugin';
 import InlineImagePlugin from './plugins/InlineImagePlugin';
 import { LayoutPlugin } from './plugins/LayoutPlugin/LayoutPlugin';
@@ -35,6 +35,7 @@ import TwitterPlugin from './plugins/TwitterPlugin';
 import YouTubePlugin from './plugins/YouTubePlugin';
 import ContentEditable from './ui/ContentEditable';
 import Placeholder from './ui/Placeholder';
+import FloatingBlockTypeToolbarPlugin from './plugins/FloatingBlockTypeToolbarPlugin';
 
 export default function Editor(): JSX.Element {
   const {
@@ -108,9 +109,10 @@ export default function Editor(): JSX.Element {
                 anchorElem={floatingAnchorElem}
                 cellMerge={true}
               />
-              <FloatingTextFormatToolbarPlugin
+              {/* <FloatingTextFormatToolbarPlugin
                 anchorElem={floatingAnchorElem}
-              />
+              /> */}
+              <FloatingBlockTypeToolbarPlugin anchorElem={floatingAnchorElem} />
             </>
           )}
         </>

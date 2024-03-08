@@ -134,7 +134,7 @@ function DropDownItems({
   );
 }
 
-export default function DropDown({
+function DropDown({
   disabled = false,
   buttonLabel,
   buttonAriaLabel,
@@ -252,3 +252,5 @@ export default function DropDown({
     </>
   );
 }
+
+export default DropDown;

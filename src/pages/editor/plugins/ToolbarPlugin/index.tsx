@@ -504,7 +504,7 @@ function ElementFormatDropdown({
   );
 }
 
-export default function ToolbarPlugin({
+function ToolbarPlugin({
   setIsLinkEditMode,
 }: {
   setIsLinkEditMode: Dispatch<boolean>;
@@ -1184,3 +1184,6 @@ export default function ToolbarPlugin({
     </div>
   );
 }
+
+export default ToolbarPlugin;
+export { BlockFormatDropDown };
