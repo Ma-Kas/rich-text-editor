@@ -16,11 +16,12 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { BlockFormatDropDown } from '../ToolbarPlugin';
+import { BlockTypeListMenu } from '../ToolbarPlugin';
 import { getDOMRangeRect } from '../../utils/getDOMRangeRect';
 import { getSelectedNode } from '../../utils/getSelectedNode';
 import { setFloatingElemPosition } from '../../utils/setFloatingElemPosition';
 
+// Prop Types
 type ChangeBlockTypeFloatingToolbarProps = {
   editor: LexicalEditor;
   anchorElem: HTMLElement;
@@ -157,7 +158,7 @@ const ChangeBlockTypeFloatingToolbar = (
     <div ref={popupCharStylesEditorRef} className='floating-text-format-popup'>
       {editor.isEditable() && (
         <>
-          <BlockFormatDropDown
+          <BlockTypeListMenu
             blockType='paragraph'
             rootType='root'
             editor={editor}
