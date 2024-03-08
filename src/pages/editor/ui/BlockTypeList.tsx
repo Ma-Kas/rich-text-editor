@@ -134,7 +134,6 @@ function BlockTypeListItems({
 
 function BlockTypeList({ children }: { children: ReactNode }): JSX.Element {
   const typeListRef = useRef<HTMLDivElement>(null);
-  console.log(typeListRef);
 
   // Set Whole Thing to Display None in here
   const handleClose = () => {

@@ -12,9 +12,11 @@ import {
   DRAGOVER_COMMAND,
   DROP_COMMAND,
   LexicalEditor,
+  LexicalNode,
 } from 'lexical';
 import {
   DragEvent as ReactDragEvent,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -24,6 +26,7 @@ import { createPortal } from 'react-dom';
 import { isHTMLElement } from '../../utils/guard';
 import { Point } from '../../utils/point';
 import { Rect } from '../../utils/rect';
+import { BlockTypeListPopupContext } from '../../Editor';
 
 const SPACE = 4;
 const TARGET_LINE_HALF_HEIGHT = 2;
@@ -253,7 +256,10 @@ function hideTargetLine(targetLineElem: HTMLElement | null) {
 function useDraggableBlockMenu(
   editor: LexicalEditor,
   anchorElem: HTMLElement,
-  isEditable: boolean
+  isEditable: boolean,
+  setBlockTypePopupNode: React.Dispatch<
+    React.SetStateAction<LexicalNode | null>
+  >
 ): JSX.Element {
   const scrollerElem = anchorElem.parentElement;
 
@@ -264,6 +270,26 @@ function useDraggableBlockMenu(
     useState<HTMLElement | null>(null);
 
   useEffect(() => {
+    // Gain access to correct paragraph element
+    function onMouseClick(event: MouseEvent) {
+      const target = event.target as Node;
+      if (!target.parentElement?.classList.contains('draggable-block-menu')) {
+        return;
+      }
+
+      const currentParagraph = getBlockElement(anchorElem, editor, event);
+      if (!currentParagraph) {
+        return;
+      }
+      editor.update(() => {
+        const node = $getNearestNodeFromDOMNode(currentParagraph);
+        if (node) {
+          node.selectStart();
+          setBlockTypePopupNode(node);
+        }
+      });
+    }
+
     function onMouseMove(event: MouseEvent) {
       const target = event.target;
       if (!isHTMLElement(target)) {
@@ -284,6 +310,7 @@ function useDraggableBlockMenu(
       setDraggableBlockElem(null);
     }
 
+    scrollerElem?.addEventListener('click', onMouseClick);
     scrollerElem?.addEventListener('mousemove', onMouseMove);
     scrollerElem?.addEventListener('mouseleave', onMouseLeave);
 
@@ -291,7 +318,7 @@ function useDraggableBlockMenu(
       scrollerElem?.removeEventListener('mousemove', onMouseMove);
       scrollerElem?.removeEventListener('mouseleave', onMouseLeave);
     };
-  }, [scrollerElem, anchorElem, editor]);
+  }, [scrollerElem, anchorElem, editor, setBlockTypePopupNode]);
 
   useEffect(() => {
     if (menuRef.current) {
@@ -424,6 +451,12 @@ export default function DraggableBlockPlugin({
 }: {
   anchorElem?: HTMLElement;
 }): JSX.Element {
+  const { setBlockTypePopupNode } = useContext(BlockTypeListPopupContext);
   const [editor] = useLexicalComposerContext();
-  return useDraggableBlockMenu(editor, anchorElem, editor._editable);
+  return useDraggableBlockMenu(
+    editor,
+    anchorElem,
+    editor._editable,
+    setBlockTypePopupNode
+  );
 }

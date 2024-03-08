@@ -1,38 +1,28 @@
 import './index.css';
 
-import { $isCodeHighlightNode } from '@lexical/code';
-import { $isLinkNode } from '@lexical/link';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { mergeRegister } from '@lexical/utils';
 import {
   $getSelection,
-  $isParagraphNode,
   $isRangeSelection,
-  $isTextNode,
   COMMAND_PRIORITY_LOW,
   LexicalEditor,
+  LexicalNode,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { BlockTypeListMenu } from '../ToolbarPlugin';
 import { getDOMRangeRect } from '../../utils/getDOMRangeRect';
 import { getSelectedNode } from '../../utils/getSelectedNode';
 import { setFloatingElemPosition } from '../../utils/setFloatingElemPosition';
+import { BlockTypeListPopupContext } from '../../Editor';
 
 // Prop Types
 type ChangeBlockTypeFloatingToolbarProps = {
   editor: LexicalEditor;
   anchorElem: HTMLElement;
-  isBold: boolean;
-  isCode: boolean;
-  isItalic: boolean;
-  isLink: boolean;
-  isStrikethrough: boolean;
-  isSubscript: boolean;
-  isSuperscript: boolean;
-  isUnderline: boolean;
 };
 
 const ChangeBlockTypeFloatingToolbar = (
@@ -90,17 +80,14 @@ const ChangeBlockTypeFloatingToolbar = (
     if (popupCharStylesEditorElem === null) {
       return;
     }
-
     const rootElement = editor.getRootElement();
     if (
       selection !== null &&
       nativeSelection !== null &&
-      !nativeSelection.isCollapsed &&
       rootElement !== null &&
       rootElement.contains(nativeSelection.anchorNode)
     ) {
       const rangeRect = getDOMRangeRect(nativeSelection, rootElement);
-
       setFloatingElemPosition(
         rangeRect,
         popupCharStylesEditorElem,
@@ -167,21 +154,16 @@ const ChangeBlockTypeFloatingToolbar = (
 
 const useFloatingBlockTypeToolbar = (
   editor: LexicalEditor,
-  anchorElem: HTMLElement
+  anchorElem: HTMLElement,
+  blockTypePopupNode: LexicalNode | null,
+  setBlockTypePopupNode: React.Dispatch<
+    React.SetStateAction<LexicalNode | null>
+  >
 ): JSX.Element | null => {
-  const [isText, setIsText] = useState(false);
-  const [isLink, setIsLink] = useState(false);
-  const [isBold, setIsBold] = useState(false);
-  const [isItalic, setIsItalic] = useState(false);
-  const [isUnderline, setIsUnderline] = useState(false);
-  const [isStrikethrough, setIsStrikethrough] = useState(false);
-  const [isSubscript, setIsSubscript] = useState(false);
-  const [isSuperscript, setIsSuperscript] = useState(false);
-  const [isCode, setIsCode] = useState(false);
+  const [canShow, setCanShow] = useState(false);
 
   const updatePopup = useCallback(() => {
     editor.getEditorState().read(() => {
-      // Should not to pop up the floating toolbar when using IME input
       if (editor.isComposing()) {
         return;
       }
@@ -195,7 +177,7 @@ const useFloatingBlockTypeToolbar = (
           rootElement === null ||
           !rootElement.contains(nativeSelection.anchorNode))
       ) {
-        setIsText(false);
+        setCanShow(false);
         return;
       }
 
@@ -203,48 +185,15 @@ const useFloatingBlockTypeToolbar = (
         return;
       }
 
-      const node = getSelectedNode(selection);
+      // const node = getSelectedNode(selection);
 
-      // Update text format
-      setIsBold(selection.hasFormat('bold'));
-      setIsItalic(selection.hasFormat('italic'));
-      setIsUnderline(selection.hasFormat('underline'));
-      setIsStrikethrough(selection.hasFormat('strikethrough'));
-      setIsSubscript(selection.hasFormat('subscript'));
-      setIsSuperscript(selection.hasFormat('superscript'));
-      setIsCode(selection.hasFormat('code'));
-
-      // Update links
-      const parent = node.getParent();
-      if ($isLinkNode(parent) || $isLinkNode(node)) {
-        setIsLink(true);
+      if (blockTypePopupNode) {
+        setCanShow(true);
       } else {
-        setIsLink(false);
-      }
-
-      if (
-        !$isCodeHighlightNode(selection.anchor.getNode()) &&
-        selection.getTextContent() !== ''
-      ) {
-        setIsText($isTextNode(node) || $isParagraphNode(node));
-      } else {
-        setIsText(false);
-      }
-
-      const rawTextContent = selection.getTextContent().replace(/\n/g, '');
-      if (!selection.isCollapsed() && rawTextContent === '') {
-        setIsText(false);
-        return;
+        setCanShow(false);
       }
     });
-  }, [editor]);
-
-  useEffect(() => {
-    document.addEventListener('selectionchange', updatePopup);
-    return () => {
-      document.removeEventListener('selectionchange', updatePopup);
-    };
-  }, [updatePopup]);
+  }, [editor, blockTypePopupNode]);
 
   useEffect(() => {
     return mergeRegister(
@@ -253,29 +202,18 @@ const useFloatingBlockTypeToolbar = (
       }),
       editor.registerRootListener(() => {
         if (editor.getRootElement() === null) {
-          setIsText(false);
+          setCanShow(false);
         }
       })
     );
   }, [editor, updatePopup]);
 
-  if (!isText) {
+  if (!canShow) {
     return null;
   }
 
   return createPortal(
-    <ChangeBlockTypeFloatingToolbar
-      editor={editor}
-      anchorElem={anchorElem}
-      isLink={isLink}
-      isBold={isBold}
-      isItalic={isItalic}
-      isStrikethrough={isStrikethrough}
-      isSubscript={isSubscript}
-      isSuperscript={isSuperscript}
-      isUnderline={isUnderline}
-      isCode={isCode}
-    />,
+    <ChangeBlockTypeFloatingToolbar editor={editor} anchorElem={anchorElem} />,
     anchorElem
   );
 };
@@ -285,8 +223,16 @@ const FloatingBlockTypeToolbarPlugin = ({
 }: {
   anchorElem?: HTMLElement;
 }): JSX.Element | null => {
+  const { blockTypePopupNode, setBlockTypePopupNode } = useContext(
+    BlockTypeListPopupContext
+  );
   const [editor] = useLexicalComposerContext();
-  return useFloatingBlockTypeToolbar(editor, anchorElem);
+  return useFloatingBlockTypeToolbar(
+    editor,
+    anchorElem,
+    blockTypePopupNode,
+    setBlockTypePopupNode
+  );
 };
 
 export default FloatingBlockTypeToolbarPlugin;
