@@ -1,75 +1,120 @@
-// import {$getRoot, $getSelection} from 'lexical';
-import { useState } from 'react';
-
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
-import { LexicalComposer } from '@lexical/react/LexicalComposer';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
-import { ContentEditable } from '@lexical/react/LexicalContentEditable';
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
-import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
-import { $generateHtmlFromNodes } from '@lexical/html';
+import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
+import LexicalClickableLinkPlugin from '@lexical/react/LexicalClickableLinkPlugin';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
-
-import ExampleTheme from './ExampleTheme';
+import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin';
+import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
+import { HorizontalRulePlugin } from '@lexical/react/LexicalHorizontalRulePlugin';
+import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
+import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
+import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
+import useLexicalEditable from '@lexical/react/useLexicalEditable';
+import { useState } from 'react';
+import { useSettings } from './context/SettingsContext';
+import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
+import AutoLinkPlugin from './plugins/AutoLinkPlugin';
+import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
+import CodeHighlightPlugin from './plugins/CodeHighlightPlugin';
+import CollapsiblePlugin from './plugins/CollapsiblePlugin';
+import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
+import DragDropPaste from './plugins/DragDropPastePlugin';
+import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
+import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
+import FloatingTextFormatToolbarPlugin from './plugins/FloatingTextFormatToolbarPlugin';
+import ImagesPlugin from './plugins/ImagesPlugin';
+import InlineImagePlugin from './plugins/InlineImagePlugin';
+import { LayoutPlugin } from './plugins/LayoutPlugin/LayoutPlugin';
+import LinkPlugin from './plugins/LinkPlugin';
+import ListMaxIndentLevelPlugin from './plugins/ListMaxIndentLevelPlugin';
+import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin';
+import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
+import TableCellResizer from './plugins/TableCellResizer';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
-import { EditorState } from 'lexical';
+import TwitterPlugin from './plugins/TwitterPlugin';
+import YouTubePlugin from './plugins/YouTubePlugin';
+import ContentEditable from './ui/ContentEditable';
+import Placeholder from './ui/Placeholder';
 
-const Placeholder = () => {
-  return <div className='editor-placeholder'>Enter some rich text...</div>;
-};
+export default function Editor(): JSX.Element {
+  const {
+    settings: { tableCellMerge, tableCellBackgroundColor },
+  } = useSettings();
+  const isEditable = useLexicalEditable();
+  const placeholder = <Placeholder>{'Enter some text...'}</Placeholder>;
+  const [floatingAnchorElem, setFloatingAnchorElem] =
+    useState<HTMLDivElement | null>(null);
+  const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
 
-const editorConfig = {
-  namespace: 'React.js Demo',
-  nodes: [],
-  // Handling of errors during update
-  onError(error: Error) {
-    throw error;
-  },
-  // The editor theme
-  theme: ExampleTheme,
-};
-
-// @ts-expect-error 'leave here as reference for later use'
-// eslint-disable-next-line
-const HtmlPlugin = (): JSX.Element => {
-  const [editor] = useLexicalComposerContext();
-  const onClick = (): void => {
-    editor.update(() => {
-      const htmlString = $generateHtmlFromNodes(editor);
-      console.log(htmlString);
-      console.log(typeof htmlString);
-    });
-  };
-  return <button onClick={onClick}>HTML</button>;
-};
-
-const Editor = () => {
-  // eslint-disable-next-line
-  const [_editorState, setEditorState] = useState<EditorState>();
-
-  const onChange = (newEditorState: EditorState) => {
-    // const editorStateJSON = newEditorState.toJSON();
-    setEditorState(newEditorState);
+  const onRef = (_floatingAnchorElem: HTMLDivElement) => {
+    if (_floatingAnchorElem !== null) {
+      setFloatingAnchorElem(_floatingAnchorElem);
+    }
   };
 
   return (
-    <LexicalComposer initialConfig={editorConfig}>
-      <div className='editor-container'>
-        <ToolbarPlugin />
-        <div className='editor-inner'>
+    <>
+      <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
+      <div className={'editor-container'}>
+        <DragDropPaste />
+        <AutoFocusPlugin />
+        <ComponentPickerPlugin />
+        <AutoEmbedPlugin />
+        <HashtagPlugin />
+        <AutoLinkPlugin />
+        <>
+          <HistoryPlugin />
           <RichTextPlugin
-            contentEditable={<ContentEditable className='editor-input' />}
-            placeholder={Placeholder}
+            contentEditable={
+              <div className='editor-scroller'>
+                <div className='editor' ref={onRef}>
+                  <ContentEditable />
+                </div>
+              </div>
+            }
+            placeholder={placeholder}
             ErrorBoundary={LexicalErrorBoundary}
           />
-          <HistoryPlugin />
-          <AutoFocusPlugin />
-          <OnChangePlugin onChange={onChange} />
-        </div>
+          <MarkdownShortcutPlugin />
+          <CodeHighlightPlugin />
+          <ListPlugin />
+          <CheckListPlugin />
+          <ListMaxIndentLevelPlugin maxDepth={7} />
+          <TablePlugin
+            hasCellMerge={tableCellMerge}
+            hasCellBackgroundColor={tableCellBackgroundColor}
+          />
+          <TableCellResizer />
+          <ImagesPlugin />
+          <InlineImagePlugin />
+          <LinkPlugin />
+          <TwitterPlugin />
+          <YouTubePlugin />
+          {!isEditable && <LexicalClickableLinkPlugin />}
+          <HorizontalRulePlugin />
+          <TabIndentationPlugin />
+          <CollapsiblePlugin />
+          <LayoutPlugin />
+          {floatingAnchorElem && (
+            <>
+              <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
+              <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
+              <FloatingLinkEditorPlugin
+                anchorElem={floatingAnchorElem}
+                isLinkEditMode={isLinkEditMode}
+                setIsLinkEditMode={setIsLinkEditMode}
+              />
+              <TableCellActionMenuPlugin
+                anchorElem={floatingAnchorElem}
+                cellMerge={true}
+              />
+              <FloatingTextFormatToolbarPlugin
+                anchorElem={floatingAnchorElem}
+              />
+            </>
+          )}
+        </>
       </div>
-    </LexicalComposer>
+    </>
   );
-};
-
-export default Editor;
+}
