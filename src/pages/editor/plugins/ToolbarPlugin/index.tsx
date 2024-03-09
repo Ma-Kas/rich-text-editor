@@ -72,6 +72,7 @@ import { IS_APPLE } from '../../../shared/src/environment';
 
 import useModal from '../../hooks/useModal';
 import { $createStickyNode } from '../../nodes/StickyNode';
+import BlockTypeList, { BlockTypeListItem } from '../../ui/BlockTypeList';
 import DropDown, { DropDownItem } from '../../ui/DropDown';
 import DropdownColorPicker from '../../ui/DropdownColorPicker';
 import { getSelectedNode } from '../../utils/getSelectedNode';
@@ -185,6 +186,138 @@ function dropDownActiveClass(active: boolean) {
   } else {
     return '';
   }
+}
+
+function BlockTypeListMenu({
+  editor,
+  blockType,
+}: {
+  blockType: keyof typeof blockTypeToBlockName;
+  editor: LexicalEditor;
+}): JSX.Element {
+  const formatParagraph = () => {
+    editor.update(() => {
+      const selection = $getSelection();
+      $setBlocksType(selection, () => $createParagraphNode());
+    });
+  };
+
+  const formatHeading = (headingSize: HeadingTagType) => {
+    if (blockType !== headingSize) {
+      editor.update(() => {
+        const selection = $getSelection();
+        $setBlocksType(selection, () => $createHeadingNode(headingSize));
+      });
+    }
+  };
+
+  const formatBulletList = () => {
+    if (blockType !== 'bullet') {
+      editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+    } else {
+      formatParagraph();
+    }
+  };
+
+  const formatNumberedList = () => {
+    if (blockType !== 'number') {
+      editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+    } else {
+      formatParagraph();
+    }
+  };
+
+  const formatQuote = () => {
+    if (blockType !== 'quote') {
+      editor.update(() => {
+        const selection = $getSelection();
+        $setBlocksType(selection, () => $createQuoteNode());
+      });
+    }
+  };
+
+  const formatCode = () => {
+    if (blockType !== 'code') {
+      editor.update(() => {
+        let selection = $getSelection();
+
+        if (selection !== null) {
+          if (selection.isCollapsed()) {
+            $setBlocksType(selection, () => $createCodeNode());
+          } else {
+            const textContent = selection.getTextContent();
+            const codeNode = $createCodeNode();
+            selection.insertNodes([codeNode]);
+            selection = $getSelection();
+            if ($isRangeSelection(selection)) {
+              selection.insertRawText(textContent);
+            }
+          }
+        }
+      });
+    }
+  };
+
+  return (
+    <BlockTypeList editor={editor}>
+      <BlockTypeListItem
+        className={'item ' + dropDownActiveClass(blockType === 'paragraph')}
+        onClick={formatParagraph}
+      >
+        <i className='icon paragraph' />
+        <span className='text'>Paragraph</span>
+      </BlockTypeListItem>
+      <BlockTypeListItem
+        className={'item ' + dropDownActiveClass(blockType === 'h1')}
+        onClick={() => formatHeading('h1')}
+      >
+        <i className='icon h1' />
+        <span className='text'>Heading 1</span>
+      </BlockTypeListItem>
+      <BlockTypeListItem
+        className={'item ' + dropDownActiveClass(blockType === 'h2')}
+        onClick={() => formatHeading('h2')}
+      >
+        <i className='icon h2' />
+        <span className='text'>Heading 2</span>
+      </BlockTypeListItem>
+      <BlockTypeListItem
+        className={'item ' + dropDownActiveClass(blockType === 'h3')}
+        onClick={() => formatHeading('h3')}
+      >
+        <i className='icon h3' />
+        <span className='text'>Heading 3</span>
+      </BlockTypeListItem>
+      <BlockTypeListItem
+        className={'item ' + dropDownActiveClass(blockType === 'bullet')}
+        onClick={formatBulletList}
+      >
+        <i className='icon bullet-list' />
+        <span className='text'>Bullet List</span>
+      </BlockTypeListItem>
+      <BlockTypeListItem
+        className={'item ' + dropDownActiveClass(blockType === 'number')}
+        onClick={formatNumberedList}
+      >
+        <i className='icon numbered-list' />
+        <span className='text'>Numbered List</span>
+      </BlockTypeListItem>
+      <BlockTypeListItem
+        className={'item ' + dropDownActiveClass(blockType === 'quote')}
+        onClick={formatQuote}
+      >
+        <i className='icon quote' />
+        <span className='text'>Quote</span>
+      </BlockTypeListItem>
+      <BlockTypeListItem
+        className={'item ' + dropDownActiveClass(blockType === 'code')}
+        onClick={formatCode}
+      >
+        <i className='icon code' />
+        <span className='text'>Code Block</span>
+      </BlockTypeListItem>
+    </BlockTypeList>
+  );
 }
 
 function BlockFormatDropDown({
@@ -504,7 +637,7 @@ function ElementFormatDropdown({
   );
 }
 
-export default function ToolbarPlugin({
+function ToolbarPlugin({
   setIsLinkEditMode,
 }: {
   setIsLinkEditMode: Dispatch<boolean>;
@@ -1184,3 +1317,6 @@ export default function ToolbarPlugin({
     </div>
   );
 }
+
+export default ToolbarPlugin;
+export { BlockTypeListMenu };

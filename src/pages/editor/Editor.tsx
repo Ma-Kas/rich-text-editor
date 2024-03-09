@@ -10,7 +10,7 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import useLexicalEditable from '@lexical/react/useLexicalEditable';
-import { useState } from 'react';
+import { createContext, useState } from 'react';
 import { useSettings } from './context/SettingsContext';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
@@ -35,12 +35,29 @@ import TwitterPlugin from './plugins/TwitterPlugin';
 import YouTubePlugin from './plugins/YouTubePlugin';
 import ContentEditable from './ui/ContentEditable';
 import Placeholder from './ui/Placeholder';
+import FloatingBlockTypeToolbarPlugin from './plugins/FloatingBlockTypeToolbarPlugin';
+import { LexicalNode } from 'lexical';
+
+type BlockTypeListContext = {
+  blockTypePopupNode: LexicalNode | null;
+  setBlockTypePopupNode: React.Dispatch<
+    React.SetStateAction<LexicalNode | null>
+  >;
+};
+
+export const BlockTypeListPopupContext = createContext<BlockTypeListContext>({
+  blockTypePopupNode: null,
+  setBlockTypePopupNode: () => {},
+});
 
 export default function Editor(): JSX.Element {
   const {
     settings: { tableCellMerge, tableCellBackgroundColor },
   } = useSettings();
   const isEditable = useLexicalEditable();
+  const [blockTypePopupNode, setBlockTypePopupNode] =
+    useState<LexicalNode | null>(null);
+
   const placeholder = <Placeholder>{'Enter some text...'}</Placeholder>;
   const [floatingAnchorElem, setFloatingAnchorElem] =
     useState<HTMLDivElement | null>(null);
@@ -54,7 +71,12 @@ export default function Editor(): JSX.Element {
 
   return (
     <>
-      <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
+      <BlockTypeListPopupContext.Provider
+        value={{ blockTypePopupNode, setBlockTypePopupNode }}
+      >
+        <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
+      </BlockTypeListPopupContext.Provider>
+
       <div className={'editor-container'}>
         <DragDropPaste />
         <AutoFocusPlugin />
@@ -97,7 +119,11 @@ export default function Editor(): JSX.Element {
           <LayoutPlugin />
           {floatingAnchorElem && (
             <>
-              <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
+              <BlockTypeListPopupContext.Provider
+                value={{ blockTypePopupNode, setBlockTypePopupNode }}
+              >
+                <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
+              </BlockTypeListPopupContext.Provider>
               <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
               <FloatingLinkEditorPlugin
                 anchorElem={floatingAnchorElem}
@@ -111,6 +137,13 @@ export default function Editor(): JSX.Element {
               <FloatingTextFormatToolbarPlugin
                 anchorElem={floatingAnchorElem}
               />
+              <BlockTypeListPopupContext.Provider
+                value={{ blockTypePopupNode, setBlockTypePopupNode }}
+              >
+                <FloatingBlockTypeToolbarPlugin
+                  anchorElem={floatingAnchorElem}
+                />
+              </BlockTypeListPopupContext.Provider>
             </>
           )}
         </>

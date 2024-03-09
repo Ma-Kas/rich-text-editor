@@ -21,18 +21,7 @@ import { getDOMRangeRect } from '../../utils/getDOMRangeRect';
 import { getSelectedNode } from '../../utils/getSelectedNode';
 import { setFloatingElemPosition } from '../../utils/setFloatingElemPosition';
 
-function TextFormatFloatingToolbar({
-  editor,
-  anchorElem,
-  isLink,
-  isBold,
-  isItalic,
-  isUnderline,
-  isCode,
-  isStrikethrough,
-  isSubscript,
-  isSuperscript,
-}: {
+type TextFormatFloatingToolbarProps = {
   editor: LexicalEditor;
   anchorElem: HTMLElement;
   isBold: boolean;
@@ -43,7 +32,24 @@ function TextFormatFloatingToolbar({
   isSubscript: boolean;
   isSuperscript: boolean;
   isUnderline: boolean;
-}): JSX.Element {
+};
+
+const TextFormatFloatingToolbar = (
+  props: TextFormatFloatingToolbarProps
+): JSX.Element => {
+  const {
+    editor,
+    anchorElem,
+    isLink,
+    isBold,
+    isItalic,
+    isUnderline,
+    isCode,
+    isStrikethrough,
+    isSubscript,
+    isSuperscript,
+  } = props;
+
   const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null);
 
   const insertLink = useCallback(() => {
@@ -89,6 +95,7 @@ function TextFormatFloatingToolbar({
         document.removeEventListener('mouseup', mouseUpListener);
       };
     }
+    return;
   }, [popupCharStylesEditorRef]);
 
   const updateTextFormatFloatingToolbar = useCallback(() => {
@@ -252,12 +259,12 @@ function TextFormatFloatingToolbar({
       )}
     </div>
   );
-}
+};
 
-function useFloatingTextFormatToolbar(
+const useFloatingTextFormatToolbar = (
   editor: LexicalEditor,
   anchorElem: HTMLElement
-): JSX.Element | null {
+): JSX.Element | null => {
   const [isText, setIsText] = useState(false);
   const [isLink, setIsLink] = useState(false);
   const [isBold, setIsBold] = useState(false);
@@ -367,13 +374,15 @@ function useFloatingTextFormatToolbar(
     />,
     anchorElem
   );
-}
+};
 
-export default function FloatingTextFormatToolbarPlugin({
+const FloatingTextFormatToolbarPlugin = ({
   anchorElem = document.body,
 }: {
   anchorElem?: HTMLElement;
-}): JSX.Element | null {
+}): JSX.Element | null => {
   const [editor] = useLexicalComposerContext();
   return useFloatingTextFormatToolbar(editor, anchorElem);
-}
+};
+
+export default FloatingTextFormatToolbarPlugin;
