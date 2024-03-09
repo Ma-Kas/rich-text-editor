@@ -13,7 +13,6 @@ import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { BlockTypeListMenu } from '../ToolbarPlugin';
-import { getDOMRangeRect } from '../../utils/getDOMRangeRect';
 import { setFloatingElemPositionForBlockChange } from '../../utils/setFloatingElemPositionForBlockChange';
 import { BlockTypeListPopupContext } from '../../Editor';
 
@@ -85,12 +84,12 @@ const ChangeBlockTypeFloatingToolbar = (
       rootElement !== null &&
       rootElement.contains(nativeSelection.anchorNode)
     ) {
-      const rangeRect = getDOMRangeRect(nativeSelection, rootElement);
+      const targetElem = editor.getElementByKey(selection.getNodes()[0].__key);
+
       setFloatingElemPositionForBlockChange(
-        rangeRect,
+        targetElem,
         popupCharStylesEditorElem,
-        anchorElem,
-        false
+        anchorElem
       );
     }
   }, [editor, anchorElem]);
