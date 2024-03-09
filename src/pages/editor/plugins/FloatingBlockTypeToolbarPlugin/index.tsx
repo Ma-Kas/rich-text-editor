@@ -7,7 +7,6 @@ import {
   $isRangeSelection,
   COMMAND_PRIORITY_LOW,
   LexicalEditor,
-  LexicalNode,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
@@ -15,8 +14,8 @@ import { createPortal } from 'react-dom';
 
 import { BlockTypeListMenu } from '../ToolbarPlugin';
 import { getDOMRangeRect } from '../../utils/getDOMRangeRect';
-import { getSelectedNode } from '../../utils/getSelectedNode';
-import { setFloatingElemPosition } from '../../utils/setFloatingElemPosition';
+// import { getSelectedNode } from '../../utils/getSelectedNode';
+import { setFloatingElemPositionForBlockChange } from '../../utils/setFloatingElemPositionForBlockChange';
 import { BlockTypeListPopupContext } from '../../Editor';
 
 // Prop Types
@@ -88,7 +87,7 @@ const ChangeBlockTypeFloatingToolbar = (
       rootElement.contains(nativeSelection.anchorNode)
     ) {
       const rangeRect = getDOMRangeRect(nativeSelection, rootElement);
-      setFloatingElemPosition(
+      setFloatingElemPositionForBlockChange(
         rangeRect,
         popupCharStylesEditorElem,
         anchorElem,
@@ -145,7 +144,7 @@ const ChangeBlockTypeFloatingToolbar = (
     <div ref={popupCharStylesEditorRef} className='floating-change-block-popup'>
       {editor.isEditable() && (
         <>
-          <BlockTypeListMenu blockType='code' editor={editor} />
+          <BlockTypeListMenu blockType='h1' editor={editor} />
         </>
       )}
     </div>
@@ -154,12 +153,9 @@ const ChangeBlockTypeFloatingToolbar = (
 
 const useFloatingBlockTypeToolbar = (
   editor: LexicalEditor,
-  anchorElem: HTMLElement,
-  blockTypePopupNode: LexicalNode | null,
-  setBlockTypePopupNode: React.Dispatch<
-    React.SetStateAction<LexicalNode | null>
-  >
+  anchorElem: HTMLElement
 ): JSX.Element | null => {
+  const { blockTypePopupNode } = useContext(BlockTypeListPopupContext);
   const [canShow, setCanShow] = useState(false);
 
   const updatePopup = useCallback(() => {
@@ -223,16 +219,8 @@ const FloatingBlockTypeToolbarPlugin = ({
 }: {
   anchorElem?: HTMLElement;
 }): JSX.Element | null => {
-  const { blockTypePopupNode, setBlockTypePopupNode } = useContext(
-    BlockTypeListPopupContext
-  );
   const [editor] = useLexicalComposerContext();
-  return useFloatingBlockTypeToolbar(
-    editor,
-    anchorElem,
-    blockTypePopupNode,
-    setBlockTypePopupNode
-  );
+  return useFloatingBlockTypeToolbar(editor, anchorElem);
 };
 
 export default FloatingBlockTypeToolbarPlugin;

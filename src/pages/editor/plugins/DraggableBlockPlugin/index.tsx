@@ -12,7 +12,6 @@ import {
   DRAGOVER_COMMAND,
   DROP_COMMAND,
   LexicalEditor,
-  LexicalNode,
 } from 'lexical';
 import {
   DragEvent as ReactDragEvent,
@@ -256,13 +255,11 @@ function hideTargetLine(targetLineElem: HTMLElement | null) {
 function useDraggableBlockMenu(
   editor: LexicalEditor,
   anchorElem: HTMLElement,
-  isEditable: boolean,
-  setBlockTypePopupNode: React.Dispatch<
-    React.SetStateAction<LexicalNode | null>
-  >
+  isEditable: boolean
 ): JSX.Element {
   const scrollerElem = anchorElem.parentElement;
 
+  const { setBlockTypePopupNode } = useContext(BlockTypeListPopupContext);
   const menuRef = useRef<HTMLDivElement>(null);
   const targetLineRef = useRef<HTMLDivElement>(null);
   const isDraggingBlockRef = useRef<boolean>(false);
@@ -451,12 +448,6 @@ export default function DraggableBlockPlugin({
 }: {
   anchorElem?: HTMLElement;
 }): JSX.Element {
-  const { setBlockTypePopupNode } = useContext(BlockTypeListPopupContext);
   const [editor] = useLexicalComposerContext();
-  return useDraggableBlockMenu(
-    editor,
-    anchorElem,
-    editor._editable,
-    setBlockTypePopupNode
-  );
+  return useDraggableBlockMenu(editor, anchorElem, editor._editable);
 }
