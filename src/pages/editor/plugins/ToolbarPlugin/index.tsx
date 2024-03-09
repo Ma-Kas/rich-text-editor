@@ -259,7 +259,7 @@ function BlockTypeListMenu({
   };
 
   return (
-    <BlockTypeList>
+    <BlockTypeList editor={editor}>
       <BlockTypeListItem
         className={'item ' + dropDownActiveClass(blockType === 'paragraph')}
         onClick={formatParagraph}

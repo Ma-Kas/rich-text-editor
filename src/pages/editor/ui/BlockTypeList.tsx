@@ -1,3 +1,4 @@
+import { $getSelection, $isRangeSelection, LexicalEditor } from 'lexical';
 import * as React from 'react';
 import {
   ReactNode,
@@ -7,6 +8,8 @@ import {
   useRef,
   useState,
 } from 'react';
+import { BlockTypeListPopupContext } from '../Editor';
+import { getSelectedNode } from '../utils/getSelectedNode';
 
 type BlockTypeListContextType = {
   registerItem: (ref: React.RefObject<HTMLButtonElement>) => void;
@@ -75,6 +78,18 @@ function BlockTypeListItems({
     [setItems]
   );
 
+  // If focus is on outside of popup OR its children, fire onClose
+  const handleBlur = (event: React.FocusEvent) => {
+    if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+      onClose();
+    }
+  };
+
+  // Click on element on child element (=something was selected), close
+  const handleClick = () => {
+    onClose();
+  };
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (!items) {
       return;
@@ -125,19 +140,44 @@ function BlockTypeListItems({
 
   return (
     <BlockTypeListContext.Provider value={contextValue}>
-      <div className='dropdown' ref={typeListRef} onKeyDown={handleKeyDown}>
+      <div
+        className='dropdown'
+        ref={typeListRef}
+        onKeyDown={handleKeyDown}
+        onClick={handleClick}
+        onBlur={handleBlur}
+      >
         {children}
       </div>
     </BlockTypeListContext.Provider>
   );
 }
 
-function BlockTypeList({ children }: { children: ReactNode }): JSX.Element {
+function BlockTypeList({
+  children,
+  editor,
+}: {
+  children: ReactNode;
+  editor: LexicalEditor;
+}): JSX.Element {
   const typeListRef = useRef<HTMLDivElement>(null);
+  const { setBlockTypePopupNode } = React.useContext(BlockTypeListPopupContext);
 
-  // Set Whole Thing to Display None in here
+  // Force set the node reference to null to set canShow in
+  // FloatingBlockTypeToolbarPlugin to false
   const handleClose = () => {
-    typeListRef.current!.blur();
+    editor.update(() => {
+      setBlockTypePopupNode(null);
+      // Get reference to newly changed node
+      const selection = $getSelection();
+      if (!selection || !$isRangeSelection(selection)) {
+        return;
+      }
+      const node = getSelectedNode(selection);
+      // Set selection to end of changed node, to update Toolbar and let user
+      // continue work in selected paragraph
+      node.selectEnd();
+    });
   };
 
   return (

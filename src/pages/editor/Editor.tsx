@@ -71,7 +71,12 @@ export default function Editor(): JSX.Element {
 
   return (
     <>
-      <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
+      <BlockTypeListPopupContext.Provider
+        value={{ blockTypePopupNode, setBlockTypePopupNode }}
+      >
+        <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
+      </BlockTypeListPopupContext.Provider>
+
       <div className={'editor-container'}>
         <DragDropPaste />
         <AutoFocusPlugin />

@@ -14,7 +14,6 @@ import { createPortal } from 'react-dom';
 
 import { BlockTypeListMenu } from '../ToolbarPlugin';
 import { getDOMRangeRect } from '../../utils/getDOMRangeRect';
-// import { getSelectedNode } from '../../utils/getSelectedNode';
 import { setFloatingElemPositionForBlockChange } from '../../utils/setFloatingElemPositionForBlockChange';
 import { BlockTypeListPopupContext } from '../../Editor';
 
@@ -144,7 +143,7 @@ const ChangeBlockTypeFloatingToolbar = (
     <div ref={popupCharStylesEditorRef} className='floating-change-block-popup'>
       {editor.isEditable() && (
         <>
-          <BlockTypeListMenu blockType='h1' editor={editor} />
+          <BlockTypeListMenu blockType='h6' editor={editor} />
         </>
       )}
     </div>
@@ -181,8 +180,7 @@ const useFloatingBlockTypeToolbar = (
         return;
       }
 
-      // const node = getSelectedNode(selection);
-
+      // If no draggable next to block node was clicked, this is null
       if (blockTypePopupNode) {
         setCanShow(true);
       } else {
