@@ -1196,6 +1196,9 @@ button.toolbar-item {
   align-items: center;
   justify-content: space-between;
 }
+button.toolbar-item.font-size {
+  gap: 0.2rem;
+}
 
 button.toolbar-item:disabled {
   cursor: not-allowed;

@@ -3,6 +3,7 @@ import './fontSize.css';
 import { $patchStyleText } from '@lexical/selection';
 import { $getSelection, LexicalEditor } from 'lexical';
 import * as React from 'react';
+import { DropDownItem, FontSizeDropDown } from '../../ui/DropDown';
 
 const MIN_ALLOWED_FONT_SIZE = 8;
 const MAX_ALLOWED_FONT_SIZE = 96;
@@ -147,37 +148,60 @@ export default function FontSize({
     }
   };
 
-  const handleButtonClick = (updateType: updateFontSizeType) => {
-    if (inputValue !== '') {
-      const nextFontSize = calculateNextFontSize(
-        Number(inputValue),
-        updateType
-      );
-      updateFontSizeInSelection(String(nextFontSize) + 'px', null);
-    } else {
-      updateFontSizeInSelection(null, updateType);
-    }
-  };
-
   React.useEffect(() => {
     setInputValue(selectionFontSize);
   }, [selectionFontSize]);
 
-  return (
-    <>
-      <button
-        type='button'
-        disabled={
-          disabled ||
-          (selectionFontSize !== '' &&
-            Number(inputValue) <= MIN_ALLOWED_FONT_SIZE)
-        }
-        onClick={() => handleButtonClick(updateFontSizeType.decrement)}
-        className='toolbar-item font-decrement'
-      >
-        <i className='format minus-icon' />
-      </button>
+  const style = 'font-size';
+  const value = '12px';
 
+  const FONT_SIZE_OPTIONS: [string, string][] = [
+    ['10px', '10px'],
+    ['11px', '11px'],
+    ['12px', '12px'],
+    ['13px', '13px'],
+    ['14px', '14px'],
+    ['15px', '15px'],
+    ['16px', '16px'],
+    ['17px', '17px'],
+    ['18px', '18px'],
+    ['19px', '19px'],
+    ['20px', '20px'],
+  ];
+
+  const handleClick = React.useCallback(
+    (option: string) => {
+      editor.update(() => {
+        const selection = $getSelection();
+        if (selection !== null) {
+          $patchStyleText(selection, {
+            'font-size': option,
+          });
+        }
+      });
+    },
+    [editor]
+  );
+
+  function dropDownActiveClass(active: boolean) {
+    if (active) {
+      return 'active dropdown-item-active';
+    } else {
+      return '';
+    }
+  }
+
+  const focusInput = (event: React.MouseEvent) => {
+    const target = event.target;
+    if (!target || !(target instanceof HTMLInputElement)) {
+      return;
+    }
+    target.focus();
+    target.select();
+  };
+
+  const FontSizeInput = () => {
+    return (
       <input
         type='number'
         value={inputValue}
@@ -187,20 +211,31 @@ export default function FontSize({
         max={MAX_ALLOWED_FONT_SIZE}
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={handleKeyPress}
+        onClick={focusInput}
       />
+    );
+  };
 
-      <button
-        type='button'
-        disabled={
-          disabled ||
-          (selectionFontSize !== '' &&
-            Number(inputValue) >= MAX_ALLOWED_FONT_SIZE)
-        }
-        onClick={() => handleButtonClick(updateFontSizeType.increment)}
-        className='toolbar-item font-increment'
+  return (
+    <>
+      <FontSizeDropDown
+        disabled={disabled}
+        FontSizeInput={FontSizeInput}
+        buttonClassName={'toolbar-item ' + style}
+        buttonAriaLabel={'Formatting options for font size'}
       >
-        <i className='format add-icon' />
-      </button>
+        {FONT_SIZE_OPTIONS.map(([option, text]) => (
+          <DropDownItem
+            className={`item ${dropDownActiveClass(value === option)} ${
+              style === 'font-size' ? 'fontsize-item' : ''
+            }`}
+            onClick={() => handleClick(option)}
+            key={option}
+          >
+            <span className='text'>{text}</span>
+          </DropDownItem>
+        ))}
+      </FontSizeDropDown>
     </>
   );
 }
