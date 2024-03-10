@@ -187,7 +187,7 @@ pre::-webkit-scrollbar-thumb {
   color: #050505;
   cursor: pointer;
   line-height: 16px;
-  font-size: 15px;
+  font-size: 18px;
   display: flex;
   align-content: center;
   flex-direction: row;
@@ -418,7 +418,7 @@ i.success {
   padding: 8px 12px;
   border-radius: 15px;
   background-color: #eee;
-  font-size: 15px;
+  font-size: 18px;
   color: rgb(5, 5, 5);
   border: 0;
   outline: 0;
@@ -432,7 +432,7 @@ i.success {
   margin: 8px 12px;
   padding: 8px 12px;
   border-radius: 15px;
-  font-size: 15px;
+  font-size: 18px;
   color: rgb(5, 5, 5);
   border: 0;
   outline: 0;
@@ -1148,7 +1148,7 @@ button.action-button:disabled {
 }
 
 .connecting {
-  font-size: 15px;
+  font-size: 18px;
   color: #999;
   overflow: hidden;
   position: absolute;
@@ -1195,9 +1195,6 @@ button.toolbar-item {
   flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
-}
-button.toolbar-item.font-size {
-  gap: 0.2rem;
 }
 
 button.toolbar-item:disabled {
@@ -1442,7 +1439,7 @@ hr.selected {
   outline: 0px;
   padding: 0;
   user-select: text;
-  font-size: 15px;
+  font-size: 18px;
   white-space: pre-wrap;
   word-break: break-word;
   z-index: 3;

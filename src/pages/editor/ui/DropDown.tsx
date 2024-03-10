@@ -120,9 +120,9 @@ function DropDownItems({
       setHighlightedItem(items[0]);
     }
 
-    // if (highlightedItem && highlightedItem.current) {
-    //   highlightedItem.current.focus();
-    // }
+    if (highlightedItem && highlightedItem.current) {
+      highlightedItem.current.focus();
+    }
   }, [items, highlightedItem]);
 
   return (
@@ -254,15 +254,15 @@ function DropDown({
 }
 
 function FontSizeDropDown({
+  value,
   disabled = false,
-  FontSizeInput,
   buttonAriaLabel,
   buttonClassName,
   children,
   stopCloseOnClickSelf,
 }: {
+  value: string;
   disabled?: boolean;
-  FontSizeInput: () => JSX.Element;
   buttonAriaLabel?: string;
   buttonClassName: string;
   children: ReactNode;
@@ -274,9 +274,6 @@ function FontSizeDropDown({
 
   const handleClose = () => {
     setShowDropDown(false);
-    // if (buttonRef && buttonRef.current) {
-    //   buttonRef.current.focus();
-    // }
   };
 
   useEffect(() => {
@@ -352,7 +349,7 @@ function FontSizeDropDown({
         onClick={() => setShowDropDown(!showDropDown)}
         ref={buttonRef}
       >
-        <FontSizeInput />
+        <span className='text dropdown-button-text'>{value}</span>
         <i className='chevron-down' />
       </button>
 
