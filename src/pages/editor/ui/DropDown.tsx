@@ -58,10 +58,12 @@ export function DropDownItem({
 }
 
 function DropDownItems({
+  className = 'dropdown',
   children,
   dropDownRef,
   onClose,
 }: {
+  className?: string;
   children: React.ReactNode;
   dropDownRef: React.Ref<HTMLDivElement>;
   onClose: () => void;
@@ -127,7 +129,7 @@ function DropDownItems({
 
   return (
     <DropDownContext.Provider value={contextValue}>
-      <div className='dropdown' ref={dropDownRef} onKeyDown={handleKeyDown}>
+      <div className={className} ref={dropDownRef} onKeyDown={handleKeyDown}>
         {children}
       </div>
     </DropDownContext.Provider>
@@ -355,7 +357,13 @@ function FontSizeDropDown({
 
       {showDropDown &&
         createPortal(
-          <DropDownItems dropDownRef={dropDownRef} onClose={handleClose}>
+          // Pass in className prop only in this FontSizeDropDown, to get
+          // different css class behaviour
+          <DropDownItems
+            className='font-size-dropdown'
+            dropDownRef={dropDownRef}
+            onClose={handleClose}
+          >
             {children}
           </DropDownItems>,
           document.body
