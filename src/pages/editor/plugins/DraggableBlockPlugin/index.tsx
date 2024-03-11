@@ -183,14 +183,9 @@ function getTargetBlockLineHeight(element: HTMLElement): string {
     element.firstChild &&
     element.firstChild instanceof HTMLElement &&
     !(element.firstChild instanceof HTMLBRElement) &&
-    element.firstChild.style.fontSize
+    element.firstChild.style.lineHeight
   ) {
-    const child = element.firstChild;
-    const overwrittenFontSize = Number(child.style.fontSize.slice(0, -2));
-    const lineHeightFactor =
-      Number(targetStyle.lineHeight.slice(0, -2)) /
-      Number(targetStyle.fontSize.slice(0, -2));
-    return overwrittenFontSize * lineHeightFactor + 'px';
+    return element.firstChild.style.lineHeight;
   } else {
     return targetStyle.lineHeight;
   }

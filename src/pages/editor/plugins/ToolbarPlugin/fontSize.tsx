@@ -1,7 +1,7 @@
 import './fontSize.css';
 
 import { $patchStyleText } from '@lexical/selection';
-import { $getSelection, LexicalEditor } from 'lexical';
+import { $getSelection, BaseSelection, LexicalEditor } from 'lexical';
 import { useState, useEffect, useCallback } from 'react';
 import { DropDownItem, FontSizeDropDown } from '../../ui/DropDown';
 import { FONT_SIZE_OPTIONS } from './fontSize.config';
@@ -17,18 +17,55 @@ function FontSize({
 }) {
   const [inputValue, setInputValue] = useState<string>(selectionFontSize);
 
+  // Get line height and font size for manually changed (= inline overwritten)
+  // font size to inline style block;
+  // Handle case where inline style would match default style, thus no overwrite
+  // should take place
+  const calculateInlineStyle = useCallback(
+    (
+      selection: BaseSelection,
+      option: string
+    ): Record<
+      string,
+      string | ((currentStyleValue: string | null) => string) | null
+    > => {
+      const selectedDOMElement = editor.getElementByKey(
+        selection.getNodes()[0].__key
+      );
+      const newStyle = { 'font-size': '', 'line-height': '' };
+      if (selectedDOMElement && selectedDOMElement.parentElement) {
+        const computedStyle = window.getComputedStyle(
+          selectedDOMElement.parentElement
+        );
+        const overwrittenFontSize = Number(option.slice(0, -2));
+        const lineHeightFactor =
+          Number(computedStyle.lineHeight.slice(0, -2)) /
+          Number(computedStyle.fontSize.slice(0, -2));
+        const newLineHeight = overwrittenFontSize * lineHeightFactor + 'px';
+        if (computedStyle.fontSize !== option) {
+          newStyle['font-size'] = option;
+        }
+        if (computedStyle.lineHeight !== newLineHeight) {
+          newStyle['line-height'] = newLineHeight;
+        }
+      }
+      return newStyle;
+    },
+    [editor]
+  );
+
+  // Apply inline style to selected block according to font-size dropdown
   const handleClick = useCallback(
     (option: string) => {
       editor.update(() => {
         const selection = $getSelection();
         if (selection !== null) {
-          $patchStyleText(selection, {
-            'font-size': option,
-          });
+          const newStyle = calculateInlineStyle(selection, option);
+          $patchStyleText(selection, newStyle);
         }
       });
     },
-    [editor]
+    [editor, calculateInlineStyle]
   );
 
   function dropDownActiveClass(active: boolean) {
