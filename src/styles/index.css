@@ -187,7 +187,7 @@ pre::-webkit-scrollbar-thumb {
   color: #050505;
   cursor: pointer;
   line-height: 16px;
-  font-size: 15px;
+  font-size: 18px;
   display: flex;
   align-content: center;
   flex-direction: row;
@@ -418,7 +418,7 @@ i.success {
   padding: 8px 12px;
   border-radius: 15px;
   background-color: #eee;
-  font-size: 15px;
+  font-size: 18px;
   color: rgb(5, 5, 5);
   border: 0;
   outline: 0;
@@ -432,7 +432,7 @@ i.success {
   margin: 8px 12px;
   padding: 8px 12px;
   border-radius: 15px;
-  font-size: 15px;
+  font-size: 18px;
   color: rgb(5, 5, 5);
   border: 0;
   outline: 0;
@@ -530,7 +530,8 @@ i.success {
   border-radius: 4px;
 }
 
-.dropdown {
+.dropdown,
+.font-size-dropdown {
   z-index: 100;
   display: block;
   position: fixed;
@@ -543,7 +544,8 @@ i.success {
   background-color: #fff;
 }
 
-.dropdown .item {
+.dropdown .item,
+.font-size-dropdown .item {
   margin: 0 8px 0 8px;
   padding: 8px;
   color: #050505;
@@ -561,36 +563,51 @@ i.success {
   max-width: 250px;
   min-width: 100px;
 }
+.font-size-dropdown .item {
+  margin: 0 6px;
+  padding: 6px 8px;
+  width: calc(100% - 12px);
+}
 
 .dropdown .item.fontsize-item,
-.dropdown .item.fontsize-item .text {
+.dropdown .item.fontsize-item .text,
+.font-size-dropdown .item.fontsize-item,
+.font-size-dropdown .item.fontsize-item .text {
   min-width: unset;
 }
 
-.dropdown .item .active {
+.dropdown .item .active,
+.font-size-dropdown .item .active {
   display: flex;
   width: 20px;
   height: 20px;
   background-size: contain;
 }
 
-.dropdown .item:first-child {
+.dropdown .item:first-child,
+.font-size-dropdown .item:first-child {
   margin-top: 8px;
 }
 
-.dropdown .item:last-child {
+.dropdown .item:last-child,
+.font-size-dropdown .item:last-child {
   margin-bottom: 8px;
 }
 
-.dropdown .item:hover {
+.dropdown .item:hover,
+.font-size-dropdown .item:hover {
   background-color: #eee;
+}
+
+.dropdown .item .text,
+.font-size-dropdown .item .text {
+  line-height: 20px;
+  flex-grow: 1;
+  min-width: 150px;
 }
 
 .dropdown .item .text {
   display: flex;
-  line-height: 20px;
-  flex-grow: 1;
-  min-width: 150px;
 }
 
 .dropdown .item .icon {
@@ -1148,7 +1165,7 @@ button.action-button:disabled {
 }
 
 .connecting {
-  font-size: 15px;
+  font-size: 18px;
   color: #999;
   overflow: hidden;
   position: absolute;
@@ -1439,7 +1456,7 @@ hr.selected {
   outline: 0px;
   padding: 0;
   user-select: text;
-  font-size: 15px;
+  font-size: 18px;
   white-space: pre-wrap;
   word-break: break-word;
   z-index: 3;

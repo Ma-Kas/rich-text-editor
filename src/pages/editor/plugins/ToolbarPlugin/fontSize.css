@@ -2,13 +2,21 @@
   font-weight: bold;
   font-size: 14px;
   color: #777;
-  border-radius: 5px;
-  border-color: grey;
-  height: 21px;
-  margin-top: 5px;
-  padding: 2px 4px;
+  border-radius: 0;
+  border: none;
+  height: content;
+  margin-top: 0.15rem;
+  padding: 0.15rem 0.2rem;
   text-align: center;
-  width: 20px;
+  width: 3ch;
+}
+
+.font-size-input:active {
+  outline: none;
+}
+
+.font-size-input:focus {
+  outline: 1px solid black;
 }
 
 input[type='number']::-webkit-outer-spin-button,
@@ -20,26 +28,4 @@ input[type='number']::-webkit-inner-spin-button {
 input[type='number'] {
   appearance: textfield;
   -moz-appearance: textfield;
-}
-
-.add-icon {
-  background-image: url(../../../../assets/icons/add-sign.svg);
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-.minus-icon {
-  background-image: url(../../../../assets/icons/minus-sign.svg);
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-button.font-decrement {
-  padding: 0px;
-  margin-right: 3px;
-}
-
-button.font-increment {
-  padding: 0px;
-  margin-left: 3px;
 }
