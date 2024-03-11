@@ -174,6 +174,28 @@ function isOnMenu(element: HTMLElement): boolean {
   return !!element.closest(`.${DRAGGABLE_BLOCK_MENU_CLASSNAME}`);
 }
 
+// To ensure draggable menu block rendered in correct position
+// Check if default block style in stylesheet was inline overwritten by user
+// If so, return overwritten line height, else computed one
+function getTargetBlockLineHeight(element: HTMLElement): string {
+  const targetStyle = window.getComputedStyle(element);
+  if (
+    element.firstChild &&
+    element.firstChild instanceof HTMLElement &&
+    !(element.firstChild instanceof HTMLBRElement) &&
+    element.firstChild.style.fontSize
+  ) {
+    const child = element.firstChild;
+    const overwrittenFontSize = Number(child.style.fontSize.slice(0, -2));
+    const lineHeightFactor =
+      Number(targetStyle.lineHeight.slice(0, -2)) /
+      Number(targetStyle.fontSize.slice(0, -2));
+    return overwrittenFontSize * lineHeightFactor + 'px';
+  } else {
+    return targetStyle.lineHeight;
+  }
+}
+
 function setMenuPosition(
   targetElem: HTMLElement | null,
   floatingElem: HTMLElement,
@@ -186,13 +208,14 @@ function setMenuPosition(
   }
 
   const targetRect = targetElem.getBoundingClientRect();
-  const targetStyle = window.getComputedStyle(targetElem);
+
+  const targetLineHeight = getTargetBlockLineHeight(targetElem);
   const floatingElemRect = floatingElem.getBoundingClientRect();
   const anchorElementRect = anchorElem.getBoundingClientRect();
 
   const top =
     targetRect.top +
-    (parseInt(targetStyle.lineHeight, 10) - floatingElemRect.height) / 2 -
+    (parseInt(targetLineHeight, 10) - floatingElemRect.height) / 2 -
     anchorElementRect.top;
 
   const left = SPACE;
