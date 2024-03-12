@@ -19,7 +19,6 @@ export default function ImageResizer({
   onResizeEnd,
   buttonRef,
   imageRef,
-  maxWidth,
   editor,
   showCaption,
   setShowCaption,
@@ -28,7 +27,6 @@ export default function ImageResizer({
   editor: LexicalEditor;
   buttonRef: { current: null | HTMLButtonElement };
   imageRef: { current: null | HTMLElement };
-  maxWidth?: number;
   onResizeEnd: (width: 'inherit' | number, height: 'inherit' | number) => void;
   onResizeStart: () => void;
   setShowCaption: (show: boolean) => void;
@@ -61,11 +59,11 @@ export default function ImageResizer({
   });
   const editorRootElement = editor.getRootElement();
   // Find max width, accounting for editor padding.
-  const maxWidthContainer = maxWidth
-    ? maxWidth
-    : editorRootElement !== null
-      ? editorRootElement.getBoundingClientRect().width - 20
-      : 100;
+  const image = imageRef.current;
+  const blockContainer = image?.closest("[class^='EditorTheme__']");
+  const maxWidthContainer = blockContainer
+    ? blockContainer.getBoundingClientRect().width
+    : 100;
 
   const minWidth = 100;
 

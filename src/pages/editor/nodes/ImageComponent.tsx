@@ -1,9 +1,4 @@
-import type {
-  BaseSelection,
-  LexicalCommand,
-  LexicalEditor,
-  NodeKey,
-} from 'lexical';
+import type { BaseSelection, LexicalEditor, NodeKey } from 'lexical';
 
 import './ImageNode.css';
 
@@ -24,7 +19,6 @@ import {
   $setSelection,
   CLICK_COMMAND,
   COMMAND_PRIORITY_LOW,
-  createCommand,
   DRAGSTART_COMMAND,
   KEY_BACKSPACE_COMMAND,
   KEY_DELETE_COMMAND,
@@ -34,6 +28,8 @@ import {
 } from 'lexical';
 
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+
+import { RIGHT_CLICK_IMAGE_COMMAND } from '../utils/exportedCommands';
 import LinkPlugin from '../plugins/LinkPlugin';
 
 import ContentEditable from '../ui/ContentEditable';
@@ -42,9 +38,6 @@ import Placeholder from '../ui/Placeholder';
 import { $isImageNode } from './ImageNode';
 
 const imageCache = new Set();
-
-export const RIGHT_CLICK_IMAGE_COMMAND: LexicalCommand<MouseEvent> =
-  createCommand('RIGHT_CLICK_IMAGE_COMMAND');
 
 function useSuspenseImage(src: string) {
   if (!imageCache.has(src)) {
@@ -66,13 +59,11 @@ function LazyImage({
   src,
   width,
   height,
-  maxWidth,
 }: {
   altText: string;
   className: string | null;
   height: 'inherit' | number;
   imageRef: { current: null | HTMLImageElement };
-  maxWidth: number;
   src: string;
   width: 'inherit' | number;
 }): JSX.Element {
@@ -85,7 +76,6 @@ function LazyImage({
       ref={imageRef}
       style={{
         height,
-        maxWidth,
         width,
       }}
       draggable='false'
@@ -99,7 +89,6 @@ export default function ImageComponent({
   nodeKey,
   width,
   height,
-  maxWidth,
   resizable,
   showCaption,
   caption,
@@ -108,7 +97,6 @@ export default function ImageComponent({
   altText: string;
   caption: LexicalEditor;
   height: 'inherit' | number;
-  maxWidth: number;
   nodeKey: NodeKey;
   resizable: boolean;
   showCaption: boolean;
@@ -355,7 +343,6 @@ export default function ImageComponent({
             imageRef={imageRef}
             width={width}
             height={height}
-            maxWidth={maxWidth}
           />
         </div>
         {showCaption && (
@@ -386,7 +373,6 @@ export default function ImageComponent({
             editor={editor}
             buttonRef={buttonRef}
             imageRef={imageRef}
-            maxWidth={maxWidth}
             onResizeStart={onResizeStart}
             onResizeEnd={onResizeEnd}
             captionsEnabled={captionsEnabled}
