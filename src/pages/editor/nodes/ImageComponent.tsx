@@ -36,6 +36,7 @@ import ContentEditable from '../ui/ContentEditable';
 import ImageResizer from '../ui/ImageResizer';
 import Placeholder from '../ui/Placeholder';
 import { $isImageNode } from './ImageNode';
+import FloatingTextFormatToolbarPlugin from '../plugins/FloatingTextFormatToolbarPlugin';
 
 const imageCache = new Set();
 
@@ -352,6 +353,7 @@ export default function ImageComponent({
               <LinkPlugin />
               <HashtagPlugin />
               <HistoryPlugin />
+              <FloatingTextFormatToolbarPlugin />
               <RichTextPlugin
                 contentEditable={
                   <ContentEditable className='ImageNode__contentEditable' />

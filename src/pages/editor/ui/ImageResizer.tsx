@@ -57,13 +57,21 @@ export default function ImageResizer({
     startX: 0,
     startY: 0,
   });
+
   const editorRootElement = editor.getRootElement();
-  // Find max width, accounting for editor padding.
+  // Find max allowable image width (=container full width)
+  let maxWidthContainer: number;
   const image = imageRef.current;
-  const blockContainer = image?.closest("[class^='EditorTheme__']");
-  const maxWidthContainer = blockContainer
-    ? blockContainer.getBoundingClientRect().width
-    : 100;
+  if (image) {
+    const blockContainer = image.closest("[class^='EditorTheme__']");
+    maxWidthContainer = blockContainer
+      ? blockContainer.getBoundingClientRect().width
+      : 100;
+  } else {
+    maxWidthContainer = editorRootElement
+      ? editorRootElement.getBoundingClientRect().width
+      : 100;
+  }
 
   const minWidth = 100;
 
