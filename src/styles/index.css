@@ -841,24 +841,25 @@ i.success {
 }
 
 .editor-shell .editor-image .image-edit-button {
-  border: 1px solid rgba(0, 0, 0, 0.3);
-  border-radius: 5px;
-  background-image: url(/src/../assets/icons/pencil-fill.svg);
-  background-size: 16px;
-  background-position: center;
-  background-repeat: no-repeat;
-  width: 35px;
-  height: 35px;
-  vertical-align: -0.25em;
+  display: block;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.5);
   position: absolute;
-  right: 4px;
-  top: 4px;
+  top: 12px;
+  right: 12px;
+  width: 35px;
+  min-width: 60px;
+  height: 35px;
+  margin: 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  padding: 6px 8px;
   cursor: pointer;
   user-select: none;
 }
 
 .editor-shell .editor-image .image-edit-button:hover {
-  background-color: rgba(60, 132, 244, 0.1);
+  background-color: rgba(60, 132, 244, 0.5);
 }
 
 .editor-shell .editor-image .image-resizer {

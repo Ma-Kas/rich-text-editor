@@ -190,6 +190,7 @@ export default function ImageResizer({
   };
   return (
     <div ref={controlWrapperRef}>
+      {/* TODO: REPLACE THIS BUTTON WITH THE EDIT BUTTON FROM ImageComponent.tsx */}
       {!showCaption && captionsEnabled && (
         <button
           className='image-caption-button'

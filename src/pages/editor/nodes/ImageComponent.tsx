@@ -35,8 +35,13 @@ import LinkPlugin from '../plugins/LinkPlugin';
 import ContentEditable from '../ui/ContentEditable';
 import ImageResizer from '../ui/ImageResizer';
 import Placeholder from '../ui/Placeholder';
-import { $isImageNode } from './ImageNode';
+import { $isImageNode, ImageNode, Position } from './ImageNode';
 import FloatingTextFormatToolbarPlugin from '../plugins/FloatingTextFormatToolbarPlugin';
+import useModal from '../hooks/useModal';
+import TextInput from '../ui/TextInput';
+import Select from '../ui/Select';
+import { DialogActions } from '../ui/Dialog';
+import Button from '../ui/Button';
 
 const imageCache = new Set();
 
@@ -84,9 +89,90 @@ function LazyImage({
   );
 }
 
+export function UpdateImageDialog({
+  activeEditor,
+  nodeKey,
+  onClose,
+}: {
+  activeEditor: LexicalEditor;
+  nodeKey: NodeKey;
+  onClose: () => void;
+}): JSX.Element {
+  const editorState = activeEditor.getEditorState();
+  const node = editorState.read(() => $getNodeByKey(nodeKey) as ImageNode);
+  const [altText, setAltText] = useState(node.getAltText());
+  const [showCaption, setShowCaption] = useState(node.getShowCaption());
+  const [position, setPosition] = useState<Position>(node.getPosition());
+
+  const handleShowCaptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setShowCaption(e.target.checked);
+  };
+
+  const handlePositionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPosition(e.target.value as Position);
+  };
+
+  const handleOnConfirm = () => {
+    const payload = { altText, position, showCaption };
+    if (node) {
+      activeEditor.update(() => {
+        node.update(payload);
+      });
+    }
+    onClose();
+  };
+
+  return (
+    <>
+      <div style={{ marginBottom: '1em' }}>
+        <TextInput
+          label='Alt Text'
+          placeholder='Descriptive alternative text'
+          onChange={setAltText}
+          value={altText}
+          data-test-id='image-modal-alt-text-input'
+        />
+      </div>
+
+      <Select
+        style={{ marginBottom: '1em', width: '208px' }}
+        value={position}
+        label='Position'
+        name='position'
+        id='position-select'
+        onChange={handlePositionChange}
+      >
+        <option value='left'>Left</option>
+        <option value='right'>Right</option>
+        <option value='center'>Center</option>
+      </Select>
+
+      <div className='Input__wrapper'>
+        <input
+          id='caption'
+          type='checkbox'
+          checked={showCaption}
+          onChange={handleShowCaptionChange}
+        />
+        <label htmlFor='caption'>Show Caption</label>
+      </div>
+
+      <DialogActions>
+        <Button
+          data-test-id='image-modal-file-upload-btn'
+          onClick={() => handleOnConfirm()}
+        >
+          Confirm
+        </Button>
+      </DialogActions>
+    </>
+  );
+}
+
 export default function ImageComponent({
   src,
   altText,
+  position = 'center',
   nodeKey,
   width,
   height,
@@ -96,6 +182,7 @@ export default function ImageComponent({
   captionsEnabled,
 }: {
   altText: string;
+  position: Position;
   caption: LexicalEditor;
   height: 'inherit' | number;
   nodeKey: NodeKey;
@@ -107,6 +194,7 @@ export default function ImageComponent({
 }): JSX.Element {
   const imageRef = useRef<null | HTMLImageElement>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const [modal, showModal] = useModal();
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);
   const [isResizing, setIsResizing] = useState<boolean>(false);
@@ -333,6 +421,21 @@ export default function ImageComponent({
     <Suspense fallback={null}>
       <>
         <div draggable={draggable}>
+          <button
+            className='image-edit-button'
+            ref={buttonRef}
+            onClick={() => {
+              showModal('Update Image', (onClose) => (
+                <UpdateImageDialog
+                  activeEditor={editor}
+                  nodeKey={nodeKey}
+                  onClose={onClose}
+                />
+              ));
+            }}
+          >
+            Edit
+          </button>
           <LazyImage
             className={
               isFocused
@@ -347,7 +450,7 @@ export default function ImageComponent({
           />
         </div>
         {showCaption && (
-          <div className='image-caption-container'>
+          <figcaption className='image-caption-container'>
             <LexicalNestedComposer initialEditor={caption}>
               <AutoFocusPlugin />
               <LinkPlugin />
@@ -366,7 +469,7 @@ export default function ImageComponent({
                 ErrorBoundary={LexicalErrorBoundary}
               />
             </LexicalNestedComposer>
-          </div>
+          </figcaption>
         )}
         {resizable && $isNodeSelection(selection) && isFocused && (
           <ImageResizer
@@ -381,6 +484,7 @@ export default function ImageComponent({
           />
         )}
       </>
+      {modal}
     </Suspense>
   );
 }
