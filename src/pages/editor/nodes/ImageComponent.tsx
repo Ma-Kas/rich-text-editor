@@ -35,7 +35,7 @@ import LinkPlugin from '../plugins/LinkPlugin';
 import ContentEditable from '../ui/ContentEditable';
 import ImageResizer from '../ui/ImageResizer';
 import Placeholder from '../ui/Placeholder';
-import { $isImageNode, ImageNode, Position } from './ImageNode';
+import { $isImageNode, ImageNode, Alignment } from './ImageNode';
 import FloatingTextFormatToolbarPlugin from '../plugins/FloatingTextFormatToolbarPlugin';
 import TextInput from '../ui/TextInput';
 import Select from '../ui/Select';
@@ -102,18 +102,18 @@ export function UpdateImageDialog({
   const node = editorState.read(() => $getNodeByKey(nodeKey) as ImageNode);
   const [altText, setAltText] = useState(node.getAltText());
   const [showCaption, setShowCaption] = useState(node.getShowCaption());
-  const [position, setPosition] = useState<Position>(node.getPosition());
+  const [alignment, setAlignment] = useState<Alignment>(node.getAlignment());
 
   const handleShowCaptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShowCaption(e.target.checked);
   };
 
   const handlePositionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPosition(e.target.value as Position);
+    setAlignment(e.target.value as Alignment);
   };
 
   const handleOnConfirm = () => {
-    const payload = { altText, position, showCaption };
+    const payload = { altText, alignment, showCaption };
     if (node) {
       activeEditor.update(() => {
         node.update(payload);
@@ -136,10 +136,10 @@ export function UpdateImageDialog({
 
       <Select
         style={{ marginBottom: '1em', width: '208px' }}
-        value={position}
+        value={alignment}
         label='Alignment'
-        name='position'
-        id='position-select'
+        name='alignment'
+        id='alignment-select'
         onChange={handlePositionChange}
       >
         <option value='left'>Left</option>
@@ -172,7 +172,7 @@ export function UpdateImageDialog({
 export default function ImageComponent({
   src,
   altText,
-  position,
+  alignment,
   nodeKey,
   width,
   height,
@@ -181,7 +181,7 @@ export default function ImageComponent({
   caption,
 }: {
   altText: string;
-  position: Position;
+  alignment: Alignment;
   caption: LexicalEditor;
   height: 'inherit' | number;
   nodeKey: NodeKey;
