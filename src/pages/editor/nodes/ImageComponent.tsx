@@ -12,6 +12,7 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 import {
+  $getNearestNodeFromDOMNode,
   $getNodeByKey,
   $getSelection,
   $isNodeSelection,
@@ -202,13 +203,30 @@ export default function ImageComponent({
         event.preventDefault();
         const node = $getNodeByKey(nodeKey);
         if ($isImageNode(node)) {
-          node.remove();
+          // Access theparent/grandparent imageBlockNode that contains this image
+          const domElement = editor.getElementByKey(nodeKey);
+          if (!domElement) {
+            return false;
+          }
+          const parentBlock = domElement.closest(
+            "[class^='EditorTheme__imageBlock']"
+          );
+          if (!parentBlock || !(parentBlock instanceof HTMLElement)) {
+            return false;
+          }
+          const parentNode = $getNearestNodeFromDOMNode(parentBlock);
+          if (!parentNode) {
+            return false;
+          }
+          // Delete parent ImageBlockNode instead of just the image, to avoid having
+          // empty block of wrong formatting to write int
+          parentNode.remove();
           return true;
         }
       }
       return false;
     },
-    [isSelected, nodeKey]
+    [editor, isSelected, nodeKey]
   );
 
   const onEnter = useCallback(
