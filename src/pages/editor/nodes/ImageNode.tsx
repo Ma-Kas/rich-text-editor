@@ -21,7 +21,6 @@ export type Alignment = 'left' | 'right' | 'center' | undefined;
 export interface ImagePayload {
   altText: string;
   caption?: LexicalEditor;
-  height?: number;
   key?: NodeKey;
   showCaption?: boolean;
   src: string;
@@ -40,8 +39,8 @@ function convertImageElement(domNode: Node): null | DOMConversionOutput {
   if (img.src.startsWith('file:///')) {
     return null;
   }
-  const { alt: altText, src, width, height } = img;
-  const node = $createImageNode({ altText, height, src, width });
+  const { alt: altText, src, width } = img;
+  const node = $createImageNode({ altText, src, width });
   return { node };
 }
 
@@ -49,7 +48,6 @@ export type SerializedImageNode = Spread<
   {
     altText: string;
     caption: SerializedEditor;
-    height?: number;
     showCaption: boolean;
     src: string;
     width?: number;
@@ -62,7 +60,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   __src: string;
   __altText: string;
   __width: 'inherit' | number;
-  __height: 'inherit' | number;
   __showCaption: boolean;
   __caption: LexicalEditor;
   // Captions cannot yet be used within editor cells
@@ -78,7 +75,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       node.__altText,
       node.__alignment,
       node.__width,
-      node.__height,
       node.__showCaption,
       node.__caption,
       node.__key
@@ -86,11 +82,10 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   }
 
   static importJSON(serializedNode: SerializedImageNode): ImageNode {
-    const { altText, height, width, caption, src, showCaption, alignment } =
+    const { altText, width, caption, src, showCaption, alignment } =
       serializedNode;
     const node = $createImageNode({
       altText,
-      height,
       showCaption,
       src,
       width,
@@ -118,7 +113,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     altText: string,
     alignment: Alignment,
     width?: 'inherit' | number,
-    height?: 'inherit' | number,
     showCaption?: boolean,
     caption?: LexicalEditor,
     key?: NodeKey
@@ -128,7 +122,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     this.__altText = altText;
     this.__alignment = alignment;
     this.__width = width || 'inherit';
-    this.__height = height || 'inherit';
     this.__showCaption = showCaption || false;
     this.__caption = caption || createEditor();
   }
@@ -138,7 +131,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     element.setAttribute('src', this.__src);
     element.setAttribute('alt', this.__altText);
     element.setAttribute('width', this.__width.toString());
-    element.setAttribute('height', this.__height.toString());
     return { element };
   }
 
@@ -146,7 +138,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return {
       altText: this.getAltText(),
       caption: this.__caption.toJSON(),
-      height: this.__height === 'inherit' ? 0 : this.__height,
       alignment: this.__alignment,
       showCaption: this.__showCaption,
       src: this.getSrc(),
@@ -169,13 +160,9 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     writable.__altText = altText;
   }
 
-  setWidthAndHeight(
-    width: 'inherit' | number,
-    height: 'inherit' | number
-  ): void {
+  setWidthAndHeight(width: 'inherit' | number): void {
     const writable = this.getWritable();
     writable.__width = width;
-    writable.__height = height;
   }
 
   getShowCaption(): boolean {
@@ -245,7 +232,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
           altText={this.__altText}
           alignment={this.__alignment}
           width={this.__width}
-          height={this.__height}
           nodeKey={this.getKey()}
           showCaption={this.__showCaption}
           caption={this.__caption}
@@ -259,7 +245,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 export function $createImageNode({
   altText,
   alignment = 'center',
-  height,
   src,
   width,
   showCaption,
@@ -267,16 +252,7 @@ export function $createImageNode({
   key,
 }: ImagePayload): ImageNode {
   return $applyNodeReplacement(
-    new ImageNode(
-      src,
-      altText,
-      alignment,
-      width,
-      height,
-      showCaption,
-      caption,
-      key
-    )
+    new ImageNode(src, altText, alignment, width, showCaption, caption, key)
   );
 }
 

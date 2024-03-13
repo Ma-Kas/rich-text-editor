@@ -64,11 +64,9 @@ function LazyImage({
   imageRef,
   src,
   width,
-  height,
 }: {
   altText: string;
   className: string | null;
-  height: 'inherit' | number;
   imageRef: { current: null | HTMLImageElement };
   src: string;
   width: 'inherit' | number;
@@ -81,7 +79,6 @@ function LazyImage({
       alt={altText}
       ref={imageRef}
       style={{
-        height,
         width,
       }}
       draggable='false'
@@ -175,7 +172,6 @@ export default function ImageComponent({
   alignment,
   nodeKey,
   width,
-  height,
   resizable,
   showCaption,
   caption,
@@ -183,7 +179,6 @@ export default function ImageComponent({
   altText: string;
   alignment: Alignment;
   caption: LexicalEditor;
-  height: 'inherit' | number;
   nodeKey: NodeKey;
   resizable: boolean;
   showCaption: boolean;
@@ -383,10 +378,7 @@ export default function ImageComponent({
     setSelected,
   ]);
 
-  const onResizeEnd = (
-    nextWidth: 'inherit' | number,
-    nextHeight: 'inherit' | number
-  ) => {
+  const onResizeEnd = (nextWidth: 'inherit' | number) => {
     // Delay hiding the resize bars for click case
     setTimeout(() => {
       setIsResizing(false);
@@ -395,7 +387,7 @@ export default function ImageComponent({
     editor.update(() => {
       const node = $getNodeByKey(nodeKey);
       if ($isImageNode(node)) {
-        node.setWidthAndHeight(nextWidth, nextHeight);
+        node.setWidthAndHeight(nextWidth);
       }
     });
   };
@@ -409,7 +401,7 @@ export default function ImageComponent({
   return (
     <Suspense fallback={null}>
       <>
-        <div draggable={draggable}>
+        <div style={{ display: 'flex', flex: 1 }} draggable={draggable}>
           <LazyImage
             className={
               isFocused
@@ -420,7 +412,6 @@ export default function ImageComponent({
             altText={altText}
             imageRef={imageRef}
             width={width}
-            height={height}
           />
         </div>
         {showCaption && (

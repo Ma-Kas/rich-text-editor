@@ -27,7 +27,7 @@ export default function ImageResizer({
   editor: LexicalEditor;
   buttonRef: { current: null | HTMLButtonElement };
   imageRef: { current: null | HTMLElement };
-  onResizeEnd: (width: 'inherit' | number, height: 'inherit' | number) => void;
+  onResizeEnd: (width: 'inherit' | number) => void;
   onResizeStart: () => void;
   nodeKey: NodeKey;
   showModal: (
@@ -177,7 +177,6 @@ export default function ImageResizer({
     const controlWrapper = controlWrapperRef.current;
     if (image !== null && controlWrapper !== null && positioning.isResizing) {
       const width = positioning.currentWidth;
-      const height = positioning.currentHeight;
       positioning.startWidth = 0;
       positioning.startHeight = 0;
       positioning.ratio = 0;
@@ -190,7 +189,8 @@ export default function ImageResizer({
       controlWrapper.classList.remove('image-control-wrapper--resizing');
 
       setEndCursor();
-      onResizeEnd(width, height);
+      image.style.removeProperty('height');
+      onResizeEnd(width);
 
       document.removeEventListener('pointermove', handlePointerMove);
       document.removeEventListener('pointerup', handlePointerUp);
