@@ -1,7 +1,8 @@
-import type { LexicalEditor } from 'lexical';
+import type { LexicalEditor, NodeKey } from 'lexical';
 
 import * as React from 'react';
 import { useRef } from 'react';
+import { UpdateImageDialog } from '../nodes/ImageComponent';
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -20,18 +21,19 @@ export default function ImageResizer({
   buttonRef,
   imageRef,
   editor,
-  showCaption,
-  setShowCaption,
-  captionsEnabled,
+  nodeKey,
+  showModal,
 }: {
   editor: LexicalEditor;
   buttonRef: { current: null | HTMLButtonElement };
   imageRef: { current: null | HTMLElement };
   onResizeEnd: (width: 'inherit' | number, height: 'inherit' | number) => void;
   onResizeStart: () => void;
-  setShowCaption: (show: boolean) => void;
-  showCaption: boolean;
-  captionsEnabled: boolean;
+  nodeKey: NodeKey;
+  showModal: (
+    title: string,
+    showModal: (onClose: () => void) => JSX.Element
+  ) => void;
 }): JSX.Element {
   const controlWrapperRef = useRef<HTMLDivElement>(null);
   const userSelect = useRef({
@@ -197,17 +199,22 @@ export default function ImageResizer({
   return (
     <div ref={controlWrapperRef}>
       {/* TODO: REPLACE THIS BUTTON WITH THE EDIT BUTTON FROM ImageComponent.tsx */}
-      {!showCaption && captionsEnabled && (
-        <button
-          className='image-caption-button'
-          ref={buttonRef}
-          onClick={() => {
-            setShowCaption(!showCaption);
-          }}
-        >
-          Add Caption
-        </button>
-      )}
+      <button
+        className='image-edit-button'
+        ref={buttonRef}
+        onClick={() => {
+          showModal('Update Image', (onClose) => (
+            <UpdateImageDialog
+              activeEditor={editor}
+              nodeKey={nodeKey}
+              onClose={onClose}
+            />
+          ));
+        }}
+      >
+        Edit
+      </button>
+
       <div
         className='image-resizer image-resizer-e'
         onPointerDown={(event) => {

@@ -37,11 +37,11 @@ import ImageResizer from '../ui/ImageResizer';
 import Placeholder from '../ui/Placeholder';
 import { $isImageNode, ImageNode, Position } from './ImageNode';
 import FloatingTextFormatToolbarPlugin from '../plugins/FloatingTextFormatToolbarPlugin';
-import useModal from '../hooks/useModal';
 import TextInput from '../ui/TextInput';
 import Select from '../ui/Select';
 import { DialogActions } from '../ui/Dialog';
 import Button from '../ui/Button';
+import useModal from '../hooks/useModal';
 
 const imageCache = new Set();
 
@@ -179,7 +179,6 @@ export default function ImageComponent({
   resizable,
   showCaption,
   caption,
-  captionsEnabled,
 }: {
   altText: string;
   position: Position;
@@ -190,7 +189,6 @@ export default function ImageComponent({
   showCaption: boolean;
   src: string;
   width: 'inherit' | number;
-  captionsEnabled: boolean;
 }): JSX.Element {
   const imageRef = useRef<null | HTMLImageElement>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -385,15 +383,6 @@ export default function ImageComponent({
     setSelected,
   ]);
 
-  const setShowCaption = () => {
-    editor.update(() => {
-      const node = $getNodeByKey(nodeKey);
-      if ($isImageNode(node)) {
-        node.setShowCaption(true);
-      }
-    });
-  };
-
   const onResizeEnd = (
     nextWidth: 'inherit' | number,
     nextHeight: 'inherit' | number
@@ -421,21 +410,6 @@ export default function ImageComponent({
     <Suspense fallback={null}>
       <>
         <div draggable={draggable}>
-          <button
-            className='image-edit-button'
-            ref={buttonRef}
-            onClick={() => {
-              showModal('Update Image', (onClose) => (
-                <UpdateImageDialog
-                  activeEditor={editor}
-                  nodeKey={nodeKey}
-                  onClose={onClose}
-                />
-              ));
-            }}
-          >
-            Edit
-          </button>
           <LazyImage
             className={
               isFocused
@@ -473,14 +447,13 @@ export default function ImageComponent({
         )}
         {resizable && $isNodeSelection(selection) && isFocused && (
           <ImageResizer
-            showCaption={showCaption}
-            setShowCaption={setShowCaption}
             editor={editor}
             buttonRef={buttonRef}
             imageRef={imageRef}
             onResizeStart={onResizeStart}
             onResizeEnd={onResizeEnd}
-            captionsEnabled={captionsEnabled}
+            nodeKey={nodeKey}
+            showModal={showModal}
           />
         )}
       </>
