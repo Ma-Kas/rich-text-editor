@@ -6,7 +6,6 @@ import {
   $getSelection,
   $insertNodes,
   $isNodeSelection,
-  $isRangeSelection,
   $isRootOrShadowRoot,
   $setSelection,
   COMMAND_PRIORITY_EDITOR,
@@ -33,6 +32,7 @@ import Button from '../../ui/Button';
 import { DialogActions, DialogButtonsList } from '../../ui/Dialog';
 import FileInput from '../../ui/FileInput';
 import TextInput from '../../ui/TextInput';
+import { $createImageBlockNode } from '../../nodes/ImageBlockNode';
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 
@@ -210,6 +210,9 @@ export default function ImagesPlugin(): JSX.Element | null {
       editor.registerCommand<InsertImagePayload>(
         INSERT_IMAGE_COMMAND,
         (payload) => {
+          const newParagraph = $createImageBlockNode();
+          $insertNodes([newParagraph]);
+
           const imageNode = $createImageNode(payload);
 
           $insertNodes([imageNode]);
@@ -218,13 +221,9 @@ export default function ImagesPlugin(): JSX.Element | null {
             $wrapNodeInElement(imageNode, $createParagraphNode).selectEnd();
           }
 
-          const selection = $getSelection();
-          if (selection && $isRangeSelection(selection)) {
-            const blockContainer = editor.getElementByKey(selection.anchor.key);
-            if (blockContainer) {
-              blockContainer.style.textAlign = 'center';
-            }
-          }
+          // Add new paragraph node below created image
+          $insertNodes([$createParagraphNode()]);
+
           return true;
         },
         COMMAND_PRIORITY_EDITOR

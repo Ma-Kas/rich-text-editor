@@ -211,14 +211,14 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   }
 
   // View
-  // TODO: editor-image span wrapper created here
+  // TODO: editor-image div wrapper created here
   createDOM(config: EditorConfig): HTMLElement {
-    const span = document.createElement('span');
+    const div = document.createElement('div');
     const className = config.theme.image;
     if (className !== undefined) {
-      span.className = className;
+      div.className = className;
     }
-    return span;
+    return div;
   }
 
   updateDOM(
@@ -231,7 +231,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       // Update the text-align on parent
       const blockContainer = dom.closest("[class^='EditorTheme__']");
       if (blockContainer && blockContainer instanceof HTMLElement) {
-        blockContainer.style.textAlign = alignment;
+        blockContainer.style.justifyContent = alignment;
       }
     }
     return false;

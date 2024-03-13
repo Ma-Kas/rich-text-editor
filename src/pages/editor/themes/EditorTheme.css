@@ -5,8 +5,14 @@
   text-align: right;
 }
 .EditorTheme__paragraph {
-  margin: 0;
   position: relative;
+  margin: 0;
+}
+
+.EditorTheme__imageBlock {
+  margin: 0;
+  display: flex;
+  justify-content: center;
 }
 .EditorTheme__quote {
   margin: 0;
