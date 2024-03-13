@@ -137,7 +137,7 @@ export function UpdateImageDialog({
       <Select
         style={{ marginBottom: '1em', width: '208px' }}
         value={position}
-        label='Position'
+        label='Alignment'
         name='position'
         id='position-select'
         onChange={handlePositionChange}
@@ -172,7 +172,7 @@ export function UpdateImageDialog({
 export default function ImageComponent({
   src,
   altText,
-  position = 'center',
+  position,
   nodeKey,
   width,
   height,

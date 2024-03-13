@@ -258,7 +258,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 
 export function $createImageNode({
   altText,
-  position,
+  position = 'center',
   height,
   src,
   width,
