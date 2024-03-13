@@ -1,14 +1,6 @@
 import type { BaseSelection, LexicalEditor, NodeKey } from 'lexical';
 
-import './ImageNode.css';
-
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
-import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin';
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
-import { LexicalNestedComposer } from '@lexical/react/LexicalNestedComposer';
-import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 import {
@@ -31,13 +23,8 @@ import {
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import { RIGHT_CLICK_IMAGE_COMMAND } from '../utils/exportedCommands';
-import LinkPlugin from '../plugins/LinkPlugin';
-
-import ContentEditable from '../ui/ContentEditable';
 import ImageResizer from '../ui/ImageResizer';
-import Placeholder from '../ui/Placeholder';
 import { $isImageNode, ImageNode, Alignment } from './ImageNode';
-import FloatingTextFormatToolbarPlugin from '../plugins/FloatingTextFormatToolbarPlugin';
 import TextInput from '../ui/TextInput';
 import Select from '../ui/Select';
 import { DialogActions } from '../ui/Dialog';
@@ -414,46 +401,25 @@ export default function ImageComponent({
     setIsResizing(true);
   };
 
-  const draggable = isSelected && $isNodeSelection(selection) && !isResizing;
   const isFocused = isSelected || isResizing;
   return (
     <Suspense fallback={null}>
       <>
-        <div style={{ display: 'flex', flex: 1 }} draggable={draggable}>
+        <div className='figure-container'>
           <LazyImage
-            className={
-              isFocused
-                ? `focused ${$isNodeSelection(selection) ? 'draggable' : ''}`
-                : null
-            }
+            className={isFocused ? `focused` : null}
             src={src}
             altText={altText}
             imageRef={imageRef}
             width={width}
           />
+          {showCaption && (
+            <div className='image-caption-container'>
+              Some annoyingly long caption to put in here
+            </div>
+          )}
         </div>
-        {showCaption && (
-          <figcaption className='image-caption-container'>
-            <LexicalNestedComposer initialEditor={caption}>
-              <AutoFocusPlugin />
-              <LinkPlugin />
-              <HashtagPlugin />
-              <HistoryPlugin />
-              <FloatingTextFormatToolbarPlugin />
-              <RichTextPlugin
-                contentEditable={
-                  <ContentEditable className='ImageNode__contentEditable' />
-                }
-                placeholder={
-                  <Placeholder className='ImageNode__placeholder'>
-                    Enter a caption...
-                  </Placeholder>
-                }
-                ErrorBoundary={LexicalErrorBoundary}
-              />
-            </LexicalNestedComposer>
-          </figcaption>
-        )}
+
         {resizable && $isNodeSelection(selection) && isFocused && (
           <ImageResizer
             editor={editor}

@@ -781,43 +781,37 @@ i.success {
 
 .editor-shell div.editor-image {
   cursor: default;
-  max-width: max-content;
   position: relative;
+  max-width: 100%;
+  min-width: 100px;
   user-select: none;
 }
 
-.editor-shell .editor-image img {
-  max-width: 100%;
-  height: auto;
-  cursor: default;
-}
-
-.editor-shell .editor-image img.focused {
+.editor-shell div.editor-image:has(img.focused) {
   outline: 4px solid rgb(60, 132, 244);
   user-select: none;
 }
 
-.editor-shell .editor-image img.focused.draggable {
-  cursor: grab;
+.editor-shell .editor-image img {
+  min-width: 100%;
+  height: auto;
+  cursor: default;
 }
 
-.editor-shell .editor-image img.focused.draggable:active {
-  cursor: grabbing;
+.editor-shell .editor-image .figure-container {
+  display: flex;
+  flex-direction: column;
 }
 
 .editor-shell .editor-image .image-caption-container {
-  display: block;
-  position: absolute;
-  bottom: 4px;
-  left: 0;
-  right: 0;
-  padding: 0;
-  margin: 0;
-  border-top: 1px solid #fff;
-  background-color: rgba(255, 255, 255, 0.9);
+  padding: 1em 0;
+  font-size: 14px;
+  text-align: center;
+  width: 100%;
   min-width: 100px;
   color: #000;
   overflow: hidden;
+  word-wrap: break-word;
 }
 
 .editor-shell .editor-image .image-edit-button {

@@ -216,7 +216,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     const alignment = this.__alignment;
     if (alignment && alignment !== prevNode.__alignment) {
       // Update the text-align on parent
-      const blockContainer = dom.closest("[class^='EditorTheme__']");
+      const blockContainer = dom.closest("[class^='EditorTheme__imageBlock]");
       if (blockContainer && blockContainer instanceof HTMLElement) {
         blockContainer.style.justifyContent = alignment;
       }
