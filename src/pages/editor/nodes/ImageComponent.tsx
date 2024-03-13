@@ -154,7 +154,7 @@ export function UpdateImageDialog({
           checked={showCaption}
           onChange={handleShowCaptionChange}
         />
-        <label htmlFor='caption'>Show Caption</label>
+        <label htmlFor='caption'>Include Caption</label>
       </div>
 
       <DialogActions>

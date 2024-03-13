@@ -47,6 +47,7 @@ export default function ImageResizer({
     startWidth: number;
     startX: number;
     startY: number;
+    direction: number;
   }>({
     currentHeight: 0,
     currentWidth: 0,
@@ -56,6 +57,7 @@ export default function ImageResizer({
     startWidth: 0,
     startX: 0,
     startY: 0,
+    direction: 0,
   });
 
   const editorRootElement = editor.getRootElement();
@@ -109,7 +111,10 @@ export default function ImageResizer({
     }
   };
 
-  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+  const handlePointerDown = (
+    event: React.PointerEvent<HTMLDivElement>,
+    direction: number
+  ) => {
     if (!editor.isEditable()) {
       return;
     }
@@ -129,6 +134,7 @@ export default function ImageResizer({
       positioning.startX = event.clientX;
       positioning.startY = event.clientY;
       positioning.isResizing = true;
+      positioning.direction = direction;
 
       setStartCursor();
       onResizeStart();
@@ -148,7 +154,7 @@ export default function ImageResizer({
     if (image !== null && positioning.isResizing) {
       let diff = Math.floor(positioning.startX - event.clientX);
       // Is scaling through west or east handle?
-      diff = Directions.east ? -diff : diff;
+      diff = positioning.direction & Directions.east ? -diff : diff;
 
       const width = clamp(
         positioning.startWidth + diff,
@@ -205,13 +211,13 @@ export default function ImageResizer({
       <div
         className='image-resizer image-resizer-e'
         onPointerDown={(event) => {
-          handlePointerDown(event);
+          handlePointerDown(event, Directions.north | Directions.east);
         }}
       />
       <div
         className='image-resizer image-resizer-w'
         onPointerDown={(event) => {
-          handlePointerDown(event);
+          handlePointerDown(event, Directions.north | Directions.west);
         }}
       />
     </div>
