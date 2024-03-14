@@ -178,7 +178,7 @@ export default function ImageComponent({
         event.preventDefault();
         const node = $getNodeByKey(nodeKey);
         if ($isImageNode(node)) {
-          // Access theparent/grandparent imageBlockNode that contains this image
+          // Access the parent/grandparent imageBlockNode that contains this image
           const domElement = editor.getElementByKey(nodeKey);
           if (!domElement) {
             return false;
@@ -193,8 +193,13 @@ export default function ImageComponent({
           if (!parentNode) {
             return false;
           }
+
+          // Before deletion, select next node, so selection is not empty
+          // would throw if trying to insert another node without selection
+          parentNode.selectNext();
+
           // Delete parent ImageBlockNode instead of just the image, to avoid having
-          // empty block of wrong formatting to write int
+          // empty block of wrong formatting to write into
           parentNode.remove();
           return true;
         }

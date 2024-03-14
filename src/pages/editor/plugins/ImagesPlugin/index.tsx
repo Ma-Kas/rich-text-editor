@@ -1,12 +1,11 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $wrapNodeInElement, mergeRegister } from '@lexical/utils';
+import { mergeRegister } from '@lexical/utils';
 import {
   $createParagraphNode,
   $createRangeSelection,
   $getSelection,
   $insertNodes,
   $isNodeSelection,
-  $isRootOrShadowRoot,
   $setSelection,
   COMMAND_PRIORITY_EDITOR,
   COMMAND_PRIORITY_HIGH,
@@ -210,19 +209,13 @@ export default function ImagesPlugin(): JSX.Element | null {
       editor.registerCommand<InsertImagePayload>(
         INSERT_IMAGE_COMMAND,
         (payload) => {
-          const newParagraph = $createImageBlockNode();
-          $insertNodes([newParagraph]);
-
+          const newImageBlock = $createImageBlockNode();
           const imageNode = $createImageNode(payload);
-
-          $insertNodes([imageNode]);
-
-          if ($isRootOrShadowRoot(imageNode.getParentOrThrow())) {
-            $wrapNodeInElement(imageNode, $createParagraphNode).selectEnd();
-          }
-
           // Add new paragraph node below created image
-          $insertNodes([$createParagraphNode()]);
+          const newParagraph = $createParagraphNode();
+          newImageBlock.append(imageNode);
+
+          $insertNodes([newImageBlock, newParagraph]);
 
           return true;
         },
@@ -278,9 +271,8 @@ function onDragStart(event: DragEvent): boolean {
         altText: node.__altText,
         caption: node.__caption,
         key: node.getKey(),
-        showCaption: node.__showCaption,
+        captionText: node.__captionText,
         src: node.__src,
-        width: node.__width,
       },
       type: 'image',
     })
