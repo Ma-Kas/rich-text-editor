@@ -44,7 +44,6 @@ header h1 {
 .editor-shell {
   margin: 20px auto;
   border-radius: 2px;
-  min-width: max-content;
   max-width: 1100px;
   color: #000;
   position: relative;
@@ -782,7 +781,6 @@ i.success {
 .editor-shell div.editor-image {
   cursor: default;
   position: relative;
-  max-width: 100%;
   min-width: 100px;
   user-select: none;
 }
@@ -793,9 +791,8 @@ i.success {
 }
 
 .editor-shell .editor-image img {
-  min-width: 100%;
-  height: auto;
   cursor: default;
+  width: 100%;
 }
 
 .editor-shell .editor-image .figure-container {
@@ -807,10 +804,8 @@ i.success {
   padding: 1em 0;
   font-size: 14px;
   text-align: center;
-  width: 100%;
   min-width: 100px;
   color: #000;
-  overflow: hidden;
   word-wrap: break-word;
 }
 

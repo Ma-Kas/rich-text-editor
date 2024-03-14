@@ -123,10 +123,12 @@ export default function ImageResizer({
 
     const image = imageRef.current;
     const controlWrapper = controlWrapperRef.current;
+    const figureContainer = image?.parentElement?.parentElement;
 
-    if (image !== null && controlWrapper !== null) {
+    if (image && controlWrapper && figureContainer) {
       event.preventDefault();
-      const { width, height } = image.getBoundingClientRect();
+
+      const { width, height } = figureContainer.getBoundingClientRect();
       const positioning = positioningRef.current;
       positioning.startWidth = width;
       positioning.startHeight = height;
@@ -142,8 +144,13 @@ export default function ImageResizer({
       onResizeStart();
 
       controlWrapper.classList.add('image-control-wrapper--resizing');
-      image.style.height = `${height}px`;
-      image.style.width = `${width}px`;
+      // CSS Trickery 101:
+      // Image is responsive when added, but for user resizing to work, pixel
+      // values are used. Instead of applying this style to image, apply to parent
+      // in maxWidth, and at the same time set width to 100%. This way, image is
+      // as big as user chooses AS A MAX, but can shrink down on smaller screens
+      figureContainer.style.maxWidth = `${width}px`;
+      figureContainer.style.width = `100%`;
 
       document.addEventListener('pointermove', handlePointerMove);
       document.addEventListener('pointerup', handlePointerUp);
@@ -151,9 +158,10 @@ export default function ImageResizer({
   };
   const handlePointerMove = (event: PointerEvent) => {
     const image = imageRef.current;
+    const figureContainer = image?.parentElement?.parentElement;
     const positioning = positioningRef.current;
 
-    if (image !== null && positioning.isResizing) {
+    if (image && figureContainer && positioning.isResizing) {
       let diff = Math.floor(positioning.startX - event.clientX);
       // Is scaling through west or east handle?
       diff = positioning.direction & Directions.east ? -diff : diff;
@@ -165,17 +173,18 @@ export default function ImageResizer({
       );
 
       const height = width / positioning.ratio;
-      image.style.width = `${width}px`;
-      image.style.height = `${height}px`;
+      figureContainer.style.maxWidth = `${width}px`;
+      figureContainer.style.width = `100%`;
       positioning.currentHeight = height;
       positioning.currentWidth = width;
     }
   };
   const handlePointerUp = () => {
     const image = imageRef.current;
+    const figureContainer = image?.parentElement?.parentElement;
     const positioning = positioningRef.current;
     const controlWrapper = controlWrapperRef.current;
-    if (image !== null && controlWrapper !== null && positioning.isResizing) {
+    if (image && controlWrapper && figureContainer && positioning.isResizing) {
       const width = positioning.currentWidth;
       positioning.startWidth = 0;
       positioning.startHeight = 0;
@@ -187,9 +196,14 @@ export default function ImageResizer({
       positioning.isResizing = false;
 
       controlWrapper.classList.remove('image-control-wrapper--resizing');
+      // CSS Trickery 101:
+      // If image is full width, set it to percentage based instead pixel value
+      if (width === maxWidthContainer) {
+        figureContainer.style.maxWidth = '100%';
+      }
 
       setEndCursor();
-      image.style.removeProperty('height');
+
       onResizeEnd(width);
 
       document.removeEventListener('pointermove', handlePointerMove);

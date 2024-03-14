@@ -51,13 +51,11 @@ function LazyImage({
   className,
   imageRef,
   src,
-  width,
 }: {
   altText: string;
   className: string | null;
   imageRef: { current: null | HTMLImageElement };
   src: string;
-  width: 'inherit' | number;
 }): JSX.Element {
   useSuspenseImage(src);
   return (
@@ -66,9 +64,6 @@ function LazyImage({
       src={src}
       alt={altText}
       ref={imageRef}
-      style={{
-        width,
-      }}
       draggable='false'
     />
   );
@@ -159,7 +154,6 @@ export default function ImageComponent({
   altText,
   alignment,
   nodeKey,
-  width,
   resizable,
   showCaption,
   caption,
@@ -171,7 +165,6 @@ export default function ImageComponent({
   resizable: boolean;
   showCaption: boolean;
   src: string;
-  width: 'inherit' | number;
 }): JSX.Element {
   const imageRef = useRef<null | HTMLImageElement>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -383,18 +376,11 @@ export default function ImageComponent({
     setSelected,
   ]);
 
-  const onResizeEnd = (nextWidth: 'inherit' | number) => {
+  const onResizeEnd = () => {
     // Delay hiding the resize bars for click case
     setTimeout(() => {
       setIsResizing(false);
     }, 200);
-
-    editor.update(() => {
-      const node = $getNodeByKey(nodeKey);
-      if ($isImageNode(node)) {
-        node.setWidthAndHeight(nextWidth);
-      }
-    });
   };
 
   const onResizeStart = () => {
@@ -411,7 +397,6 @@ export default function ImageComponent({
             src={src}
             altText={altText}
             imageRef={imageRef}
-            width={width}
           />
           {showCaption && (
             <div className='image-caption-container'>
