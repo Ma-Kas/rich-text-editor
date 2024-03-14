@@ -212,7 +212,6 @@ export class InlineImageNode extends DecoratorNode<JSX.Element> {
   }
 
   // View
-
   createDOM(config: EditorConfig): HTMLElement {
     const span = document.createElement('span');
     const className = `${config.theme.inlineImage} position-${this.__position}`;
@@ -228,6 +227,7 @@ export class InlineImageNode extends DecoratorNode<JSX.Element> {
     config: EditorConfig
   ): false {
     const position = this.__position;
+    console.log(dom);
     if (position !== prevNode.__position) {
       const className = `${config.theme.inlineImage} position-${position}`;
       if (className !== undefined) {

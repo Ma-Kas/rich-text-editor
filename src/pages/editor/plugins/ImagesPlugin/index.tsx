@@ -1,25 +1,22 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $wrapNodeInElement, mergeRegister } from '@lexical/utils';
+import { mergeRegister } from '@lexical/utils';
 import {
   $createParagraphNode,
   $createRangeSelection,
   $getSelection,
   $insertNodes,
   $isNodeSelection,
-  $isRootOrShadowRoot,
   $setSelection,
   COMMAND_PRIORITY_EDITOR,
   COMMAND_PRIORITY_HIGH,
   COMMAND_PRIORITY_LOW,
-  createCommand,
   DRAGOVER_COMMAND,
   DRAGSTART_COMMAND,
   DROP_COMMAND,
-  LexicalCommand,
   LexicalEditor,
 } from 'lexical';
 import { useEffect, useRef, useState } from 'react';
-import * as React from 'react';
+import { INSERT_IMAGE_COMMAND } from '../../utils/exportedCommands';
 import { CAN_USE_DOM } from '../../../shared/src/canUseDOM';
 
 import landscapeImage from '../../images/landscape.jpg';
@@ -34,14 +31,12 @@ import Button from '../../ui/Button';
 import { DialogActions, DialogButtonsList } from '../../ui/Dialog';
 import FileInput from '../../ui/FileInput';
 import TextInput from '../../ui/TextInput';
+import { $createImageBlockNode } from '../../nodes/ImageBlockNode';
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 
 const getDOMSelection = (targetWindow: Window | null): Selection | null =>
   CAN_USE_DOM ? (targetWindow || window).getSelection() : null;
-
-export const INSERT_IMAGE_COMMAND: LexicalCommand<InsertImagePayload> =
-  createCommand('INSERT_IMAGE_COMMAND');
 
 export function InsertImageUriDialogBody({
   onClick,
@@ -202,11 +197,7 @@ export function InsertImageDialog({
   );
 }
 
-export default function ImagesPlugin({
-  captionsEnabled,
-}: {
-  captionsEnabled?: boolean;
-}): JSX.Element | null {
+export default function ImagesPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
@@ -218,11 +209,13 @@ export default function ImagesPlugin({
       editor.registerCommand<InsertImagePayload>(
         INSERT_IMAGE_COMMAND,
         (payload) => {
+          const newImageBlock = $createImageBlockNode();
           const imageNode = $createImageNode(payload);
-          $insertNodes([imageNode]);
-          if ($isRootOrShadowRoot(imageNode.getParentOrThrow())) {
-            $wrapNodeInElement(imageNode, $createParagraphNode).selectEnd();
-          }
+          // Add new paragraph node below created image
+          const newParagraph = $createParagraphNode();
+          newImageBlock.append(imageNode);
+
+          $insertNodes([newImageBlock, newParagraph]);
 
           return true;
         },
@@ -250,7 +243,7 @@ export default function ImagesPlugin({
         COMMAND_PRIORITY_HIGH
       )
     );
-  }, [captionsEnabled, editor]);
+  }, [editor]);
 
   return null;
 }
@@ -277,12 +270,9 @@ function onDragStart(event: DragEvent): boolean {
       data: {
         altText: node.__altText,
         caption: node.__caption,
-        height: node.__height,
         key: node.getKey(),
-        maxWidth: node.__maxWidth,
-        showCaption: node.__showCaption,
+        captionText: node.__captionText,
         src: node.__src,
-        width: node.__width,
       },
       type: 'image',
     })

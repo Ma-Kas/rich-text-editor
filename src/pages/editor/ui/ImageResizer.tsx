@@ -1,13 +1,14 @@
-import type { LexicalEditor } from 'lexical';
+import type { LexicalEditor, NodeKey } from 'lexical';
 
 import * as React from 'react';
 import { useRef } from 'react';
+import { UpdateImageDialog } from '../nodes/ImageComponent';
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-const Direction = {
+const Directions = {
   east: 1 << 0,
   north: 1 << 3,
   south: 1 << 1,
@@ -19,21 +20,20 @@ export default function ImageResizer({
   onResizeEnd,
   buttonRef,
   imageRef,
-  maxWidth,
   editor,
-  showCaption,
-  setShowCaption,
-  captionsEnabled,
+  nodeKey,
+  showModal,
 }: {
   editor: LexicalEditor;
   buttonRef: { current: null | HTMLButtonElement };
   imageRef: { current: null | HTMLElement };
-  maxWidth?: number;
-  onResizeEnd: (width: 'inherit' | number, height: 'inherit' | number) => void;
+  onResizeEnd: (width: 'inherit' | number) => void;
   onResizeStart: () => void;
-  setShowCaption: (show: boolean) => void;
-  showCaption: boolean;
-  captionsEnabled: boolean;
+  nodeKey: NodeKey;
+  showModal: (
+    title: string,
+    showModal: (onClose: () => void) => JSX.Element
+  ) => void;
 }): JSX.Element {
   const controlWrapperRef = useRef<HTMLDivElement>(null);
   const userSelect = useRef({
@@ -43,61 +43,48 @@ export default function ImageResizer({
   const positioningRef = useRef<{
     currentHeight: 'inherit' | number;
     currentWidth: 'inherit' | number;
-    direction: number;
     isResizing: boolean;
     ratio: number;
     startHeight: number;
     startWidth: number;
     startX: number;
     startY: number;
+    direction: number;
   }>({
     currentHeight: 0,
     currentWidth: 0,
-    direction: 0,
     isResizing: false,
     ratio: 0,
     startHeight: 0,
     startWidth: 0,
     startX: 0,
     startY: 0,
+    direction: 0,
   });
+
   const editorRootElement = editor.getRootElement();
-  // Find max width, accounting for editor padding.
-  const maxWidthContainer = maxWidth
-    ? maxWidth
-    : editorRootElement !== null
-      ? editorRootElement.getBoundingClientRect().width - 20
+  // Find max allowable image width (=container full width)
+  let maxWidthContainer: number;
+  const image = imageRef.current;
+  if (image) {
+    const blockContainer = image.closest("[class^='EditorTheme__']");
+    maxWidthContainer = blockContainer
+      ? blockContainer.getBoundingClientRect().width
       : 100;
-  const maxHeightContainer =
-    editorRootElement !== null
-      ? editorRootElement.getBoundingClientRect().height - 20
+  } else {
+    maxWidthContainer = editorRootElement
+      ? editorRootElement.getBoundingClientRect().width
       : 100;
+  }
 
   const minWidth = 100;
-  const minHeight = 100;
 
-  const setStartCursor = (direction: number) => {
-    const ew = direction === Direction.east || direction === Direction.west;
-    const ns = direction === Direction.north || direction === Direction.south;
-    const nwse =
-      (direction & Direction.north && direction & Direction.west) ||
-      (direction & Direction.south && direction & Direction.east);
-
-    const cursorDir = ew ? 'ew' : ns ? 'ns' : nwse ? 'nwse' : 'nesw';
-
+  const setStartCursor = () => {
     if (editorRootElement !== null) {
-      editorRootElement.style.setProperty(
-        'cursor',
-        `${cursorDir}-resize`,
-        'important'
-      );
+      editorRootElement.style.setProperty('cursor', `ew-resize`, 'important');
     }
     if (document.body !== null) {
-      document.body.style.setProperty(
-        'cursor',
-        `${cursorDir}-resize`,
-        'important'
-      );
+      document.body.style.setProperty('cursor', `ew-resize`, 'important');
       userSelect.current.value = document.body.style.getPropertyValue(
         '-webkit-user-select'
       );
@@ -136,10 +123,12 @@ export default function ImageResizer({
 
     const image = imageRef.current;
     const controlWrapper = controlWrapperRef.current;
+    const figureContainer = image?.parentElement?.parentElement;
 
-    if (image !== null && controlWrapper !== null) {
+    if (image && controlWrapper && figureContainer) {
       event.preventDefault();
-      const { width, height } = image.getBoundingClientRect();
+
+      const { width, height } = figureContainer.getBoundingClientRect();
       const positioning = positioningRef.current;
       positioning.startWidth = width;
       positioning.startHeight = height;
@@ -151,12 +140,17 @@ export default function ImageResizer({
       positioning.isResizing = true;
       positioning.direction = direction;
 
-      setStartCursor(direction);
+      setStartCursor();
       onResizeStart();
 
       controlWrapper.classList.add('image-control-wrapper--resizing');
-      image.style.height = `${height}px`;
-      image.style.width = `${width}px`;
+      // CSS Trickery 101:
+      // Image is responsive when added, but for user resizing to work, pixel
+      // values are used. Instead of applying this style to image, apply to parent
+      // in maxWidth, and at the same time set width to 100%. This way, image is
+      // as big as user chooses AS A MAX, but can shrink down on smaller screens
+      figureContainer.style.maxWidth = `${width}px`;
+      figureContainer.style.width = `100%`;
 
       document.addEventListener('pointermove', handlePointerMove);
       document.addEventListener('pointerup', handlePointerUp);
@@ -164,64 +158,34 @@ export default function ImageResizer({
   };
   const handlePointerMove = (event: PointerEvent) => {
     const image = imageRef.current;
+    const figureContainer = image?.parentElement?.parentElement;
     const positioning = positioningRef.current;
 
-    const isHorizontal =
-      positioning.direction & (Direction.east | Direction.west);
-    const isVertical =
-      positioning.direction & (Direction.south | Direction.north);
+    if (image && figureContainer && positioning.isResizing) {
+      let diff = Math.floor(positioning.startX - event.clientX);
+      // Is scaling through west or east handle?
+      diff = positioning.direction & Directions.east ? -diff : diff;
 
-    if (image !== null && positioning.isResizing) {
-      // Corner cursor
-      if (isHorizontal && isVertical) {
-        let diff = Math.floor(positioning.startX - event.clientX);
-        diff = positioning.direction & Direction.east ? -diff : diff;
+      const width = clamp(
+        positioning.startWidth + diff,
+        minWidth,
+        maxWidthContainer
+      );
 
-        const width = clamp(
-          positioning.startWidth + diff,
-          minWidth,
-          maxWidthContainer
-        );
-
-        const height = width / positioning.ratio;
-        image.style.width = `${width}px`;
-        image.style.height = `${height}px`;
-        positioning.currentHeight = height;
-        positioning.currentWidth = width;
-      } else if (isVertical) {
-        let diff = Math.floor(positioning.startY - event.clientY);
-        diff = positioning.direction & Direction.south ? -diff : diff;
-
-        const height = clamp(
-          positioning.startHeight + diff,
-          minHeight,
-          maxHeightContainer
-        );
-
-        image.style.height = `${height}px`;
-        positioning.currentHeight = height;
-      } else {
-        let diff = Math.floor(positioning.startX - event.clientX);
-        diff = positioning.direction & Direction.east ? -diff : diff;
-
-        const width = clamp(
-          positioning.startWidth + diff,
-          minWidth,
-          maxWidthContainer
-        );
-
-        image.style.width = `${width}px`;
-        positioning.currentWidth = width;
-      }
+      const height = width / positioning.ratio;
+      figureContainer.style.maxWidth = `${width}px`;
+      figureContainer.style.width = `100%`;
+      positioning.currentHeight = height;
+      positioning.currentWidth = width;
     }
   };
   const handlePointerUp = () => {
     const image = imageRef.current;
+    const figureContainer = image?.parentElement?.parentElement;
     const positioning = positioningRef.current;
     const controlWrapper = controlWrapperRef.current;
-    if (image !== null && controlWrapper !== null && positioning.isResizing) {
+    if (image && controlWrapper && figureContainer && positioning.isResizing) {
       const width = positioning.currentWidth;
-      const height = positioning.currentHeight;
       positioning.startWidth = 0;
       positioning.startHeight = 0;
       positioning.ratio = 0;
@@ -232,9 +196,15 @@ export default function ImageResizer({
       positioning.isResizing = false;
 
       controlWrapper.classList.remove('image-control-wrapper--resizing');
+      // CSS Trickery 101:
+      // If image is full width, set it to percentage based instead pixel value
+      if (width === maxWidthContainer) {
+        figureContainer.style.maxWidth = '100%';
+      }
 
       setEndCursor();
-      onResizeEnd(width, height);
+
+      onResizeEnd(width);
 
       document.removeEventListener('pointermove', handlePointerMove);
       document.removeEventListener('pointerup', handlePointerUp);
@@ -242,63 +212,32 @@ export default function ImageResizer({
   };
   return (
     <div ref={controlWrapperRef}>
-      {!showCaption && captionsEnabled && (
-        <button
-          className='image-caption-button'
-          ref={buttonRef}
-          onClick={() => {
-            setShowCaption(!showCaption);
-          }}
-        >
-          Add Caption
-        </button>
-      )}
-      <div
-        className='image-resizer image-resizer-n'
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.north);
+      <button
+        className='image-edit-button'
+        ref={buttonRef}
+        onClick={() => {
+          showModal('Update Image', (onClose) => (
+            <UpdateImageDialog
+              activeEditor={editor}
+              nodeKey={nodeKey}
+              onClose={onClose}
+            />
+          ));
         }}
-      />
-      <div
-        className='image-resizer image-resizer-ne'
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.north | Direction.east);
-        }}
-      />
+      >
+        Edit
+      </button>
+
       <div
         className='image-resizer image-resizer-e'
         onPointerDown={(event) => {
-          handlePointerDown(event, Direction.east);
-        }}
-      />
-      <div
-        className='image-resizer image-resizer-se'
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.south | Direction.east);
-        }}
-      />
-      <div
-        className='image-resizer image-resizer-s'
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.south);
-        }}
-      />
-      <div
-        className='image-resizer image-resizer-sw'
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.south | Direction.west);
+          handlePointerDown(event, Directions.north | Directions.east);
         }}
       />
       <div
         className='image-resizer image-resizer-w'
         onPointerDown={(event) => {
-          handlePointerDown(event, Direction.west);
-        }}
-      />
-      <div
-        className='image-resizer image-resizer-nw'
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.north | Direction.west);
+          handlePointerDown(event, Directions.north | Directions.west);
         }}
       />
     </div>
