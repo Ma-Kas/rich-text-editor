@@ -81,19 +81,15 @@ export function UpdateImageDialog({
   const editorState = activeEditor.getEditorState();
   const node = editorState.read(() => $getNodeByKey(nodeKey) as ImageNode);
   const [altText, setAltText] = useState(node.getAltText());
-  const [showCaption, setShowCaption] = useState(node.getShowCaption());
+  const [captionText, setCaptionText] = useState(node.getCaptionText());
   const [alignment, setAlignment] = useState<Alignment>(node.getAlignment());
-
-  const handleShowCaptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setShowCaption(e.target.checked);
-  };
 
   const handlePositionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setAlignment(e.target.value as Alignment);
   };
 
   const handleOnConfirm = () => {
-    const payload = { altText, alignment, showCaption };
+    const payload = { altText, alignment, captionText };
     if (node) {
       activeEditor.update(() => {
         node.update(payload);
@@ -114,6 +110,16 @@ export function UpdateImageDialog({
         />
       </div>
 
+      <div style={{ marginBottom: '1em' }}>
+        <TextInput
+          label='Caption'
+          placeholder='Add a caption here'
+          onChange={setCaptionText}
+          value={captionText}
+          data-test-id='image-modal-caption-text-input'
+        />
+      </div>
+
       <Select
         style={{ marginBottom: '1em', width: '208px' }}
         value={alignment}
@@ -126,16 +132,6 @@ export function UpdateImageDialog({
         <option value='right'>Right</option>
         <option value='center'>Center</option>
       </Select>
-
-      <div className='Input__wrapper'>
-        <input
-          id='caption'
-          type='checkbox'
-          checked={showCaption}
-          onChange={handleShowCaptionChange}
-        />
-        <label htmlFor='caption'>Include Caption</label>
-      </div>
 
       <DialogActions>
         <Button
@@ -155,7 +151,7 @@ export default function ImageComponent({
   alignment,
   nodeKey,
   resizable,
-  showCaption,
+  captionText,
   caption,
 }: {
   altText: string;
@@ -163,7 +159,7 @@ export default function ImageComponent({
   caption: LexicalEditor;
   nodeKey: NodeKey;
   resizable: boolean;
-  showCaption: boolean;
+  captionText: string;
   src: string;
 }): JSX.Element {
   const imageRef = useRef<null | HTMLImageElement>(null);
@@ -218,7 +214,7 @@ export default function ImageComponent({
         $isNodeSelection(latestSelection) &&
         latestSelection.getNodes().length === 1
       ) {
-        if (showCaption) {
+        if (captionText) {
           // Move focus into nested editor
           $setSelection(null);
           event.preventDefault();
@@ -235,7 +231,7 @@ export default function ImageComponent({
       }
       return false;
     },
-    [caption, isSelected, showCaption]
+    [caption, isSelected, captionText]
   );
 
   const onEscape = useCallback(
@@ -398,10 +394,8 @@ export default function ImageComponent({
             altText={altText}
             imageRef={imageRef}
           />
-          {showCaption && (
-            <div className='image-caption-container'>
-              Some annoyingly long caption to put in here
-            </div>
+          {captionText && (
+            <div className='image-caption-container'>{captionText}</div>
           )}
         </div>
 

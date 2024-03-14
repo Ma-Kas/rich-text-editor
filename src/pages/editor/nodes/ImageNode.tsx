@@ -22,14 +22,14 @@ export interface ImagePayload {
   altText: string;
   caption?: LexicalEditor;
   key?: NodeKey;
-  showCaption?: boolean;
+  captionText?: string;
   src: string;
   alignment?: Alignment;
 }
 
 export interface UpdateImagePayload {
   altText?: string;
-  showCaption?: boolean;
+  captionText?: string;
   alignment?: Alignment;
 }
 
@@ -47,7 +47,7 @@ export type SerializedImageNode = Spread<
   {
     altText: string;
     caption: SerializedEditor;
-    showCaption: boolean;
+    captionText: string;
     src: string;
     alignment?: Alignment;
   },
@@ -57,7 +57,7 @@ export type SerializedImageNode = Spread<
 export class ImageNode extends DecoratorNode<JSX.Element> {
   __src: string;
   __altText: string;
-  __showCaption: boolean;
+  __captionText: string;
   __caption: LexicalEditor;
   // Captions cannot yet be used within editor cells
   __alignment: Alignment;
@@ -71,17 +71,17 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       node.__src,
       node.__altText,
       node.__alignment,
-      node.__showCaption,
+      node.__captionText,
       node.__caption,
       node.__key
     );
   }
 
   static importJSON(serializedNode: SerializedImageNode): ImageNode {
-    const { altText, caption, src, showCaption, alignment } = serializedNode;
+    const { altText, caption, src, captionText, alignment } = serializedNode;
     const node = $createImageNode({
       altText,
-      showCaption,
+      captionText,
       src,
       alignment,
     });
@@ -106,7 +106,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     src: string,
     altText: string,
     alignment: Alignment,
-    showCaption?: boolean,
+    captionText?: string,
     caption?: LexicalEditor,
     key?: NodeKey
   ) {
@@ -114,7 +114,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     this.__src = src;
     this.__altText = altText;
     this.__alignment = alignment;
-    this.__showCaption = showCaption || false;
+    this.__captionText = captionText || '';
     this.__caption = caption || createEditor();
   }
 
@@ -130,7 +130,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       altText: this.getAltText(),
       caption: this.__caption.toJSON(),
       alignment: this.__alignment,
-      showCaption: this.__showCaption,
+      captionText: this.__captionText,
       src: this.getSrc(),
       type: 'image',
       version: 1,
@@ -150,13 +150,13 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     writable.__altText = altText;
   }
 
-  getShowCaption(): boolean {
-    return this.__showCaption;
+  getCaptionText(): string {
+    return this.__captionText;
   }
 
-  setShowCaption(showCaption: boolean): void {
+  setCaptionText(captionText: string): void {
     const writable = this.getWritable();
-    writable.__showCaption = showCaption;
+    writable.__captionText = captionText;
   }
 
   getAlignment(): Alignment {
@@ -170,12 +170,12 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 
   update(payload: UpdateImagePayload): void {
     const writable = this.getWritable();
-    const { altText, showCaption, alignment } = payload;
+    const { altText, captionText, alignment } = payload;
     if (altText !== undefined) {
       writable.__altText = altText;
     }
-    if (showCaption !== undefined) {
-      writable.__showCaption = showCaption;
+    if (captionText !== undefined) {
+      writable.__captionText = captionText;
     }
     if (alignment !== undefined) {
       writable.__alignment = alignment;
@@ -218,7 +218,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
           altText={this.__altText}
           alignment={this.__alignment}
           nodeKey={this.getKey()}
-          showCaption={this.__showCaption}
+          captionText={this.__captionText}
           caption={this.__caption}
           resizable={true}
         />
@@ -231,12 +231,12 @@ export function $createImageNode({
   altText,
   alignment = 'center',
   src,
-  showCaption,
+  captionText,
   caption,
   key,
 }: ImagePayload): ImageNode {
   return $applyNodeReplacement(
-    new ImageNode(src, altText, alignment, showCaption, caption, key)
+    new ImageNode(src, altText, alignment, captionText, caption, key)
   );
 }
 
