@@ -200,11 +200,13 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     const alignment = this.__alignment;
     if (alignment && alignment !== prevNode.__alignment) {
       // Update the justify-content in parent
-      const blockContainer = dom.closest("[class^='EditorTheme__]");
-      if (blockContainer && blockContainer instanceof HTMLElement) {
+      const blockContainer = dom.parentElement;
+      if (
+        blockContainer &&
+        blockContainer instanceof HTMLElement &&
+        blockContainer.classList.contains('EditorTheme__imageBlock')
+      ) {
         blockContainer.style.justifyContent = alignment;
-      } else {
-        throw new Error('waaaa');
       }
     }
     return false;

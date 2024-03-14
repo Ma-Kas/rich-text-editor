@@ -148,7 +148,6 @@ export function UpdateImageDialog({
 export default function ImageComponent({
   src,
   altText,
-  alignment,
   nodeKey,
   resizable,
   captionText,
