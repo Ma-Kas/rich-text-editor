@@ -31,10 +31,6 @@ import {
 } from '@lexical/selection';
 import { $isTableNode } from '@lexical/table';
 import {
-  $convertFromMarkdownString,
-  $convertToMarkdownString,
-} from '@lexical/markdown';
-import {
   $findMatchingParent,
   $getNearestBlockElementAncestorOrThrow,
   $getNearestNodeOfType,
@@ -49,7 +45,7 @@ import {
   $isRangeSelection,
   $isRootOrShadowRoot,
   $isTextNode,
-  $createTextNode,
+  BaseSelection,
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
@@ -67,7 +63,6 @@ import {
   UNDO_COMMAND,
 } from 'lexical';
 import { Dispatch, useCallback, useEffect, useState } from 'react';
-import { EDITOR_TRANSFORMERS } from '../MarkdownTransformers';
 import { IS_APPLE } from '../../../shared/src/environment';
 
 import useModal from '../../hooks/useModal';
@@ -114,6 +109,20 @@ function getCodeLanguageOptions(): [string, string][] {
   }
 
   return options;
+}
+
+// To disallow reformat block as code block
+function containsImageNode(selection: BaseSelection): boolean {
+  const nodes = selection.getNodes();
+  if (!nodes) {
+    return true;
+  }
+  for (let i = 0; i < nodes.length; i++) {
+    if (nodes[i].__type === 'image-block' || nodes[i].__type === 'image') {
+      return true;
+    }
+  }
+  return false;
 }
 
 const CODE_LANGUAGE_OPTIONS = getCodeLanguageOptions();
@@ -198,19 +207,31 @@ function BlockTypeListMenu({
   };
 
   const formatBulletList = () => {
-    if (blockType !== 'bullet') {
-      editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
-    } else {
-      formatParagraph();
-    }
+    editor.update(() => {
+      const selection = $getSelection();
+      if (!selection || containsImageNode(selection)) {
+        return;
+      }
+      if (blockType !== 'bullet') {
+        editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+      } else {
+        formatParagraph();
+      }
+    });
   };
 
   const formatNumberedList = () => {
-    if (blockType !== 'number') {
-      editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
-    } else {
-      formatParagraph();
-    }
+    editor.update(() => {
+      const selection = $getSelection();
+      if (!selection || containsImageNode(selection)) {
+        return;
+      }
+      if (blockType !== 'number') {
+        editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+      } else {
+        formatParagraph();
+      }
+    });
   };
 
   const formatQuote = () => {
@@ -227,7 +248,7 @@ function BlockTypeListMenu({
       editor.update(() => {
         let selection = $getSelection();
 
-        if (selection !== null) {
+        if (selection !== null && !containsImageNode(selection)) {
           if (selection.isCollapsed()) {
             $setBlocksType(selection, () => $createCodeNode());
           } else {
@@ -334,19 +355,31 @@ function BlockFormatDropDown({
   };
 
   const formatBulletList = () => {
-    if (blockType !== 'bullet') {
-      editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
-    } else {
-      formatParagraph();
-    }
+    editor.update(() => {
+      const selection = $getSelection();
+      if (!selection || containsImageNode(selection)) {
+        return;
+      }
+      if (blockType !== 'bullet') {
+        editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+      } else {
+        formatParagraph();
+      }
+    });
   };
 
   const formatNumberedList = () => {
-    if (blockType !== 'number') {
-      editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
-    } else {
-      formatParagraph();
-    }
+    editor.update(() => {
+      const selection = $getSelection();
+      if (!selection || containsImageNode(selection)) {
+        return;
+      }
+      if (blockType !== 'number') {
+        editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+      } else {
+        formatParagraph();
+      }
+    });
   };
 
   const formatQuote = () => {
@@ -363,7 +396,7 @@ function BlockFormatDropDown({
       editor.update(() => {
         let selection = $getSelection();
 
-        if (selection !== null) {
+        if (selection !== null && !containsImageNode(selection)) {
           if (selection.isCollapsed()) {
             $setBlocksType(selection, () => $createCodeNode());
           } else {
@@ -937,27 +970,6 @@ function ToolbarPlugin({
     [activeEditor, selectedElementKey]
   );
 
-  const handleMarkdownToggle = useCallback(() => {
-    editor.update(() => {
-      const root = $getRoot();
-      const firstChild = root.getFirstChild();
-      if ($isCodeNode(firstChild) && firstChild.getLanguage() === 'markdown') {
-        $convertFromMarkdownString(
-          firstChild.getTextContent(),
-          EDITOR_TRANSFORMERS
-        );
-      } else {
-        const markdown = $convertToMarkdownString(EDITOR_TRANSFORMERS);
-        root
-          .clear()
-          .append(
-            $createCodeNode('markdown').append($createTextNode(markdown))
-          );
-      }
-      root.selectEnd();
-    });
-  }, [editor]);
-
   return (
     <div className='toolbar'>
       <button
@@ -1301,11 +1313,20 @@ function ToolbarPlugin({
       <Divider />
       <button
         className='toolbar-item'
-        onClick={handleMarkdownToggle}
-        title='Toggle Markdown'
-        aria-label='Toggle Markdown'
+        onClick={() => console.log('test button for import')}
+        title='Test Import'
+        aria-label='Test Import'
       >
-        <i className='format markdown' />
+        <i className='format import' />
+      </button>
+
+      <button
+        className='toolbar-item'
+        onClick={() => console.log('test button for export')}
+        title='Test Export'
+        aria-label='Test Export'
+      >
+        <i className='format export' />
       </button>
       {modal}
     </div>

@@ -377,8 +377,12 @@ i.indent {
   background-image: url(../assets/icons/text-indent.svg);
 }
 
-i.markdown {
-  background-image: url(../assets/icons/markdown.svg);
+i.export {
+  background-image: url(../assets/icons/download.svg);
+}
+
+i.import {
+  background-image: url(../assets/icons/upload.svg);
 }
 
 i.outdent {

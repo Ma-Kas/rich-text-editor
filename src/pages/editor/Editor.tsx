@@ -27,7 +27,6 @@ import InlineImagePlugin from './plugins/InlineImagePlugin';
 import { LayoutPlugin } from './plugins/LayoutPlugin/LayoutPlugin';
 import LinkPlugin from './plugins/LinkPlugin';
 import ListMaxIndentLevelPlugin from './plugins/ListMaxIndentLevelPlugin';
-import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin';
 import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableCellResizer from './plugins/TableCellResizer';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
@@ -97,7 +96,6 @@ export default function Editor(): JSX.Element {
             placeholder={placeholder}
             ErrorBoundary={LexicalErrorBoundary}
           />
-          <MarkdownShortcutPlugin />
           <CodeHighlightPlugin />
           <ListPlugin />
           <CheckListPlugin />
