@@ -798,6 +798,7 @@ i.success {
 .editor-shell .editor-image .figure-container {
   display: flex;
   flex-direction: column;
+  margin: 0;
 }
 
 .editor-shell .editor-image .image-caption-container {

@@ -391,7 +391,7 @@ export default function ImageComponent({
   return (
     <Suspense fallback={null}>
       <>
-        <div className='figure-container'>
+        <figure className='figure-container'>
           <LazyImage
             className={isFocused ? `focused` : null}
             src={src}
@@ -399,9 +399,11 @@ export default function ImageComponent({
             imageRef={imageRef}
           />
           {captionText && (
-            <div className='image-caption-container'>{captionText}</div>
+            <figcaption className='image-caption-container'>
+              {captionText}
+            </figcaption>
           )}
-        </div>
+        </figure>
 
         {resizable && $isNodeSelection(selection) && isFocused && (
           <ImageResizer
