@@ -80,6 +80,9 @@ import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 import { InsertTableDialog } from '../TablePlugin';
 import FontSize from './fontSize';
 
+const IMPORT_TEST =
+  '{"root":{"children":[{"children":[{"altText":"Yellow flower in tilt shift lens","caption":{"editorState":{"root":{"children":[],"direction":null,"format":"","indent":0,"type":"root","version":1}}},"alignment":"left","captionText":"A caption","src":"/src/pages/editor/images/yellow-flower.jpg","type":"image","version":1}],"direction":null,"format":"","indent":0,"type":"image-block","version":1},{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Henlo paragraph","type":"text","version":1},{"type":"linebreak","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":"Same paragraph","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1},{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"New one","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}';
+
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',
   code: 'Code Block',
@@ -970,6 +973,23 @@ function ToolbarPlugin({
     [activeEditor, selectedElementKey]
   );
 
+  const handleExportTest = useCallback(() => {
+    editor.update(() => {
+      const json = editor.getEditorState().toJSON();
+      console.log(JSON.stringify(json));
+    });
+  }, [editor]);
+
+  const handleImportTest = useCallback(
+    (data: string) => {
+      editor.update(() => {
+        const editorState = editor.parseEditorState(data);
+        editor.setEditorState(editorState);
+      });
+    },
+    [editor]
+  );
+
   return (
     <div className='toolbar'>
       <button
@@ -1313,7 +1333,7 @@ function ToolbarPlugin({
       <Divider />
       <button
         className='toolbar-item'
-        onClick={() => console.log('test button for import')}
+        onClick={() => handleImportTest(IMPORT_TEST)}
         title='Test Import'
         aria-label='Test Import'
       >
@@ -1322,7 +1342,7 @@ function ToolbarPlugin({
 
       <button
         className='toolbar-item'
-        onClick={() => console.log('test button for export')}
+        onClick={handleExportTest}
         title='Test Export'
         aria-label='Test Export'
       >
