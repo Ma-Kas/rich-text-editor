@@ -197,57 +197,6 @@ export function InsertImageDialog({
   );
 }
 
-export default function ImagesPlugin(): JSX.Element | null {
-  const [editor] = useLexicalComposerContext();
-
-  useEffect(() => {
-    if (!editor.hasNodes([ImageNode])) {
-      throw new Error('ImagesPlugin: ImageNode not registered on editor');
-    }
-
-    return mergeRegister(
-      editor.registerCommand<InsertImagePayload>(
-        INSERT_IMAGE_COMMAND,
-        (payload) => {
-          const newImageBlock = $createImageBlockNode();
-          const imageNode = $createImageNode(payload);
-          // Add new paragraph node below created image
-          const newParagraph = $createParagraphNode();
-          newImageBlock.append(imageNode);
-
-          $insertNodes([newImageBlock, newParagraph]);
-
-          return true;
-        },
-        COMMAND_PRIORITY_EDITOR
-      ),
-      editor.registerCommand<DragEvent>(
-        DRAGSTART_COMMAND,
-        (event) => {
-          return onDragStart(event);
-        },
-        COMMAND_PRIORITY_HIGH
-      ),
-      editor.registerCommand<DragEvent>(
-        DRAGOVER_COMMAND,
-        (event) => {
-          return onDragover(event);
-        },
-        COMMAND_PRIORITY_LOW
-      ),
-      editor.registerCommand<DragEvent>(
-        DROP_COMMAND,
-        (event) => {
-          return onDrop(event, editor);
-        },
-        COMMAND_PRIORITY_HIGH
-      )
-    );
-  }, [editor]);
-
-  return null;
-}
-
 const TRANSPARENT_IMAGE =
   'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 const img = document.createElement('img');
@@ -376,4 +325,57 @@ function getDragSelection(event: DragEvent): Range | null | undefined {
   }
 
   return range;
+}
+
+export default function ImagesPlugin(): JSX.Element | null {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    if (!editor.hasNodes([ImageNode])) {
+      throw new Error('ImagesPlugin: ImageNode not registered on editor');
+    }
+
+    return mergeRegister(
+      editor.registerCommand<InsertImagePayload>(
+        INSERT_IMAGE_COMMAND,
+        (payload) => {
+          const newImageBlock = $createImageBlockNode();
+          $insertNodes([newImageBlock]);
+
+          const imageNode = $createImageNode(payload);
+          $insertNodes([imageNode]);
+
+          // Add new paragraph node below created image
+          const newParagraphNode = $createParagraphNode();
+          $insertNodes([newParagraphNode]);
+
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR
+      ),
+      editor.registerCommand<DragEvent>(
+        DRAGSTART_COMMAND,
+        (event) => {
+          return onDragStart(event);
+        },
+        COMMAND_PRIORITY_HIGH
+      ),
+      editor.registerCommand<DragEvent>(
+        DRAGOVER_COMMAND,
+        (event) => {
+          return onDragover(event);
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+      editor.registerCommand<DragEvent>(
+        DROP_COMMAND,
+        (event) => {
+          return onDrop(event, editor);
+        },
+        COMMAND_PRIORITY_HIGH
+      )
+    );
+  }, [editor]);
+
+  return null;
 }
