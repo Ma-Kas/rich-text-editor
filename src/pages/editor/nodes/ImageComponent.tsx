@@ -364,11 +364,20 @@ export default function ImageComponent({
     setSelected,
   ]);
 
-  const onResizeEnd = () => {
+  const onResizeEnd = (width: string, maxWidth: string) => {
     // Delay hiding the resize bars for click case
     setTimeout(() => {
       setIsResizing(false);
     }, 200);
+
+    // Set values in ImageNode that will be necessary for serialization and deserialization
+    editor.update(() => {
+      const node = $getNodeByKey(nodeKey);
+      if ($isImageNode(node)) {
+        node.setWidth(width);
+        node.setMaxWidth(maxWidth);
+      }
+    });
   };
 
   const onResizeStart = () => {

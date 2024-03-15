@@ -209,6 +209,10 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     if (className !== undefined) {
       div.className = className;
     }
+    if (this.__maxWidth && this.__width) {
+      div.style.maxWidth = this.__maxWidth;
+      div.style.width = this.__width;
+    }
     return div;
   }
 
