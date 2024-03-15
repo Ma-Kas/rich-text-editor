@@ -3,15 +3,13 @@ import type {
   DOMConversionOutput,
   DOMExportOutput,
   EditorConfig,
-  LexicalEditor,
   LexicalNode,
   NodeKey,
-  SerializedEditor,
   SerializedLexicalNode,
   Spread,
 } from 'lexical';
 
-import { $applyNodeReplacement, createEditor, DecoratorNode } from 'lexical';
+import { $applyNodeReplacement, DecoratorNode } from 'lexical';
 
 import { Suspense } from 'react';
 import { ImageComponent } from '../utils/lazyImportComponents';
@@ -20,7 +18,6 @@ export type Alignment = 'left' | 'right' | 'center' | undefined;
 
 export interface ImagePayload {
   altText: string;
-  caption?: LexicalEditor;
   key?: NodeKey;
   captionText?: string;
   src: string;
@@ -46,7 +43,6 @@ function convertImageElement(domNode: Node): null | DOMConversionOutput {
 export type SerializedImageNode = Spread<
   {
     altText: string;
-    caption: SerializedEditor;
     captionText: string;
     src: string;
     alignment?: Alignment;
@@ -58,8 +54,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   __src: string;
   __altText: string;
   __captionText: string;
-  __caption: LexicalEditor;
-  // Captions cannot yet be used within editor cells
   __alignment: Alignment;
 
   static getType(): string {
@@ -72,24 +66,18 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       node.__altText,
       node.__alignment,
       node.__captionText,
-      node.__caption,
       node.__key
     );
   }
 
   static importJSON(serializedNode: SerializedImageNode): ImageNode {
-    const { altText, caption, src, captionText, alignment } = serializedNode;
+    const { altText, src, captionText, alignment } = serializedNode;
     const node = $createImageNode({
       altText,
       captionText,
       src,
       alignment,
     });
-    const nestedEditor = node.__caption;
-    const editorState = nestedEditor.parseEditorState(caption.editorState);
-    if (!editorState.isEmpty()) {
-      nestedEditor.setEditorState(editorState);
-    }
     return node;
   }
 
@@ -107,7 +95,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     altText: string,
     alignment: Alignment,
     captionText?: string,
-    caption?: LexicalEditor,
     key?: NodeKey
   ) {
     super(key);
@@ -115,7 +102,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     this.__altText = altText;
     this.__alignment = alignment;
     this.__captionText = captionText || '';
-    this.__caption = caption || createEditor();
   }
 
   exportDOM(): DOMExportOutput {
@@ -128,7 +114,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   exportJSON(): SerializedImageNode {
     return {
       altText: this.getAltText(),
-      caption: this.__caption.toJSON(),
       alignment: this.__alignment,
       captionText: this.__captionText,
       src: this.getSrc(),
@@ -221,7 +206,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
           alignment={this.__alignment}
           nodeKey={this.getKey()}
           captionText={this.__captionText}
-          caption={this.__caption}
           resizable={true}
         />
       </Suspense>
@@ -234,11 +218,10 @@ export function $createImageNode({
   alignment = 'center',
   src,
   captionText,
-  caption,
   key,
 }: ImagePayload): ImageNode {
   return $applyNodeReplacement(
-    new ImageNode(src, altText, alignment, captionText, caption, key)
+    new ImageNode(src, altText, alignment, captionText, key)
   );
 }
 

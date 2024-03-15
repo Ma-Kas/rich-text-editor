@@ -80,9 +80,7 @@ import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 import { InsertTableDialog } from '../TablePlugin';
 import FontSize from './fontSize';
 
-const IMPORT_TEST =
-  '{"root":{"children":[{"children":[{"altText":"Yellow flower in tilt shift lens","caption":{"editorState":{"root":{"children":[],"direction":null,"format":"","indent":0,"type":"root","version":1}}},"alignment":"left","captionText":"A caption","src":"/src/pages/editor/images/yellow-flower.jpg","type":"image","version":1}],"direction":null,"format":"","indent":0,"type":"image-block","version":1},{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Henlo paragraph","type":"text","version":1},{"type":"linebreak","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":"Same paragraph","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1},{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"New one","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}';
-
+const IMPORT_TEST = '';
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',
   code: 'Code Block',
@@ -333,7 +331,6 @@ function BlockTypeListMenu({
 function BlockFormatDropDown({
   editor,
   blockType,
-  rootType,
   disabled = false,
 }: {
   blockType: keyof typeof blockTypeToBlockName;

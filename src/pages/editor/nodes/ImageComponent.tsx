@@ -151,11 +151,9 @@ export default function ImageComponent({
   nodeKey,
   resizable,
   captionText,
-  caption,
 }: {
   altText: string;
   alignment: Alignment;
-  caption: LexicalEditor;
   nodeKey: NodeKey;
   resizable: boolean;
   captionText: string;
@@ -218,16 +216,7 @@ export default function ImageComponent({
         $isNodeSelection(latestSelection) &&
         latestSelection.getNodes().length === 1
       ) {
-        if (captionText) {
-          // Move focus into nested editor
-          $setSelection(null);
-          event.preventDefault();
-          caption.focus();
-          return true;
-        } else if (
-          buttonElem !== null &&
-          buttonElem !== document.activeElement
-        ) {
+        if (buttonElem !== null && buttonElem !== document.activeElement) {
           event.preventDefault();
           buttonElem.focus();
           return true;
@@ -235,15 +224,12 @@ export default function ImageComponent({
       }
       return false;
     },
-    [caption, isSelected, captionText]
+    [isSelected]
   );
 
   const onEscape = useCallback(
     (event: KeyboardEvent) => {
-      if (
-        activeEditorRef.current === caption ||
-        buttonRef.current === event.target
-      ) {
+      if (buttonRef.current === event.target) {
         $setSelection(null);
         editor.update(() => {
           setSelected(true);
@@ -256,7 +242,7 @@ export default function ImageComponent({
       }
       return false;
     },
-    [caption, editor, setSelected]
+    [editor, setSelected]
   );
 
   const onClick = useCallback(
