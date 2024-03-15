@@ -72,7 +72,7 @@ import DropDown, { DropDownItem } from '../../ui/DropDown';
 import DropdownColorPicker from '../../ui/DropdownColorPicker';
 import { getSelectedNode } from '../../utils/getSelectedNode';
 import { sanitizeUrl } from '../../utils/url';
-import { EmbedConfigs } from '../AutoEmbedPlugin';
+import { EmbedConfigs } from '../../utils/embedConfigs.index';
 import { INSERT_COLLAPSIBLE_COMMAND } from '../CollapsiblePlugin';
 import { InsertImageDialog } from '../ImagesPlugin';
 import { InsertInlineImageDialog } from '../InlineImagePlugin';

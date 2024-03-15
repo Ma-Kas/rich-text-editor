@@ -1,9 +1,4 @@
-import type {
-  ElementNode,
-  LexicalCommand,
-  LexicalNode,
-  NodeKey,
-} from 'lexical';
+import type { ElementNode, LexicalNode } from 'lexical';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
@@ -18,13 +13,17 @@ import {
   $isRangeSelection,
   COMMAND_PRIORITY_EDITOR,
   COMMAND_PRIORITY_LOW,
-  createCommand,
   KEY_ARROW_DOWN_COMMAND,
   KEY_ARROW_LEFT_COMMAND,
   KEY_ARROW_RIGHT_COMMAND,
   KEY_ARROW_UP_COMMAND,
 } from 'lexical';
 import { useEffect } from 'react';
+
+import {
+  INSERT_LAYOUT_COMMAND,
+  UPDATE_LAYOUT_COMMAND,
+} from '../../utils/exportedCommands';
 
 import {
   $createLayoutContainerNode,
@@ -36,14 +35,6 @@ import {
   $isLayoutItemNode,
   LayoutItemNode,
 } from '../../nodes/LayoutItemNode';
-
-export const INSERT_LAYOUT_COMMAND: LexicalCommand<string> =
-  createCommand<string>();
-
-export const UPDATE_LAYOUT_COMMAND: LexicalCommand<{
-  template: string;
-  nodeKey: NodeKey;
-}> = createCommand<{ template: string; nodeKey: NodeKey }>();
 
 export function LayoutPlugin(): null {
   const [editor] = useLexicalComposerContext();

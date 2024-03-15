@@ -18,7 +18,7 @@ import { $isCollapsibleContentNode } from './CollapsibleContentNode';
 type SerializedCollapsibleTitleNode = SerializedElementNode;
 
 export function convertSummaryElement(
-  domNode: HTMLElement
+  _domNode: HTMLElement
 ): DOMConversionOutput | null {
   const node = $createCollapsibleTitleNode();
   return {
@@ -35,19 +35,19 @@ export class CollapsibleTitleNode extends ElementNode {
     return new CollapsibleTitleNode(node.__key);
   }
 
-  createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
+  createDOM(_config: EditorConfig, _editor: LexicalEditor): HTMLElement {
     const dom = document.createElement('summary');
     dom.classList.add('Collapsible__title');
     return dom;
   }
 
-  updateDOM(prevNode: CollapsibleTitleNode, dom: HTMLElement): boolean {
+  updateDOM(_prevNode: CollapsibleTitleNode, _dom: HTMLElement): boolean {
     return false;
   }
 
   static importDOM(): DOMConversionMap | null {
     return {
-      summary: (domNode: HTMLElement) => {
+      summary: (_domNode: HTMLElement) => {
         return {
           conversion: convertSummaryElement,
           priority: 1,
@@ -57,7 +57,7 @@ export class CollapsibleTitleNode extends ElementNode {
   }
 
   static importJSON(
-    serializedNode: SerializedCollapsibleTitleNode
+    _serializedNode: SerializedCollapsibleTitleNode
   ): CollapsibleTitleNode {
     return $createCollapsibleTitleNode();
   }

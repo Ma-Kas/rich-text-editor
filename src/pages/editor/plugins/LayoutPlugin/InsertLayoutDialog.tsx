@@ -1,10 +1,9 @@
 import { LexicalEditor } from 'lexical';
-import * as React from 'react';
 import { useState } from 'react';
 
 import Button from '../../ui/Button';
 import DropDown, { DropDownItem } from '../../ui/DropDown';
-import { INSERT_LAYOUT_COMMAND } from './LayoutPlugin';
+import { INSERT_LAYOUT_COMMAND } from '../../utils/exportedCommands';
 
 const LAYOUTS = [
   { label: '2 columns (equal width)', value: '1fr 1fr' },

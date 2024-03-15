@@ -21,7 +21,6 @@ import {
   COMMAND_PRIORITY_HIGH,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
-import * as React from 'react';
 import {
   MouseEventHandler,
   ReactPortal,
@@ -60,7 +59,7 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
   useEffect(() => {
     return editor.registerCommand(
       SELECTION_CHANGE_COMMAND,
-      (payload) => {
+      (_payload) => {
         const selection = $getSelection();
         const isTableSelection = $isTableSelection(selection);
 

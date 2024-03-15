@@ -7,15 +7,13 @@ import {
 import {
   $insertNodes,
   COMMAND_PRIORITY_EDITOR,
-  createCommand,
   EditorThemeClasses,
   Klass,
-  LexicalCommand,
   LexicalEditor,
   LexicalNode,
 } from 'lexical';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import * as React from 'react';
+import { INSERT_NEW_TABLE_COMMAND } from '../utils/exportedCommands';
 import invariant from '../../shared/src/invariant';
 
 import Button from '../ui/Button';
@@ -44,9 +42,6 @@ export type CellEditorConfig = Readonly<{
   readOnly?: boolean;
   theme?: EditorThemeClasses;
 }>;
-
-export const INSERT_NEW_TABLE_COMMAND: LexicalCommand<InsertTableCommandPayload> =
-  createCommand('INSERT_NEW_TABLE_COMMAND');
 
 export const CellContext = createContext<CellContextShape>({
   cellEditorConfig: null,

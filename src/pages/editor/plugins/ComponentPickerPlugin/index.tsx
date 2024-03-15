@@ -26,7 +26,7 @@ import { useCallback, useMemo, useState } from 'react';
 import * as ReactDOM from 'react-dom';
 
 import useModal from '../../hooks/useModal';
-import { EmbedConfigs } from '../AutoEmbedPlugin';
+import { EmbedConfigs } from '../../utils/embedConfigs.index';
 import { INSERT_COLLAPSIBLE_COMMAND } from '../CollapsiblePlugin';
 import { InsertImageDialog } from '../ImagesPlugin';
 import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
