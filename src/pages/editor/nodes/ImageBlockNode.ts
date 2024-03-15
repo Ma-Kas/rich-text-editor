@@ -1,11 +1,16 @@
-import type { EditorConfig, ElementFormatType, LexicalEditor } from 'lexical';
+import type {
+  EditorConfig,
+  LexicalEditor,
+  NodeKey,
+  SerializedParagraphNode,
+  Spread,
+} from 'lexical';
 import type {
   DOMConversionMap,
   DOMConversionOutput,
   DOMExportOutput,
   LexicalNode,
 } from 'lexical';
-import type { SerializedElementNode } from 'lexical';
 import type { RangeSelection } from 'lexical';
 import {
   ElementNode,
@@ -14,27 +19,47 @@ import {
   $isTextNode,
 } from 'lexical';
 
+export interface ImageBlockPayload {
+  key?: NodeKey;
+  alignment?: Alignment;
+}
+
+export type Alignment = 'left' | 'right' | 'center' | undefined;
+
 function convertImageBlockElement(element: HTMLElement): DOMConversionOutput {
   const node = $createImageBlockNode();
   if (element.style) {
-    node.setFormat(element.style.textAlign as ElementFormatType);
-    const indent = parseInt(element.style.textIndent, 10) / 20;
-    if (indent > 0) {
-      node.setIndent(indent);
-    }
+    node.setAlignment(element.style.justifyContent as Alignment);
   }
   return { node };
 }
 
-export type SerializedImageBlockNode = SerializedElementNode;
+export type SerializedImageBlockNode = Spread<
+  {
+    alignment?: Alignment;
+  },
+  SerializedParagraphNode
+>;
 
 export class ImageBlockNode extends ElementNode {
+  __alignment: Alignment = 'center';
+
   static getType(): string {
     return 'image-block';
   }
   static clone(node: ImageBlockNode): ImageBlockNode {
-    return new ImageBlockNode(node.__key);
+    return new ImageBlockNode(node.__alignment, node.__key);
   }
+
+  constructor(alignment?: Alignment, key?: NodeKey) {
+    super(key);
+    if (alignment) {
+      this.__alignment = alignment;
+    } else {
+      this.__alignment = 'center';
+    }
+  }
+
   // View
   createDOM(config: EditorConfig): HTMLElement {
     const span = document.createElement('p');
@@ -42,10 +67,22 @@ export class ImageBlockNode extends ElementNode {
     if (className !== undefined) {
       span.className = className;
     }
+    if (this.__alignment) {
+      span.style.justifyContent = this.__alignment;
+    }
     return span;
   }
 
-  updateDOM(_prevNode: ImageBlockNode, _dom: HTMLElement): boolean {
+  updateDOM(
+    prevNode: ImageBlockNode,
+    dom: HTMLElement,
+    _config: EditorConfig
+  ): boolean {
+    const alignment = this.__alignment;
+    if (alignment && alignment !== prevNode.__alignment) {
+      // Update the justify-content
+      dom.style.justifyContent = alignment;
+    }
     return false;
   }
 
@@ -62,18 +99,9 @@ export class ImageBlockNode extends ElementNode {
     const { element } = super.exportDOM(editor);
 
     if (element && isHTMLElement(element)) {
-      const formatType = this.getFormatType();
-      element.style.textAlign = formatType;
-
-      const direction = this.getDirection();
-      if (direction) {
-        element.dir = direction;
-      }
-      const indent = this.getIndent();
-      if (indent > 0) {
-        // padding-inline-start is not widely supported in email HTML, but
-        // Lexical Reconciler uses padding-inline-start. Using text-indent instead.
-        element.style.textIndent = `${indent * 20}px`;
+      const alignment = this.getAlignment();
+      if (alignment) {
+        element.style.justifyContent = alignment;
       }
     }
 
@@ -84,24 +112,32 @@ export class ImageBlockNode extends ElementNode {
 
   static importJSON(serializedNode: SerializedImageBlockNode): ImageBlockNode {
     const node = $createImageBlockNode();
-    node.setFormat(serializedNode.format);
-    node.setIndent(serializedNode.indent);
-    node.setDirection(serializedNode.direction);
+    node.setAlignment(serializedNode.alignment);
     return node;
   }
 
   exportJSON(): SerializedImageBlockNode {
     return {
       ...super.exportJSON(),
+      alignment: this.__alignment,
       type: 'image-block',
       version: 1,
     };
   }
 
+  getAlignment(): Alignment {
+    return this.__alignment;
+  }
+
+  setAlignment(alignment: Alignment): void {
+    const writable = this.getWritable();
+    writable.__alignment = alignment;
+  }
+
   insertNewAfter(_: RangeSelection, restoreSelection: boolean): ImageBlockNode {
     const newElement = $createImageBlockNode();
-    const direction = this.getDirection();
-    newElement.setDirection(direction);
+    const alignment = this.getAlignment();
+    newElement.setAlignment(alignment);
     this.insertAfter(newElement, restoreSelection);
     return newElement;
   }

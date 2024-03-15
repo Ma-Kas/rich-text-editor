@@ -27,7 +27,7 @@ export default function ImageResizer({
   editor: LexicalEditor;
   buttonRef: { current: null | HTMLButtonElement };
   imageRef: { current: null | HTMLElement };
-  onResizeEnd: (width: 'inherit' | number) => void;
+  onResizeEnd: (width: string, maxWidth: string) => void;
   onResizeStart: () => void;
   nodeKey: NodeKey;
   showModal: (
@@ -123,12 +123,12 @@ export default function ImageResizer({
 
     const image = imageRef.current;
     const controlWrapper = controlWrapperRef.current;
-    const figureContainer = image?.parentElement?.parentElement;
+    const edtorImageDiv = image?.parentElement?.parentElement;
 
-    if (image && controlWrapper && figureContainer) {
+    if (image && controlWrapper && edtorImageDiv) {
       event.preventDefault();
 
-      const { width, height } = figureContainer.getBoundingClientRect();
+      const { width, height } = edtorImageDiv.getBoundingClientRect();
       const positioning = positioningRef.current;
       positioning.startWidth = width;
       positioning.startHeight = height;
@@ -149,8 +149,8 @@ export default function ImageResizer({
       // values are used. Instead of applying this style to image, apply to parent
       // in maxWidth, and at the same time set width to 100%. This way, image is
       // as big as user chooses AS A MAX, but can shrink down on smaller screens
-      figureContainer.style.maxWidth = `${width}px`;
-      figureContainer.style.width = `100%`;
+      edtorImageDiv.style.maxWidth = `${width}px`;
+      edtorImageDiv.style.width = `100%`;
 
       document.addEventListener('pointermove', handlePointerMove);
       document.addEventListener('pointerup', handlePointerUp);
@@ -158,10 +158,10 @@ export default function ImageResizer({
   };
   const handlePointerMove = (event: PointerEvent) => {
     const image = imageRef.current;
-    const figureContainer = image?.parentElement?.parentElement;
+    const edtorImageDiv = image?.parentElement?.parentElement;
     const positioning = positioningRef.current;
 
-    if (image && figureContainer && positioning.isResizing) {
+    if (image && edtorImageDiv && positioning.isResizing) {
       let diff = Math.floor(positioning.startX - event.clientX);
       // Is scaling through west or east handle?
       diff = positioning.direction & Directions.east ? -diff : diff;
@@ -173,18 +173,18 @@ export default function ImageResizer({
       );
 
       const height = width / positioning.ratio;
-      figureContainer.style.maxWidth = `${width}px`;
-      figureContainer.style.width = `100%`;
+      edtorImageDiv.style.maxWidth = `${width}px`;
+      edtorImageDiv.style.width = `100%`;
       positioning.currentHeight = height;
       positioning.currentWidth = width;
     }
   };
   const handlePointerUp = () => {
     const image = imageRef.current;
-    const figureContainer = image?.parentElement?.parentElement;
+    const edtorImageDiv = image?.parentElement?.parentElement;
     const positioning = positioningRef.current;
     const controlWrapper = controlWrapperRef.current;
-    if (image && controlWrapper && figureContainer && positioning.isResizing) {
+    if (image && controlWrapper && edtorImageDiv && positioning.isResizing) {
       const width = positioning.currentWidth;
       positioning.startWidth = 0;
       positioning.startHeight = 0;
@@ -199,12 +199,14 @@ export default function ImageResizer({
       // CSS Trickery 101:
       // If image is full width, set it to percentage based instead pixel value
       if (width === maxWidthContainer) {
-        figureContainer.style.maxWidth = '100%';
+        edtorImageDiv.style.maxWidth = '100%';
+        // set values in ImageNode here (will only be used when serializing)
+        onResizeEnd('100%', '100%');
+      } else {
+        onResizeEnd('100%', `${width}px`);
       }
 
       setEndCursor();
-
-      onResizeEnd(width);
 
       document.removeEventListener('pointermove', handlePointerMove);
       document.removeEventListener('pointerup', handlePointerUp);

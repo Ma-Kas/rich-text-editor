@@ -1,4 +1,9 @@
-import type { BaseSelection, LexicalEditor, NodeKey } from 'lexical';
+import type {
+  BaseSelection,
+  EditorState,
+  LexicalEditor,
+  NodeKey,
+} from 'lexical';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
@@ -24,12 +29,13 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import { RIGHT_CLICK_IMAGE_COMMAND } from '../utils/exportedCommands';
 import ImageResizer from '../ui/ImageResizer';
-import { $isImageNode, ImageNode, Alignment } from './ImageNode';
+import { $isImageNode, ImageNode } from './ImageNode';
 import TextInput from '../ui/TextInput';
 import Select from '../ui/Select';
 import { DialogActions } from '../ui/Dialog';
 import Button from '../ui/Button';
 import useModal from '../hooks/useModal';
+import { Alignment, ImageBlockNode } from './ImageBlockNode';
 
 const imageCache = new Set();
 
@@ -69,6 +75,16 @@ function LazyImage({
   );
 }
 
+function getBlockParentNode(
+  editorState: EditorState,
+  node: ImageNode
+): ImageBlockNode {
+  const parentNodeKey = node.__parent;
+  return editorState.read(
+    () => $getNodeByKey(parentNodeKey!) as ImageBlockNode
+  );
+}
+
 export function UpdateImageDialog({
   activeEditor,
   nodeKey,
@@ -82,17 +98,23 @@ export function UpdateImageDialog({
   const node = editorState.read(() => $getNodeByKey(nodeKey) as ImageNode);
   const [altText, setAltText] = useState(node.getAltText());
   const [captionText, setCaptionText] = useState(node.getCaptionText());
-  const [alignment, setAlignment] = useState<Alignment>(node.getAlignment());
+
+  // Get the imageBlock node to set alignment there
+  const parentBlockNode = getBlockParentNode(editorState, node);
+  const [blockAlignment, setBlockAlignment] = useState<Alignment>(
+    parentBlockNode.getAlignment()
+  );
 
   const handlePositionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setAlignment(e.target.value as Alignment);
+    setBlockAlignment(e.target.value as Alignment);
   };
 
   const handleOnConfirm = () => {
-    const payload = { altText, alignment, captionText };
-    if (node) {
+    const payload = { altText, captionText };
+    if (node && parentBlockNode) {
       activeEditor.update(() => {
         node.update(payload);
+        parentBlockNode.setAlignment(blockAlignment);
       });
     }
     onClose();
@@ -122,15 +144,15 @@ export function UpdateImageDialog({
 
       <Select
         style={{ marginBottom: '1em', width: '208px' }}
-        value={alignment}
+        value={blockAlignment}
         label='Alignment'
         name='alignment'
         id='alignment-select'
         onChange={handlePositionChange}
       >
         <option value='left'>Left</option>
-        <option value='right'>Right</option>
         <option value='center'>Center</option>
+        <option value='right'>Right</option>
       </Select>
 
       <DialogActions>
@@ -151,14 +173,13 @@ export default function ImageComponent({
   nodeKey,
   resizable,
   captionText,
-  caption,
 }: {
   altText: string;
-  alignment: Alignment;
-  caption: LexicalEditor;
   nodeKey: NodeKey;
   resizable: boolean;
   captionText: string;
+  width: string | null | undefined;
+  maxWidth: string | null | undefined;
   src: string;
 }): JSX.Element {
   const imageRef = useRef<null | HTMLImageElement>(null);
@@ -218,16 +239,7 @@ export default function ImageComponent({
         $isNodeSelection(latestSelection) &&
         latestSelection.getNodes().length === 1
       ) {
-        if (captionText) {
-          // Move focus into nested editor
-          $setSelection(null);
-          event.preventDefault();
-          caption.focus();
-          return true;
-        } else if (
-          buttonElem !== null &&
-          buttonElem !== document.activeElement
-        ) {
+        if (buttonElem !== null && buttonElem !== document.activeElement) {
           event.preventDefault();
           buttonElem.focus();
           return true;
@@ -235,15 +247,12 @@ export default function ImageComponent({
       }
       return false;
     },
-    [caption, isSelected, captionText]
+    [isSelected]
   );
 
   const onEscape = useCallback(
     (event: KeyboardEvent) => {
-      if (
-        activeEditorRef.current === caption ||
-        buttonRef.current === event.target
-      ) {
+      if (buttonRef.current === event.target) {
         $setSelection(null);
         editor.update(() => {
           setSelected(true);
@@ -256,7 +265,7 @@ export default function ImageComponent({
       }
       return false;
     },
-    [caption, editor, setSelected]
+    [editor, setSelected]
   );
 
   const onClick = useCallback(
@@ -376,11 +385,20 @@ export default function ImageComponent({
     setSelected,
   ]);
 
-  const onResizeEnd = () => {
+  const onResizeEnd = (width: string, maxWidth: string) => {
     // Delay hiding the resize bars for click case
     setTimeout(() => {
       setIsResizing(false);
     }, 200);
+
+    // Set values in ImageNode that will be necessary for serialization and deserialization
+    editor.update(() => {
+      const node = $getNodeByKey(nodeKey);
+      if ($isImageNode(node)) {
+        node.setWidth(width);
+        node.setMaxWidth(maxWidth);
+      }
+    });
   };
 
   const onResizeStart = () => {

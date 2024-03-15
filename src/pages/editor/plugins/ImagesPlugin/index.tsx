@@ -218,7 +218,6 @@ function onDragStart(event: DragEvent): boolean {
     JSON.stringify({
       data: {
         altText: node.__altText,
-        caption: node.__caption,
         key: node.getKey(),
         captionText: node.__captionText,
         src: node.__src,
