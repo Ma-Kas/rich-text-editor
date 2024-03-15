@@ -14,14 +14,11 @@ import { $applyNodeReplacement, DecoratorNode } from 'lexical';
 import { Suspense } from 'react';
 import { ImageComponent } from '../utils/lazyImportComponents';
 
-export type Alignment = 'left' | 'right' | 'center' | undefined;
-
 export interface ImagePayload {
   altText: string;
   key?: NodeKey;
   captionText?: string;
   src: string;
-  alignment?: Alignment;
   width?: string | null | undefined;
   maxWidth?: string | null | undefined;
 }
@@ -29,7 +26,6 @@ export interface ImagePayload {
 export interface UpdateImagePayload {
   altText?: string;
   captionText?: string;
-  alignment?: Alignment;
 }
 
 function convertImageElement(domNode: Node): null | DOMConversionOutput {
@@ -47,7 +43,6 @@ export type SerializedImageNode = Spread<
     altText: string;
     captionText: string;
     src: string;
-    alignment?: Alignment;
     width?: string | null | undefined;
     maxWidth?: string | null | undefined;
   },
@@ -58,7 +53,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   __src: string;
   __altText: string;
   __captionText: string;
-  __alignment: Alignment;
   __width: string | null | undefined;
   __maxWidth: string | null | undefined;
 
@@ -70,7 +64,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return new ImageNode(
       node.__src,
       node.__altText,
-      node.__alignment,
       node.__width,
       node.__maxWidth,
       node.__captionText,
@@ -79,13 +72,11 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   }
 
   static importJSON(serializedNode: SerializedImageNode): ImageNode {
-    const { altText, src, captionText, alignment, width, maxWidth } =
-      serializedNode;
+    const { altText, src, captionText, width, maxWidth } = serializedNode;
     const node = $createImageNode({
       altText,
       captionText,
       src,
-      alignment,
       width,
       maxWidth,
     });
@@ -104,7 +95,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   constructor(
     src: string,
     altText: string,
-    alignment: Alignment,
     width: string | null | undefined,
     maxWidth: string | null | undefined,
     captionText?: string,
@@ -113,7 +103,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     super(key);
     this.__src = src;
     this.__altText = altText;
-    this.__alignment = alignment;
     this.__width = width;
     this.__maxWidth = maxWidth;
     this.__captionText = captionText || '';
@@ -129,7 +118,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   exportJSON(): SerializedImageNode {
     return {
       altText: this.getAltText(),
-      alignment: this.__alignment,
       width: this.__width,
       maxWidth: this.__maxWidth,
       captionText: this.__captionText,
@@ -161,15 +149,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     writable.__captionText = captionText;
   }
 
-  getAlignment(): Alignment {
-    return this.__alignment;
-  }
-
-  setAlignment(alignment: Alignment): void {
-    const writable = this.getWritable();
-    writable.__alignment = alignment;
-  }
-
   getWidth(): string | null | undefined {
     return this.__width;
   }
@@ -190,15 +169,12 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 
   update(payload: UpdateImagePayload): void {
     const writable = this.getWritable();
-    const { altText, captionText, alignment } = payload;
+    const { altText, captionText } = payload;
     if (altText !== undefined) {
       writable.__altText = altText;
     }
     if (captionText !== undefined) {
       writable.__captionText = captionText;
-    }
-    if (alignment !== undefined) {
-      writable.__alignment = alignment;
     }
   }
 
@@ -217,22 +193,10 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   }
 
   updateDOM(
-    prevNode: ImageNode,
-    dom: HTMLElement,
+    _prevNode: ImageNode,
+    _dom: HTMLElement,
     _config: EditorConfig
   ): false {
-    const alignment = this.__alignment;
-    if (alignment && alignment !== prevNode.__alignment) {
-      // Update the justify-content in parent
-      const blockContainer = dom.parentElement;
-      if (
-        blockContainer &&
-        blockContainer instanceof HTMLElement &&
-        blockContainer.classList.contains('EditorTheme__imageBlock')
-      ) {
-        blockContainer.style.justifyContent = alignment;
-      }
-    }
     return false;
   }
 
@@ -242,7 +206,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
         <ImageComponent
           src={this.__src}
           altText={this.__altText}
-          alignment={this.__alignment}
           width={this.__width}
           maxWidth={this.__maxWidth}
           nodeKey={this.getKey()}
@@ -256,7 +219,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 
 export function $createImageNode({
   altText,
-  alignment = 'center',
   width = null,
   maxWidth = null,
   src,
@@ -264,7 +226,7 @@ export function $createImageNode({
   key,
 }: ImagePayload): ImageNode {
   return $applyNodeReplacement(
-    new ImageNode(src, altText, alignment, width, maxWidth, captionText, key)
+    new ImageNode(src, altText, width, maxWidth, captionText, key)
   );
 }
 
