@@ -157,6 +157,8 @@ export default function ImageComponent({
   nodeKey: NodeKey;
   resizable: boolean;
   captionText: string;
+  width: string | null | undefined;
+  maxWidth: string | null | undefined;
   src: string;
 }): JSX.Element {
   const imageRef = useRef<null | HTMLImageElement>(null);

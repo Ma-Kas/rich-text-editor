@@ -973,7 +973,8 @@ function ToolbarPlugin({
   const handleExportTest = useCallback(() => {
     editor.update(() => {
       const json = editor.getEditorState().toJSON();
-      console.log(JSON.stringify(json));
+      console.log(json);
+      // console.log(JSON.stringify(json));
     });
   }, [editor]);
 

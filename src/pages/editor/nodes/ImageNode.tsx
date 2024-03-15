@@ -22,6 +22,8 @@ export interface ImagePayload {
   captionText?: string;
   src: string;
   alignment?: Alignment;
+  width?: string | null | undefined;
+  maxWidth?: string | null | undefined;
 }
 
 export interface UpdateImagePayload {
@@ -46,6 +48,8 @@ export type SerializedImageNode = Spread<
     captionText: string;
     src: string;
     alignment?: Alignment;
+    width?: string | null | undefined;
+    maxWidth?: string | null | undefined;
   },
   SerializedLexicalNode
 >;
@@ -55,6 +59,8 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   __altText: string;
   __captionText: string;
   __alignment: Alignment;
+  __width: string | null | undefined;
+  __maxWidth: string | null | undefined;
 
   static getType(): string {
     return 'image';
@@ -65,18 +71,23 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       node.__src,
       node.__altText,
       node.__alignment,
+      node.__width,
+      node.__maxWidth,
       node.__captionText,
       node.__key
     );
   }
 
   static importJSON(serializedNode: SerializedImageNode): ImageNode {
-    const { altText, src, captionText, alignment } = serializedNode;
+    const { altText, src, captionText, alignment, width, maxWidth } =
+      serializedNode;
     const node = $createImageNode({
       altText,
       captionText,
       src,
       alignment,
+      width,
+      maxWidth,
     });
     return node;
   }
@@ -94,6 +105,8 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     src: string,
     altText: string,
     alignment: Alignment,
+    width: string | null | undefined,
+    maxWidth: string | null | undefined,
     captionText?: string,
     key?: NodeKey
   ) {
@@ -101,6 +114,8 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     this.__src = src;
     this.__altText = altText;
     this.__alignment = alignment;
+    this.__width = width;
+    this.__maxWidth = maxWidth;
     this.__captionText = captionText || '';
   }
 
@@ -115,6 +130,8 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return {
       altText: this.getAltText(),
       alignment: this.__alignment,
+      width: this.__width,
+      maxWidth: this.__maxWidth,
       captionText: this.__captionText,
       src: this.getSrc(),
       type: 'image',
@@ -151,6 +168,24 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   setAlignment(alignment: Alignment): void {
     const writable = this.getWritable();
     writable.__alignment = alignment;
+  }
+
+  getWidth(): string | null | undefined {
+    return this.__width;
+  }
+
+  setWidth(width: string | null | undefined): void {
+    const writable = this.getWritable();
+    writable.__width = width;
+  }
+
+  getMaxWidth(): string | null | undefined {
+    return this.__maxWidth;
+  }
+
+  setMaxWidth(maxWidth: string | null | undefined): void {
+    const writable = this.getWritable();
+    writable.__maxWidth = maxWidth;
   }
 
   update(payload: UpdateImagePayload): void {
@@ -204,6 +239,8 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
           src={this.__src}
           altText={this.__altText}
           alignment={this.__alignment}
+          width={this.__width}
+          maxWidth={this.__maxWidth}
           nodeKey={this.getKey()}
           captionText={this.__captionText}
           resizable={true}
@@ -216,12 +253,14 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 export function $createImageNode({
   altText,
   alignment = 'center',
+  width = null,
+  maxWidth = null,
   src,
   captionText,
   key,
 }: ImagePayload): ImageNode {
   return $applyNodeReplacement(
-    new ImageNode(src, altText, alignment, captionText, key)
+    new ImageNode(src, altText, alignment, width, maxWidth, captionText, key)
   );
 }
 
