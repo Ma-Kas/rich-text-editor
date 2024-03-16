@@ -16,6 +16,7 @@ import { CollapsibleTitleNode } from '../plugins/CollapsiblePlugin/CollapsibleTi
 import { ImageBlockNode } from './ImageBlockNode';
 import { GalleryBlockNode } from './GalleryBlockNode';
 import { GalleryContainerNode } from './GalleryContainerNode';
+import { GalleryImageNode } from './GalleryImageNode';
 import { ImageNode } from './ImageNode';
 import { InlineImageNode } from './InlineImageNode';
 import { LayoutContainerNode } from './LayoutContainerNode';
@@ -42,6 +43,7 @@ const EditorNodes: Array<Klass<LexicalNode>> = [
   ImageBlockNode,
   GalleryBlockNode,
   GalleryContainerNode,
+  GalleryImageNode,
   ImageNode,
   InlineImageNode,
   HorizontalRuleNode,
