@@ -32,6 +32,7 @@ import { DialogActions, DialogButtonsList } from '../../ui/Dialog';
 import FileInput from '../../ui/FileInput';
 import TextInput from '../../ui/TextInput';
 import { $createGalleryBlockNode } from '../../nodes/GalleryBlockNode';
+import { $createGalleryContainerNode } from '../../nodes/GalleryContainerNode';
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 
@@ -339,6 +340,8 @@ export default function ImageGalleryPlugin(): JSX.Element | null {
         INSERT_GALLERY_COMMAND,
         (payload) => {
           const newGalleryBlock = $createGalleryBlockNode();
+          const newGalleryContainer = $createGalleryContainerNode();
+          newGalleryBlock.append(newGalleryContainer);
           $insertNodes([newGalleryBlock]);
 
           const imageNode = $createImageNode(payload);
@@ -346,7 +349,7 @@ export default function ImageGalleryPlugin(): JSX.Element | null {
 
           // Add new paragraph node below created image
           const newParagraphNode = $createParagraphNode();
-          $insertNodes([newParagraphNode]);
+          newGalleryBlock.insertAfter(newParagraphNode).selectNext();
 
           return true;
         },
