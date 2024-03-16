@@ -2,7 +2,7 @@ import type {
   EditorConfig,
   LexicalEditor,
   NodeKey,
-  SerializedParagraphNode,
+  SerializedLexicalNode,
   Spread,
 } from 'lexical';
 import type {
@@ -11,22 +11,27 @@ import type {
   DOMExportOutput,
   LexicalNode,
 } from 'lexical';
-import type { RangeSelection } from 'lexical';
-import {
-  ElementNode,
-  isHTMLElement,
-  $applyNodeReplacement,
-  $isTextNode,
-} from 'lexical';
+import { isHTMLElement, $applyNodeReplacement, DecoratorNode } from 'lexical';
+
+import { Suspense } from 'react';
+import { GalleryComponent } from '../utils/lazyImportComponents';
+
+export interface GalleryImage {
+  id: number;
+  altText: string;
+  src: string;
+}
 
 export interface GalleryContainerPayload {
   key?: NodeKey;
+  imageList: GalleryImage[];
   captionText?: string;
   width?: string | null | undefined;
   maxWidth?: string | null | undefined;
 }
 
 export interface UpdateGalleryContainerPayload {
+  imageList?: GalleryImage[];
   captionText?: string;
   width?: string | null | undefined;
   maxWidth?: string | null | undefined;
@@ -35,7 +40,21 @@ export interface UpdateGalleryContainerPayload {
 function convertGalleryContainerElement(
   element: HTMLElement
 ): DOMConversionOutput {
-  const node = $createGalleryContainerNode();
+  const images = Array.from(
+    element.querySelectorAll('img.gallery-image')
+  ) as HTMLImageElement[];
+  let newImageList: GalleryImage[] | undefined;
+
+  for (let i = 0; i < images.length; i++) {
+    const imageData = {
+      id: i,
+      src: images[i].src,
+      altText: images[i].alt,
+    };
+    newImageList!.push(imageData);
+  }
+
+  const node = $createGalleryContainerNode({ imageList: newImageList! });
   if (element.style && element.style.width && element.style.maxWidth) {
     node.setWidth(element.style.width);
     node.setMaxWidth(element.style.maxWidth);
@@ -50,14 +69,16 @@ function convertGalleryContainerElement(
 
 export type SerializedGalleryContainerNode = Spread<
   {
+    imageList: GalleryImage[];
     captionText: string;
     width?: string | null | undefined;
     maxWidth?: string | null | undefined;
   },
-  SerializedParagraphNode
+  SerializedLexicalNode
 >;
 
-export class GalleryContainerNode extends ElementNode {
+export class GalleryContainerNode extends DecoratorNode<JSX.Element> {
+  __imageList: GalleryImage[];
   __captionText: string;
   __width: string | null | undefined;
   __maxWidth: string | null | undefined;
@@ -67,6 +88,7 @@ export class GalleryContainerNode extends ElementNode {
   }
   static clone(node: GalleryContainerNode): GalleryContainerNode {
     return new GalleryContainerNode(
+      node.__imageList,
       node.__width,
       node.__maxWidth,
       node.__captionText,
@@ -75,12 +97,14 @@ export class GalleryContainerNode extends ElementNode {
   }
 
   constructor(
+    imageList: GalleryImage[],
     width?: string | null | undefined,
     maxWidth?: string | null | undefined,
     captionText?: string,
     key?: NodeKey
   ) {
     super(key);
+    this.__imageList = imageList;
     this.__width = width ? width : null;
     this.__maxWidth = maxWidth ? maxWidth : null;
     this.__captionText = captionText ? captionText : '';
@@ -99,6 +123,27 @@ export class GalleryContainerNode extends ElementNode {
     if (this.__maxWidth) {
       div.style.maxWidth = this.__maxWidth;
     }
+
+    const gridContainerDiv = document.createElement('div');
+    gridContainerDiv.className = 'grid-container';
+
+    this.__imageList.forEach((image) => {
+      const img = document.createElement('img');
+      img.className = 'gallery-image';
+      img.src = image.src;
+      img.alt = image.altText;
+      gridContainerDiv.appendChild(img);
+    });
+    div.appendChild(gridContainerDiv);
+
+    const caption = this.__captionText;
+    if (caption) {
+      const captionDiv = document.createElement('div');
+      captionDiv.className = 'gallery-caption-container';
+      captionDiv.textContent = this.__captionText;
+      div.appendChild(captionDiv);
+    }
+
     return div;
   }
 
@@ -151,7 +196,10 @@ export class GalleryContainerNode extends ElementNode {
   static importJSON(
     serializedNode: SerializedGalleryContainerNode
   ): GalleryContainerNode {
-    const node = $createGalleryContainerNode();
+    const node = $createGalleryContainerNode({
+      imageList: serializedNode.imageList,
+    });
+    node.setImageList(serializedNode.imageList);
     node.setWidth(serializedNode.width);
     node.setMaxWidth(serializedNode.maxWidth);
     node.setCaptionText(serializedNode.captionText);
@@ -161,12 +209,22 @@ export class GalleryContainerNode extends ElementNode {
   exportJSON(): SerializedGalleryContainerNode {
     return {
       ...super.exportJSON(),
+      imageList: this.__imageList,
       width: this.__width,
       maxWidth: this.__maxWidth,
       captionText: this.__captionText,
       type: 'gallery-container',
       version: 1,
     };
+  }
+
+  getImageList(): GalleryImage[] {
+    return this.__imageList;
+  }
+
+  setImageList(imageList: GalleryImage[]): void {
+    const writable = this.getWritable();
+    writable.__imageList = imageList;
   }
 
   getCaptionText(): string {
@@ -210,48 +268,28 @@ export class GalleryContainerNode extends ElementNode {
     }
   }
 
-  insertNewAfter(
-    _: RangeSelection,
-    restoreSelection: boolean
-  ): GalleryContainerNode {
-    const newElement = $createGalleryContainerNode();
-    const width = this.getWidth();
-    const maxWidth = this.getMaxWidth();
-    const captionText = this.getCaptionText();
-    newElement.setWidth(width);
-    newElement.setMaxWidth(maxWidth);
-    newElement.setCaptionText(captionText);
-    this.insertAfter(newElement, restoreSelection);
-    return newElement;
-  }
-
-  collapseAtStart(): boolean {
-    const children = this.getChildren();
-    // If we have an empty (trimmed) first paragraph and try and remove it,
-    // delete the paragraph as long as we have another sibling to go to
-    if (
-      children.length === 0 ||
-      ($isTextNode(children[0]) && children[0].getTextContent().trim() === '')
-    ) {
-      const nextSibling = this.getNextSibling();
-      if (nextSibling !== null) {
-        this.selectNext();
-        this.remove();
-        return true;
-      }
-      const prevSibling = this.getPreviousSibling();
-      if (prevSibling !== null) {
-        this.selectPrevious();
-        this.remove();
-        return true;
-      }
-    }
-    return false;
+  decorate(): JSX.Element {
+    return (
+      <Suspense fallback={null}>
+        <GalleryComponent
+          imageList={this.__imageList}
+          width={this.__width}
+          maxWidth={this.__maxWidth}
+          nodeKey={this.getKey()}
+          captionText={this.__captionText}
+          resizable={true}
+        />
+      </Suspense>
+    );
   }
 }
 
-export function $createGalleryContainerNode(): GalleryContainerNode {
-  return $applyNodeReplacement(new GalleryContainerNode());
+export function $createGalleryContainerNode({
+  imageList,
+}: {
+  imageList: GalleryImage[];
+}): GalleryContainerNode {
+  return $applyNodeReplacement(new GalleryContainerNode(imageList));
 }
 export function $isGalleryContainerNode(
   node: LexicalNode | null | undefined

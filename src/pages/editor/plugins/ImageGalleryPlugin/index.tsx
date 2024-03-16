@@ -21,12 +21,7 @@ import { CAN_USE_DOM } from '../../../shared/src/canUseDOM';
 
 import landscapeImage from '../../images/landscape.jpg';
 import yellowFlowerImage from '../../images/yellow-flower.jpg';
-import {
-  $createImageNode,
-  $isImageNode,
-  ImageNode,
-  ImagePayload,
-} from '../../nodes/ImageNode';
+import { $isImageNode, ImageNode, ImagePayload } from '../../nodes/ImageNode';
 import Button from '../../ui/Button';
 import { DialogActions, DialogButtonsList } from '../../ui/Dialog';
 import FileInput from '../../ui/FileInput';
@@ -339,13 +334,26 @@ export default function ImageGalleryPlugin(): JSX.Element | null {
       editor.registerCommand<InsertImagePayload>(
         INSERT_GALLERY_COMMAND,
         (payload) => {
+          const imageList = [
+            {
+              id: 1,
+              altText: 'Yellow flower in tilt shift lens',
+              src: yellowFlowerImage,
+            },
+            {
+              id: 2,
+              altText:
+                'Daylight fir trees forest glacier green high ice landscape',
+              src: landscapeImage,
+            },
+          ];
           const newGalleryBlock = $createGalleryBlockNode();
-          const newGalleryContainer = $createGalleryContainerNode();
-          newGalleryBlock.append(newGalleryContainer);
+          const newGalleryContainer = $createGalleryContainerNode({
+            imageList: imageList,
+          });
           $insertNodes([newGalleryBlock]);
 
-          const imageNode = $createImageNode(payload);
-          $insertNodes([imageNode]);
+          $insertNodes([newGalleryContainer]);
 
           // Add new paragraph node below created image
           const newParagraphNode = $createParagraphNode();
