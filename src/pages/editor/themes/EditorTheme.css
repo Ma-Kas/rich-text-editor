@@ -14,6 +14,11 @@
   display: flex;
   justify-content: center;
 }
+.EditorTheme__galleryBlock {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+}
 .EditorTheme__quote {
   margin: 0;
   margin-left: 20px;
@@ -375,5 +380,5 @@
 }
 .EditorTheme__layoutItem {
   border: 1px dashed #ddd;
-  padding: 8px 16px;
+  padding: 0;
 }

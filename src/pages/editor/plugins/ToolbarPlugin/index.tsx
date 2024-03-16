@@ -79,6 +79,7 @@ import { InsertInlineImageDialog } from '../InlineImagePlugin';
 import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 import { InsertTableDialog } from '../TablePlugin';
 import FontSize from './fontSize';
+import { InsertImageGalleryDialog } from '../ImageGalleryPlugin';
 
 const IMPORT_TEST = '';
 const blockTypeToBlockName = {
@@ -1244,6 +1245,20 @@ function ToolbarPlugin({
             >
               <i className='icon image' />
               <span className='text'>Image</span>
+            </DropDownItem>
+            <DropDownItem
+              onClick={() => {
+                showModal('Insert Image Gallery', (onClose) => (
+                  <InsertImageGalleryDialog
+                    activeEditor={activeEditor}
+                    onClose={onClose}
+                  />
+                ));
+              }}
+              className='item'
+            >
+              <i className='icon gallery' />
+              <span className='text'>Image Gallery</span>
             </DropDownItem>
             <DropDownItem
               onClick={() => {

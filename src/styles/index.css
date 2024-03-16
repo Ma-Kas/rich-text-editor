@@ -333,6 +333,10 @@ i.image {
   background-image: url(../assets/icons/file-image.svg);
 }
 
+i.gallery {
+  background-image: url(../assets/icons/grid.svg);
+}
+
 i.table {
   background-image: url(../assets/icons/table.svg);
 }
@@ -957,6 +961,10 @@ i.success {
 
 .actions i.image {
   background-image: url(../assets/icons/file-image.svg);
+}
+
+.actions i.gallery {
+  background-image: url(../assets/icons/grid.svg);
 }
 
 .actions i.table {
