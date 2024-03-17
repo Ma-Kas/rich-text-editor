@@ -15,6 +15,49 @@ const Directions = {
   west: 1 << 2,
 };
 
+// Return the definition of the grid-container from parsed stylesheet
+// or from inline style if it was overwritten
+function getGridDefinitionRule(
+  containerRef: HTMLElement | null
+): string | null {
+  const gridContainer = containerRef!.querySelector(
+    '.grid-container'
+  ) as HTMLElement;
+
+  if (gridContainer.style && gridContainer.style.gridTemplateColumns) {
+    return 'inline' + gridContainer.style.gridTemplateColumns;
+  }
+
+  let definition: string | undefined;
+
+  Array.from(document.styleSheets).forEach((css) => {
+    Array.from(css.rules).forEach((rule) => {
+      if (
+        rule instanceof CSSStyleRule &&
+        rule.selectorText &&
+        gridContainer.matches(rule.selectorText) &&
+        rule.style.gridTemplateColumns
+      ) {
+        definition = rule.style.gridTemplateColumns;
+      }
+    });
+  });
+  return definition ? definition : null;
+}
+
+// Returns the minWidth the gallery should be be able to shrink to, based
+// on what the minimum column size in grid-container is
+function getMinColumnWidth(gridRule: string | null): number | null {
+  if (gridRule) {
+    const regex = /^repeat\(auto-fit, minmax\((.*?)px, 1fr\)\)$/;
+    const result = gridRule.match(regex);
+    if (result && result[1]) {
+      return Number(result[1]);
+    }
+  }
+  return null;
+}
+
 export default function GalleryResizer({
   onResizeStart,
   onResizeEnd,
@@ -63,7 +106,7 @@ export default function GalleryResizer({
   });
 
   const editorRootElement = editor.getRootElement();
-  // Find max allowable image width (=container full width)
+  // Find max allowable gallery width (=block full width)
   let maxWidthContainer: number;
   const galleryContainer = containerRef.current;
   if (galleryContainer) {
@@ -79,9 +122,12 @@ export default function GalleryResizer({
       : 100;
   }
 
-  // TODO:
-  // This needs to be synchronized with the min size of grid column
-  const minWidth = 150;
+  // Dynamically set the minimum allowed shrink size of gallery based on the
+  // grid column definition
+  const minimumColumnWidth = getMinColumnWidth(
+    getGridDefinitionRule(containerRef.current)
+  );
+  const minWidth = minimumColumnWidth ? minimumColumnWidth : 150;
 
   const setStartCursor = () => {
     if (editorRootElement !== null) {
