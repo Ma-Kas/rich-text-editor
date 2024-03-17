@@ -125,26 +125,6 @@ export class GalleryContainerNode extends DecoratorNode<JSX.Element> {
     }
     div.draggable = false;
 
-    // const gridContainerDiv = document.createElement('div');
-    // gridContainerDiv.className = 'grid-container';
-
-    // this.__imageList.forEach((image) => {
-    //   const img = document.createElement('img');
-    //   img.className = 'gallery-image';
-    //   img.src = image.src;
-    //   img.alt = image.altText;
-    //   gridContainerDiv.appendChild(img);
-    // });
-    // div.appendChild(gridContainerDiv);
-
-    // const caption = this.__captionText;
-    // if (caption) {
-    //   const captionDiv = document.createElement('div');
-    //   captionDiv.className = 'gallery-caption-container';
-    //   captionDiv.textContent = this.__captionText;
-    //   div.appendChild(captionDiv);
-    // }
-
     return div;
   }
 
@@ -294,5 +274,5 @@ export function $createGalleryContainerNode({
 export function $isGalleryContainerNode(
   node: LexicalNode | null | undefined
 ): node is GalleryContainerNode {
-  return node instanceof GalleryContainerNode;
+  return node!.__type === 'gallery-container';
 }
