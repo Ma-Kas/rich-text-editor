@@ -79,7 +79,7 @@ import { InsertInlineImageDialog } from '../InlineImagePlugin';
 import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 import { InsertTableDialog } from '../TablePlugin';
 import FontSize from './fontSize';
-import { InsertImageGalleryDialog } from '../ImageGalleryPlugin';
+import { InsertGalleryContainerDialog } from '../ImageGalleryPlugin';
 
 const IMPORT_TEST = '';
 const blockTypeToBlockName = {
@@ -1249,7 +1249,7 @@ function ToolbarPlugin({
             <DropDownItem
               onClick={() => {
                 showModal('Insert Image Gallery', (onClose) => (
-                  <InsertImageGalleryDialog
+                  <InsertGalleryContainerDialog
                     activeEditor={activeEditor}
                     onClose={onClose}
                   />

@@ -123,26 +123,27 @@ export class GalleryContainerNode extends DecoratorNode<JSX.Element> {
     if (this.__maxWidth) {
       div.style.maxWidth = this.__maxWidth;
     }
+    div.draggable = false;
 
-    const gridContainerDiv = document.createElement('div');
-    gridContainerDiv.className = 'grid-container';
+    // const gridContainerDiv = document.createElement('div');
+    // gridContainerDiv.className = 'grid-container';
 
-    this.__imageList.forEach((image) => {
-      const img = document.createElement('img');
-      img.className = 'gallery-image';
-      img.src = image.src;
-      img.alt = image.altText;
-      gridContainerDiv.appendChild(img);
-    });
-    div.appendChild(gridContainerDiv);
+    // this.__imageList.forEach((image) => {
+    //   const img = document.createElement('img');
+    //   img.className = 'gallery-image';
+    //   img.src = image.src;
+    //   img.alt = image.altText;
+    //   gridContainerDiv.appendChild(img);
+    // });
+    // div.appendChild(gridContainerDiv);
 
-    const caption = this.__captionText;
-    if (caption) {
-      const captionDiv = document.createElement('div');
-      captionDiv.className = 'gallery-caption-container';
-      captionDiv.textContent = this.__captionText;
-      div.appendChild(captionDiv);
-    }
+    // const caption = this.__captionText;
+    // if (caption) {
+    //   const captionDiv = document.createElement('div');
+    //   captionDiv.className = 'gallery-caption-container';
+    //   captionDiv.textContent = this.__captionText;
+    //   div.appendChild(captionDiv);
+    // }
 
     return div;
   }
@@ -208,7 +209,6 @@ export class GalleryContainerNode extends DecoratorNode<JSX.Element> {
 
   exportJSON(): SerializedGalleryContainerNode {
     return {
-      ...super.exportJSON(),
       imageList: this.__imageList,
       width: this.__width,
       maxWidth: this.__maxWidth,

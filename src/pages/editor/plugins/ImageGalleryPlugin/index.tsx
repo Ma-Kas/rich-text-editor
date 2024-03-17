@@ -21,23 +21,27 @@ import { CAN_USE_DOM } from '../../../shared/src/canUseDOM';
 
 import landscapeImage from '../../images/landscape.jpg';
 import yellowFlowerImage from '../../images/yellow-flower.jpg';
-import { $isImageNode, ImageNode, ImagePayload } from '../../nodes/ImageNode';
 import Button from '../../ui/Button';
 import { DialogActions, DialogButtonsList } from '../../ui/Dialog';
 import FileInput from '../../ui/FileInput';
 import TextInput from '../../ui/TextInput';
 import { $createGalleryBlockNode } from '../../nodes/GalleryBlockNode';
-import { $createGalleryContainerNode } from '../../nodes/GalleryContainerNode';
+import {
+  $createGalleryContainerNode,
+  $isGalleryContainerNode,
+  GalleryContainerNode,
+  GalleryImage,
+} from '../../nodes/GalleryContainerNode';
 
-export type InsertImagePayload = Readonly<ImagePayload>;
+export type InsertGalleryImagePayload = GalleryImage[];
 
 const getDOMSelection = (targetWindow: Window | null): Selection | null =>
   CAN_USE_DOM ? (targetWindow || window).getSelection() : null;
 
-export function InsertImageUriDialogBody({
+export function InsertGalleryImagesUriDialogBody({
   onClick,
 }: {
-  onClick: (payload: InsertImagePayload) => void;
+  onClick: (payload: InsertGalleryImagePayload) => void;
 }) {
   const [src, setSrc] = useState('');
   const [altText, setAltText] = useState('');
@@ -64,7 +68,7 @@ export function InsertImageUriDialogBody({
         <Button
           data-test-id='image-modal-confirm-btn'
           disabled={isDisabled}
-          onClick={() => onClick({ altText, src })}
+          onClick={() => onClick([{ id: 1, altText, src }])}
         >
           Confirm
         </Button>
@@ -73,10 +77,10 @@ export function InsertImageUriDialogBody({
   );
 }
 
-export function InsertImageUploadedDialogBody({
+export function InsertGalleryImagesUploadedDialogBody({
   onClick,
 }: {
-  onClick: (payload: InsertImagePayload) => void;
+  onClick: (payload: InsertGalleryImagePayload) => void;
 }) {
   const [src, setSrc] = useState('');
   const [altText, setAltText] = useState('');
@@ -115,7 +119,7 @@ export function InsertImageUploadedDialogBody({
         <Button
           data-test-id='image-modal-file-upload-btn'
           disabled={isDisabled}
-          onClick={() => onClick({ altText, src })}
+          onClick={() => onClick([{ id: 1, altText, src }])}
         >
           Confirm
         </Button>
@@ -124,7 +128,7 @@ export function InsertImageUploadedDialogBody({
   );
 }
 
-export function InsertImageGalleryDialog({
+export function InsertGalleryContainerDialog({
   activeEditor,
   onClose,
 }: {
@@ -145,7 +149,7 @@ export function InsertImageGalleryDialog({
     };
   }, [activeEditor]);
 
-  const onClick = (payload: InsertImagePayload) => {
+  const onClick = (payload: InsertGalleryImagePayload) => {
     activeEditor.dispatchCommand(INSERT_GALLERY_COMMAND, payload);
     onClose();
   };
@@ -157,18 +161,30 @@ export function InsertImageGalleryDialog({
           <Button
             data-test-id='image-modal-option-sample'
             onClick={() =>
-              onClick(
-                hasModifier.current
-                  ? {
-                      altText:
-                        'Daylight fir trees forest glacier green high ice landscape',
-                      src: landscapeImage,
-                    }
-                  : {
-                      altText: 'Yellow flower in tilt shift lens',
-                      src: yellowFlowerImage,
-                    }
-              )
+              onClick([
+                {
+                  id: 1,
+                  altText: 'Yellow flower in tilt shift lens',
+                  src: yellowFlowerImage,
+                },
+                {
+                  id: 2,
+                  altText:
+                    'Daylight fir trees forest glacier green high ice landscape',
+                  src: landscapeImage,
+                },
+                {
+                  id: 3,
+                  altText: 'Yellow flower in tilt shift lens',
+                  src: yellowFlowerImage,
+                },
+                {
+                  id: 4,
+                  altText:
+                    'Daylight fir trees forest glacier green high ice landscape',
+                  src: landscapeImage,
+                },
+              ])
             }
           >
             Sample
@@ -187,8 +203,10 @@ export function InsertImageGalleryDialog({
           </Button>
         </DialogButtonsList>
       )}
-      {mode === 'url' && <InsertImageUriDialogBody onClick={onClick} />}
-      {mode === 'file' && <InsertImageUploadedDialogBody onClick={onClick} />}
+      {mode === 'url' && <InsertGalleryImagesUriDialogBody onClick={onClick} />}
+      {mode === 'file' && (
+        <InsertGalleryImagesUploadedDialogBody onClick={onClick} />
+      )}
     </>
   );
 }
@@ -199,7 +217,7 @@ const img = document.createElement('img');
 img.src = TRANSPARENT_IMAGE;
 
 function onDragStart(event: DragEvent): boolean {
-  const node = getImageNodeInSelection();
+  const node = getGalleryContainerNodeInSelection();
   if (!node) {
     return false;
   }
@@ -213,12 +231,13 @@ function onDragStart(event: DragEvent): boolean {
     'application/x-lexical-drag',
     JSON.stringify({
       data: {
-        altText: node.__altText,
+        imageList: node.__imageList,
         key: node.getKey(),
         captionText: node.__captionText,
-        src: node.__src,
+        width: node.__width,
+        maxWidth: node.__maxWidth,
       },
-      type: 'image',
+      type: 'gallery-container',
     })
   );
 
@@ -226,18 +245,18 @@ function onDragStart(event: DragEvent): boolean {
 }
 
 function onDragover(event: DragEvent): boolean {
-  const node = getImageNodeInSelection();
+  const node = getGalleryContainerNodeInSelection();
   if (!node) {
     return false;
   }
-  if (!canDropImage(event)) {
+  if (!canDropGalleryContainer(event)) {
     event.preventDefault();
   }
   return true;
 }
 
 function onDrop(event: DragEvent, editor: LexicalEditor): boolean {
-  const node = getImageNodeInSelection();
+  const node = getGalleryContainerNodeInSelection();
   if (!node) {
     return false;
   }
@@ -246,7 +265,7 @@ function onDrop(event: DragEvent, editor: LexicalEditor): boolean {
     return false;
   }
   event.preventDefault();
-  if (canDropImage(event)) {
+  if (canDropGalleryContainer(event)) {
     const range = getDragSelection(event);
     node.remove();
     const rangeSelection = $createRangeSelection();
@@ -259,23 +278,23 @@ function onDrop(event: DragEvent, editor: LexicalEditor): boolean {
   return true;
 }
 
-function getImageNodeInSelection(): ImageNode | null {
+function getGalleryContainerNodeInSelection(): GalleryContainerNode | null {
   const selection = $getSelection();
   if (!$isNodeSelection(selection)) {
     return null;
   }
   const nodes = selection.getNodes();
   const node = nodes[0];
-  return $isImageNode(node) ? node : null;
+  return $isGalleryContainerNode(node) ? node : null;
 }
 
-function getDragImageData(event: DragEvent): null | InsertImagePayload {
+function getDragImageData(event: DragEvent): null | InsertGalleryImagePayload {
   const dragData = event.dataTransfer?.getData('application/x-lexical-drag');
   if (!dragData) {
     return null;
   }
   const { type, data } = JSON.parse(dragData);
-  if (type !== 'image') {
+  if (type !== 'gallery-container') {
     return null;
   }
 
@@ -289,12 +308,12 @@ declare global {
   }
 }
 
-function canDropImage(event: DragEvent): boolean {
+function canDropGalleryContainer(event: DragEvent): boolean {
   const target = event.target;
   return !!(
     target &&
     target instanceof HTMLElement &&
-    !target.closest('code, span.editor-image') &&
+    !target.closest('code, div.EditorTheme__galleryContainer') &&
     target.parentElement &&
     target.parentElement.closest('div.ContentEditable__root')
   );
@@ -326,30 +345,19 @@ export default function ImageGalleryPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
-    if (!editor.hasNodes([ImageNode])) {
-      throw new Error('ImageGalleryPlugin: ImageNode not registered on editor');
+    if (!editor.hasNodes([GalleryContainerNode])) {
+      throw new Error(
+        'ImageGalleryPlugin: GalleryContainerNode not registered on editor'
+      );
     }
 
     return mergeRegister(
-      editor.registerCommand<InsertImagePayload>(
+      editor.registerCommand<InsertGalleryImagePayload>(
         INSERT_GALLERY_COMMAND,
         (payload) => {
-          const imageList = [
-            {
-              id: 1,
-              altText: 'Yellow flower in tilt shift lens',
-              src: yellowFlowerImage,
-            },
-            {
-              id: 2,
-              altText:
-                'Daylight fir trees forest glacier green high ice landscape',
-              src: landscapeImage,
-            },
-          ];
           const newGalleryBlock = $createGalleryBlockNode();
           const newGalleryContainer = $createGalleryContainerNode({
-            imageList: imageList,
+            imageList: payload,
           });
           $insertNodes([newGalleryBlock]);
 
