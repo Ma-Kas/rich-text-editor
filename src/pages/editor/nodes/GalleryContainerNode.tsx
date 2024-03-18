@@ -16,10 +16,20 @@ import { isHTMLElement, $applyNodeReplacement, DecoratorNode } from 'lexical';
 import { Suspense } from 'react';
 import { GalleryComponent } from '../utils/lazyImportComponents';
 
+export type GalleryImageObjectPosition =
+  | 'center'
+  | 'left'
+  | 'right'
+  | 'top'
+  | 'bottom';
+
 export interface GalleryImage {
   id: number;
   altText: string;
   src: string;
+  objectPosition?: GalleryImageObjectPosition | null | undefined;
+  imageWidth?: string | null | undefined;
+  aspectRatio?: string | null | undefined;
 }
 
 export interface GalleryContainerPayload {
@@ -50,7 +60,12 @@ function convertGalleryContainerElement(
       id: i,
       src: images[i].src,
       altText: images[i].alt,
+      objectPosition: images[i].style
+        .objectPosition as GalleryImageObjectPosition,
+      imageWidth: images[i].style.width,
+      aspectRatio: images[i].style.aspectRatio,
     };
+
     newImageList!.push(imageData);
   }
 

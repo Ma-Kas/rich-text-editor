@@ -16,7 +16,8 @@
 .Modal__modal {
   padding: 20px;
   min-height: 100px;
-  min-width: 300px;
+  min-width: 350px;
+  max-height: 75vh;
   display: flex;
   flex-grow: 0px;
   background-color: #fff;
@@ -49,5 +50,6 @@
   background-color: #ddd;
 }
 .Modal__content {
-  padding-top: 20px;
+  padding: 20px 20px 0 0;
+  overflow-y: auto;
 }

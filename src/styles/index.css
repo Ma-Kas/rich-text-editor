@@ -867,16 +867,37 @@ i.success {
   user-select: none;
 }
 
-.editor-shell .grid-container {
+.editor-shell .EditorTheme__galleryContainer .grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   width: 100%;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
-.editor-shell .grid-container .gallery-image {
+.editor-shell .EditorTheme__galleryContainer .grid-container .gallery-image {
   width: 100%;
   aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: center;
+}
+
+.editor-shell .EditorTheme__galleryContainer .grid-container.flex-type {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.editor-shell
+  .EditorTheme__galleryContainer
+  .grid-container.flex-type
+  .gallery-image {
+  flex-grow: 1;
+  width: calc(25% - 0.5rem);
+  min-width: 150px;
+  aspect-ratio: 1 / 1;
+  justify-content: center;
+  align-items: center;
   object-fit: cover;
 }
 
@@ -890,15 +911,17 @@ i.success {
 }
 
 .editor-shell .EditorTheme__galleryContainer .gallery-edit-button {
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   color: #fff;
   background-color: rgba(0, 0, 0, 0.5);
   position: absolute;
   top: 12px;
   right: 12px;
-  width: 35px;
-  min-width: 60px;
-  height: 35px;
+  width: 3rem;
+  min-width: 3rem;
+  height: 2rem;
   margin: 0 auto;
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 5px;

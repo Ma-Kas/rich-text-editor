@@ -27,6 +27,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { mergeRegister } from '@lexical/utils';
+import { z } from 'zod';
 import { RIGHT_CLICK_IMAGE_COMMAND } from '../utils/exportedCommands';
 import GalleryResizer from '../ui/GalleryResizer';
 import TextInput from '../ui/TextInput';
@@ -35,6 +36,24 @@ import { DialogActions } from '../ui/Dialog';
 import Button from '../ui/Button';
 import { Alignment, GalleryBlockNode } from './GalleryBlockNode';
 import useModal from '../hooks/useModal';
+
+import { GalleryImageObjectPosition } from './GalleryContainerNode';
+
+type ImageStyleType = {
+  objectPosition?: GalleryImageObjectPosition;
+  width?: string;
+  aspectRatio?: string;
+};
+
+const stringSchema = z.string();
+const imageSrcSchema = z.string();
+const imagePositionSchema = z.union([
+  z.literal('center'),
+  z.literal('left'),
+  z.literal('right'),
+  z.literal('top'),
+  z.literal('bottom'),
+]);
 
 const imageCache = new Set();
 
@@ -54,24 +73,50 @@ function useSuspenseImage(src: string) {
 function LazyImage({
   altText,
   className,
-  imageRef,
   src,
+  objectPosition,
+  imageWidth,
+  aspectRatio,
 }: {
   altText: string;
   className: string | null;
-  imageRef: { current: null | HTMLImageElement };
   src: string;
+  objectPosition: GalleryImageObjectPosition | null | undefined;
+  imageWidth: string | null | undefined;
+  aspectRatio: string | null | undefined;
 }): JSX.Element {
   useSuspenseImage(src);
-  return (
-    <img
-      className={className || undefined}
-      src={src}
-      alt={altText}
-      ref={imageRef}
-      draggable='false'
-    />
-  );
+  const style: ImageStyleType = {};
+  if (objectPosition) {
+    style.objectPosition = objectPosition;
+  }
+  if (imageWidth) {
+    style.width = imageWidth;
+  }
+  if (aspectRatio) {
+    style.aspectRatio = aspectRatio;
+  }
+
+  if (style) {
+    return (
+      <img
+        className={className || undefined}
+        src={src}
+        alt={altText}
+        style={style}
+        draggable='false'
+      />
+    );
+  } else {
+    return (
+      <img
+        className={className || undefined}
+        src={src}
+        alt={altText}
+        draggable='false'
+      />
+    );
+  }
 }
 
 function eventTargetIsGalleryContainer(
@@ -126,12 +171,88 @@ export function UpdateGalleryDialog({
     parentBlockNode.getAlignment()
   );
 
-  const handlePositionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  // Alignment of whole gallery
+  const handleAlignmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setBlockAlignment(e.target.value as Alignment);
   };
 
+  const handleImageChange = (
+    image: GalleryImage,
+    type: string,
+    input: unknown
+  ): void => {
+    switch (type) {
+      case 'src': {
+        const parseResult = imageSrcSchema.safeParse(input);
+        if (parseResult.success) {
+          const newSource = parseResult.data;
+          image.src = newSource;
+          const changedImageList = imageList.map((img) =>
+            img.id !== image.id ? img : image
+          );
+          setImageList(changedImageList);
+        }
+        break;
+      }
+      case 'altText': {
+        const parseResult = stringSchema.safeParse(input);
+        if (parseResult.success) {
+          const newAltText = parseResult.data;
+          image.altText = newAltText;
+          const changedImageList = imageList.map((img) =>
+            img.id !== image.id ? img : image
+          );
+          setImageList(changedImageList);
+        }
+        break;
+      }
+      case 'position': {
+        const event = input as React.ChangeEvent<HTMLSelectElement>;
+        const value = event.target.value;
+        const parseResult = imagePositionSchema.safeParse(value);
+        if (parseResult.success) {
+          const newPosition = parseResult.data;
+          image.objectPosition = newPosition;
+          const changedImageList = imageList.map((img) =>
+            img.id !== image.id ? img : image
+          );
+          setImageList(changedImageList);
+        }
+        break;
+      }
+      case 'width': {
+        const event = input as React.ChangeEvent<HTMLSelectElement>;
+        const value = event.target.value;
+        const parseResult = stringSchema.safeParse(value);
+        if (parseResult.success) {
+          const newWidth = parseResult.data;
+          image.imageWidth = newWidth;
+          const changedImageList = imageList.map((img) =>
+            img.id !== image.id ? img : image
+          );
+          setImageList(changedImageList);
+        }
+        break;
+      }
+      case 'aspect-ratio': {
+        const event = input as React.ChangeEvent<HTMLSelectElement>;
+        const value = event.target.value;
+        const parseResult = stringSchema.safeParse(value);
+        if (parseResult.success) {
+          const newAspectRatio = parseResult.data;
+          image.aspectRatio = newAspectRatio;
+          const changedImageList = imageList.map((img) =>
+            img.id !== image.id ? img : image
+          );
+          setImageList(changedImageList);
+        }
+        break;
+      }
+    }
+  };
+
   const handleOnConfirm = () => {
-    const payload = { captionText };
+    const payload = { captionText, imageList };
     if (node && parentBlockNode) {
       activeEditor.update(() => {
         node.update(payload);
@@ -143,28 +264,14 @@ export function UpdateGalleryDialog({
 
   return (
     <>
-      <div style={{ marginBottom: '1em' }}>
-        {imageList.map((image) => {
-          return (
-            <TextInput
-              key={image.id}
-              label='Alt Text'
-              placeholder='Descriptive alternative text'
-              onChange={() => console.log('need to update this specific image')}
-              value={image.altText}
-              data-test-id='image-modal-alt-text-input'
-            />
-          );
-        })}
-      </div>
-
+      {/* Whole Gallery Edit */}
       <div style={{ marginBottom: '1em' }}>
         <TextInput
           label='Caption'
           placeholder='Add a caption here'
           onChange={setCaptionText}
           value={captionText}
-          data-test-id='image-modal-caption-text-input'
+          data-test-id='gallery-modal-caption-text-input'
         />
       </div>
 
@@ -174,16 +281,81 @@ export function UpdateGalleryDialog({
         label='Alignment'
         name='alignment'
         id='alignment-select'
-        onChange={handlePositionChange}
+        onChange={handleAlignmentChange}
       >
         <option value='left'>Left</option>
         <option value='center'>Center</option>
         <option value='right'>Right</option>
       </Select>
 
+      {/* Individual Image Edit */}
+      <div style={{ marginBottom: '1em' }}>
+        {imageList.map((image, index) => {
+          return (
+            <div key={image.id}>
+              <p>{`Image ${index + 1}`}</p>
+              <TextInput
+                label='Source'
+                placeholder='Image Source'
+                onChange={(value) => handleImageChange(image, 'src', value)}
+                value={image.src}
+                data-test-id='gallery-image-modal-src-text-input'
+              />
+              <TextInput
+                label='Alt Text'
+                placeholder='Descriptive alternative text'
+                onChange={(value) => handleImageChange(image, 'altText', value)}
+                value={image.altText}
+                data-test-id='gallery-image-modal-alt-text-input'
+              />
+              <Select
+                value={image.objectPosition ? image.objectPosition : 'center'}
+                label='Position'
+                name='position'
+                id='position-select'
+                onChange={(e) => handleImageChange(image, 'position', e)}
+              >
+                <option value='center'>Center</option>
+                <option value='left'>Left</option>
+                <option value='right'>Right</option>
+                <option value='top'>Top</option>
+                <option value='bottom'>Bottom</option>
+              </Select>
+              <Select
+                value={image.aspectRatio ? image.aspectRatio : '1 / 1'}
+                label='Aspect Ratio'
+                name='aspect-ratio'
+                id='aspect-ratio-select'
+                onChange={(e) => handleImageChange(image, 'aspect-ratio', e)}
+              >
+                <option value='1 / 1'>1:1</option>
+                <option value=' 3 / 4'>3:4</option>
+                <option value='4 / 5'>4:5</option>
+                <option value=' 4 / 3'>4:3</option>
+                <option value=' 1.91 / 1'>1.91:1</option>
+                <option value=' 16 / 9'>16:9</option>
+              </Select>
+              <Select
+                style={{ marginBottom: '1em', width: '208px' }}
+                value={image.imageWidth ? image.imageWidth : '100%'}
+                label='Width'
+                name='width'
+                id='width-select'
+                onChange={(e) => handleImageChange(image, 'width', e)}
+              >
+                <option value='100%'>100%</option>
+                <option value='75%'>75%</option>
+                <option value='50%'>50%</option>
+                <option value='25%'>25%</option>
+              </Select>
+            </div>
+          );
+        })}
+      </div>
+
       <DialogActions>
         <Button
-          data-test-id='image-modal-file-upload-btn'
+          data-test-id='gallery-modal-file-upload-btn'
           onClick={() => handleOnConfirm()}
         >
           Confirm
@@ -207,7 +379,6 @@ export default function GalleryComponent({
   resizable: boolean;
 }): JSX.Element {
   const [editor] = useLexicalComposerContext();
-  const imageRef = useRef<null | HTMLImageElement>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const containerRef = useRef<null | HTMLDivElement>(
     editor.getElementByKey(nodeKey) as HTMLDivElement
@@ -447,7 +618,9 @@ export default function GalleryComponent({
               className='gallery-image'
               src={image.src}
               altText={image.altText}
-              imageRef={imageRef}
+              objectPosition={image.objectPosition}
+              imageWidth={image.imageWidth}
+              aspectRatio={image.aspectRatio}
             />
           );
         })}
