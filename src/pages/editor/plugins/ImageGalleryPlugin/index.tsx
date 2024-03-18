@@ -358,6 +358,7 @@ export default function ImageGalleryPlugin(): JSX.Element | null {
           const newGalleryBlock = $createGalleryBlockNode();
           const newGalleryContainer = $createGalleryContainerNode({
             imageList: payload,
+            gridType: 'dynamic-type',
           });
           $insertNodes([newGalleryBlock]);
 

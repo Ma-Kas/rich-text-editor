@@ -3,6 +3,7 @@ import type { LexicalEditor, NodeKey } from 'lexical';
 import * as React from 'react';
 import { useRef } from 'react';
 import { UpdateGalleryDialog } from '../nodes/GalleryComponent';
+import { getMinColumnWidth } from '../utils/getMinColumnWidth';
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -25,7 +26,7 @@ function getGridDefinitionRule(
   ) as HTMLElement;
 
   if (gridContainer.style && gridContainer.style.gridTemplateColumns) {
-    return 'inline' + gridContainer.style.gridTemplateColumns;
+    return gridContainer.style.gridTemplateColumns;
   }
 
   let definition: string | undefined;
@@ -43,19 +44,6 @@ function getGridDefinitionRule(
     });
   });
   return definition ? definition : null;
-}
-
-// Returns the minWidth the gallery should be be able to shrink to, based
-// on what the minimum column size in grid-container is
-function getMinColumnWidth(gridRule: string | null): number | null {
-  if (gridRule) {
-    const regex = /^repeat\(auto-fit, minmax\((.*?)px, 1fr\)\)$/;
-    const result = gridRule.match(regex);
-    if (result && result[1]) {
-      return Number(result[1]);
-    }
-  }
-  return null;
 }
 
 export default function GalleryResizer({

@@ -22,6 +22,7 @@ import {
   $isGalleryContainerNode,
   GalleryContainerNode,
   GalleryImage,
+  GridType,
 } from './GalleryContainerNode';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
@@ -43,6 +44,11 @@ type ImageStyleType = {
   objectPosition?: GalleryImageObjectPosition;
   width?: string;
   aspectRatio?: string;
+};
+
+type GalleryInlineStyleType = {
+  gap?: string | undefined;
+  gridTemplateColumns?: string | undefined;
 };
 
 const stringSchema = z.string();
@@ -161,9 +167,14 @@ export function UpdateGalleryDialog({
   const node = editorState.read(
     () => $getNodeByKey(nodeKey) as GalleryContainerNode
   );
-  // const [altText, setAltText] = useState(node.getAltText());
-  const [captionText, setCaptionText] = useState(node.getCaptionText());
   const [imageList, setImageList] = useState(node.getImageList());
+  const [gridType, setGridType] = useState<GridType>(node.getGridType());
+  const [columns, setColumns] = useState(node.getColumns());
+  const [captionText, setCaptionText] = useState(node.getCaptionText());
+  const [gridGap, setGridGap] = useState(node.getGridGap());
+  const [columnMinWidth, setColumnMinWidth] = useState(
+    node.getColumnMinWidth()
+  );
 
   // Get the galleryBlock node to set alignment there
   const parentBlockNode = getBlockParentNode(editorState, node);
@@ -171,9 +182,29 @@ export function UpdateGalleryDialog({
     parentBlockNode.getAlignment()
   );
 
-  // Alignment of whole gallery
+  // Edits of whole gallery
+  const handleGridTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setGridType(e.target.value as GridType);
+  };
+  const handleColumnsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setColumns(Number(e.target.value));
+  };
+  const handleGridGapChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setGridGap(e.target.value as string);
+  };
+  const handleColumnMinWidthChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setColumnMinWidth(Number(e.target.value));
+  };
   const handleAlignmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setBlockAlignment(e.target.value as Alignment);
+  };
+  const handleAspectRatioChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const changedImageList = imageList.map((image) => {
+      return { ...image, aspectRatio: e.target.value };
+    });
+    setImageList(changedImageList);
   };
 
   const handleImageChange = (
@@ -252,7 +283,14 @@ export function UpdateGalleryDialog({
   };
 
   const handleOnConfirm = () => {
-    const payload = { captionText, imageList };
+    const payload = {
+      captionText,
+      imageList,
+      columns,
+      gridType,
+      gridGap,
+      columnMinWidth,
+    };
     if (node && parentBlockNode) {
       activeEditor.update(() => {
         node.update(payload);
@@ -266,6 +304,32 @@ export function UpdateGalleryDialog({
     <>
       {/* Whole Gallery Edit */}
       <div style={{ marginBottom: '1em' }}>
+        <p>Edit Whole Gallery:</p>
+        <Select
+          value={gridType}
+          label='Gallery Type'
+          name='gallery-type'
+          id='gallery-type-select'
+          onChange={handleGridTypeChange}
+        >
+          <option value='dynamic-type'>Dynamic</option>
+          <option value='static-type'>Fixed Column Number</option>
+          <option value='flex-type'>Last Row Stretch</option>
+        </Select>
+        <Select
+          disabled={gridType !== 'static-type' ? true : false}
+          value={columns ? columns : '3'}
+          label='Columns'
+          name='columns-all'
+          id='columns-select'
+          onChange={handleColumnsChange}
+        >
+          <option value='2'>2</option>
+          <option value='3'>3</option>
+          <option value='4'>4</option>
+          <option value='5'>5</option>
+          <option value='6'>6</option>
+        </Select>
         <TextInput
           label='Caption'
           placeholder='Add a caption here'
@@ -273,27 +337,69 @@ export function UpdateGalleryDialog({
           value={captionText}
           data-test-id='gallery-modal-caption-text-input'
         />
+        <Select
+          value={gridGap ? gridGap : '0.5rem'}
+          label='Grid Gap'
+          name='grid-gap-all'
+          id='grid-gap-all-select'
+          onChange={handleGridGapChange}
+        >
+          <option value='0.25rem'>0.25</option>
+          <option value='0.5rem'>0.5</option>
+          <option value='0.75rem'>0.75</option>
+          <option value='1rem'>1</option>
+          <option value='1.25rem'>1.25</option>
+          <option value='1.5rem'>1.5</option>
+          <option value='2rem'>2</option>
+        </Select>
+        <Select
+          style={{ marginBottom: '1em', width: '208px' }}
+          value={blockAlignment}
+          label='Alignment'
+          name='alignment'
+          id='alignment-select'
+          onChange={handleAlignmentChange}
+        >
+          <option value='left'>Left</option>
+          <option value='center'>Center</option>
+          <option value='right'>Right</option>
+        </Select>
+        <Select
+          value={imageList[0].aspectRatio ? imageList[0].aspectRatio : '1 / 1'}
+          label='Aspect Ratio'
+          name='aspect-ratio-all'
+          id='aspect-ratio-all-select'
+          onChange={handleAspectRatioChange}
+        >
+          <option value='1 / 1'>1:1</option>
+          <option value='3 / 4'>3:4</option>
+          <option value='4 / 5'>4:5</option>
+          <option value='4 / 3'>4:3</option>
+          <option value='1.91 / 1'>1.91:1</option>
+          <option value='16 / 9'>16:9</option>
+        </Select>
+        <Select
+          style={{ marginBottom: '1em', width: '208px' }}
+          value={columnMinWidth ? `${columnMinWidth}` : '150'}
+          label='Minimum Column Size'
+          name='min-column-size'
+          id='min-column-size-select'
+          onChange={handleColumnMinWidthChange}
+        >
+          <option value='100'>100px</option>
+          <option value='150'>150px</option>
+          <option value='200'>200px</option>
+          <option value='250'>250px</option>
+          <option value='300'>300px</option>
+        </Select>
       </div>
-
-      <Select
-        style={{ marginBottom: '1em', width: '208px' }}
-        value={blockAlignment}
-        label='Alignment'
-        name='alignment'
-        id='alignment-select'
-        onChange={handleAlignmentChange}
-      >
-        <option value='left'>Left</option>
-        <option value='center'>Center</option>
-        <option value='right'>Right</option>
-      </Select>
 
       {/* Individual Image Edit */}
       <div style={{ marginBottom: '1em' }}>
         {imageList.map((image, index) => {
           return (
             <div key={image.id}>
-              <p>{`Image ${index + 1}`}</p>
+              <p>{`Edit Image ${index + 1}:`}</p>
               <TextInput
                 label='Source'
                 placeholder='Image Source'
@@ -367,13 +473,21 @@ export function UpdateGalleryDialog({
 
 export default function GalleryComponent({
   imageList,
+  gridType,
+  columns,
   nodeKey,
   captionText,
   resizable,
+  gridGap,
+  columnMinWidth,
 }: {
   imageList: GalleryImage[];
+  gridType: GridType;
+  columns?: number | null | undefined;
   width?: string | null | undefined;
   maxWidth?: string | null | undefined;
+  gridGap?: string | null | undefined;
+  columnMinWidth?: number | null | undefined;
   nodeKey: NodeKey;
   captionText?: string;
   resizable: boolean;
@@ -604,11 +718,44 @@ export default function GalleryComponent({
     setIsResizing(true);
   };
 
+  // If user has overriden stylesheet with inline properties, set them here
+  // to apply to component
+  const setInlineStyleOverride = (): GalleryInlineStyleType => {
+    const style: GalleryInlineStyleType = {};
+    if (gridGap) {
+      style.gap = gridGap;
+    }
+    if (gridType && (columnMinWidth || columns)) {
+      switch (gridType) {
+        case 'dynamic-type': {
+          style.gridTemplateColumns = `repeat(auto-fit, minmax(${columnMinWidth}px, 1fr))`;
+          break;
+        }
+        case 'static-type': {
+          style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+          break;
+        }
+        case 'flex-type': {
+          break;
+        }
+      }
+    }
+
+    return style;
+  };
+
+  const containerInlineStyle = setInlineStyleOverride();
+
   const isFocused = isSelected || isResizing;
   return (
     <Suspense fallback={null}>
       <div
-        className={isFocused ? `grid-container focused` : 'grid-container'}
+        style={containerInlineStyle}
+        className={
+          isFocused
+            ? `grid-container ${gridType} focused`
+            : `grid-container ${gridType}`
+        }
         draggable='false'
       >
         {imageList.map((image) => {

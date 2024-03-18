@@ -867,14 +867,34 @@ i.success {
   user-select: none;
 }
 
-.editor-shell .EditorTheme__galleryContainer .grid-container {
+.editor-shell .EditorTheme__galleryContainer .grid-container.dynamic-type {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   width: 100%;
   gap: 0.5rem;
 }
 
-.editor-shell .EditorTheme__galleryContainer .grid-container .gallery-image {
+.editor-shell
+  .EditorTheme__galleryContainer
+  .grid-container.dynamic-type
+  .gallery-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: center;
+}
+
+.editor-shell .EditorTheme__galleryContainer .grid-container.static-type {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.editor-shell
+  .EditorTheme__galleryContainer
+  .grid-container.static-type
+  .gallery-image {
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;

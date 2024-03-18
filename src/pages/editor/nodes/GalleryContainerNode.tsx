@@ -15,6 +15,7 @@ import { isHTMLElement, $applyNodeReplacement, DecoratorNode } from 'lexical';
 
 import { Suspense } from 'react';
 import { GalleryComponent } from '../utils/lazyImportComponents';
+import { getMinColumnWidth } from '../utils/getMinColumnWidth';
 
 export type GalleryImageObjectPosition =
   | 'center'
@@ -32,19 +33,29 @@ export interface GalleryImage {
   aspectRatio?: string | null | undefined;
 }
 
+export type GridType = 'dynamic-type' | 'static-type' | 'flex-type';
+
 export interface GalleryContainerPayload {
   key?: NodeKey;
   imageList: GalleryImage[];
+  gridType: GridType;
+  columns?: number | null | undefined;
   captionText?: string;
   width?: string | null | undefined;
   maxWidth?: string | null | undefined;
+  gridGap?: string | null | undefined;
+  columnMinWidth?: number | null | undefined;
 }
 
 export interface UpdateGalleryContainerPayload {
   imageList?: GalleryImage[];
+  gridType?: GridType;
+  columns?: number | null | undefined;
   captionText?: string;
   width?: string | null | undefined;
   maxWidth?: string | null | undefined;
+  gridGap?: string | null | undefined;
+  columnMinWidth?: number | null | undefined;
 }
 
 function convertGalleryContainerElement(
@@ -69,12 +80,36 @@ function convertGalleryContainerElement(
     newImageList!.push(imageData);
   }
 
-  const node = $createGalleryContainerNode({ imageList: newImageList! });
-  if (element.style && element.style.width && element.style.maxWidth) {
-    node.setWidth(element.style.width);
-    node.setMaxWidth(element.style.maxWidth);
+  const node = $createGalleryContainerNode({
+    imageList: newImageList!,
+    gridType: 'dynamic-type',
+  });
+  if (element.style) {
+    if (element.style.width && element.style.maxWidth) {
+      node.setWidth(element.style.width);
+      node.setMaxWidth(element.style.maxWidth);
+    }
+    if (element.style.gap) {
+      node.setGridGap(element.style.gap);
+    }
+    if (element.style.gridTemplateColumns) {
+      const minimumColumnWidth = getMinColumnWidth(
+        element.style.gridTemplateColumns
+      );
+      node.setColumnMinWidth(minimumColumnWidth);
+    }
   }
 
+  const gridContainer = element.querySelector('.grid-container');
+  if (gridContainer) {
+    if (gridContainer.classList.contains('static-type')) {
+      node.setGridType('static-type');
+    } else if (gridContainer.classList.contains('flex-type')) {
+      node.setGridType('flex-type');
+    } else {
+      node.setGridType('dynamic-type');
+    }
+  }
   const captionContainer = element.querySelector('.gallery-caption-container');
   if (captionContainer) {
     node.setCaptionText(captionContainer.innerHTML);
@@ -85,18 +120,26 @@ function convertGalleryContainerElement(
 export type SerializedGalleryContainerNode = Spread<
   {
     imageList: GalleryImage[];
+    gridType: GridType;
+    columns: number | null | undefined;
     captionText: string;
     width?: string | null | undefined;
     maxWidth?: string | null | undefined;
+    gridGap?: string | null | undefined;
+    columnMinWidth?: number | null | undefined;
   },
   SerializedLexicalNode
 >;
 
 export class GalleryContainerNode extends DecoratorNode<JSX.Element> {
   __imageList: GalleryImage[];
+  __gridType: GridType;
+  __columns: number | null | undefined;
   __captionText: string;
   __width: string | null | undefined;
   __maxWidth: string | null | undefined;
+  __gridGap: string | null | undefined;
+  __columnMinWidth: number | null | undefined;
 
   static getType(): string {
     return 'gallery-container';
@@ -104,25 +147,37 @@ export class GalleryContainerNode extends DecoratorNode<JSX.Element> {
   static clone(node: GalleryContainerNode): GalleryContainerNode {
     return new GalleryContainerNode(
       node.__imageList,
+      node.__gridType,
+      node.__columns,
       node.__width,
       node.__maxWidth,
       node.__captionText,
+      node.__gridGap,
+      node.__columnMinWidth,
       node.__key
     );
   }
 
   constructor(
     imageList: GalleryImage[],
+    gridType: GridType,
+    columns?: number | null | undefined,
     width?: string | null | undefined,
     maxWidth?: string | null | undefined,
     captionText?: string,
+    gridGap?: string | null | undefined,
+    columnMinWidth?: number | null | undefined,
     key?: NodeKey
   ) {
     super(key);
     this.__imageList = imageList;
+    this.__gridType = gridType;
+    this.__columns = columns;
     this.__width = width ? width : null;
     this.__maxWidth = maxWidth ? maxWidth : null;
     this.__captionText = captionText ? captionText : '';
+    this.__gridGap = gridGap ? gridGap : null;
+    this.__columnMinWidth = columnMinWidth ? columnMinWidth : null;
   }
 
   // View
@@ -138,6 +193,7 @@ export class GalleryContainerNode extends DecoratorNode<JSX.Element> {
     if (this.__maxWidth) {
       div.style.maxWidth = this.__maxWidth;
     }
+
     div.draggable = false;
 
     return div;
@@ -150,6 +206,7 @@ export class GalleryContainerNode extends DecoratorNode<JSX.Element> {
   ): boolean {
     const width = this.__width;
     const maxWidth = this.__maxWidth;
+
     if (
       width &&
       width !== prevNode.__width &&
@@ -160,6 +217,7 @@ export class GalleryContainerNode extends DecoratorNode<JSX.Element> {
       dom.style.width = width;
       dom.style.maxWidth = maxWidth;
     }
+
     return false;
   }
 
@@ -194,20 +252,29 @@ export class GalleryContainerNode extends DecoratorNode<JSX.Element> {
   ): GalleryContainerNode {
     const node = $createGalleryContainerNode({
       imageList: serializedNode.imageList,
+      gridType: serializedNode.gridType,
     });
     node.setImageList(serializedNode.imageList);
+    node.setGridType(serializedNode.gridType);
+    node.setColumns(serializedNode.columns);
     node.setWidth(serializedNode.width);
     node.setMaxWidth(serializedNode.maxWidth);
     node.setCaptionText(serializedNode.captionText);
+    node.setGridGap(serializedNode.gridGap);
+    node.setColumnMinWidth(serializedNode.columnMinWidth);
     return node;
   }
 
   exportJSON(): SerializedGalleryContainerNode {
     return {
       imageList: this.__imageList,
+      gridType: this.__gridType,
+      columns: this.__columns,
       width: this.__width,
       maxWidth: this.__maxWidth,
       captionText: this.__captionText,
+      gridGap: this.__gridGap,
+      columnMinWidth: this.__columnMinWidth,
       type: 'gallery-container',
       version: 1,
     };
@@ -220,6 +287,24 @@ export class GalleryContainerNode extends DecoratorNode<JSX.Element> {
   setImageList(imageList: GalleryImage[]): void {
     const writable = this.getWritable();
     writable.__imageList = imageList;
+  }
+
+  getGridType(): GridType {
+    return this.__gridType;
+  }
+
+  setGridType(gridType: GridType): void {
+    const writable = this.getWritable();
+    writable.__gridType = gridType;
+  }
+
+  getColumns(): number | null | undefined {
+    return this.__columns;
+  }
+
+  setColumns(columns: number | null | undefined): void {
+    const writable = this.getWritable();
+    writable.__columns = columns;
   }
 
   getCaptionText(): string {
@@ -249,9 +334,51 @@ export class GalleryContainerNode extends DecoratorNode<JSX.Element> {
     writable.__maxWidth = maxWidth;
   }
 
+  getGridGap(): string | null | undefined {
+    return this.__gridGap;
+  }
+
+  setGridGap(gridGap: string | null | undefined): void {
+    const writable = this.getWritable();
+    writable.__gridGap = gridGap;
+  }
+
+  getColumnMinWidth(): number | null | undefined {
+    return this.__columnMinWidth;
+  }
+
+  setColumnMinWidth(columnMinWidth: number | null | undefined): void {
+    const writable = this.getWritable();
+    writable.__columnMinWidth = columnMinWidth;
+  }
+
   update(payload: UpdateGalleryContainerPayload): void {
     const writable = this.getWritable();
-    const { captionText, width, maxWidth } = payload;
+    const {
+      imageList,
+      gridType,
+      columns,
+      captionText,
+      width,
+      maxWidth,
+      gridGap,
+      columnMinWidth,
+    } = payload;
+    if (gridType !== undefined) {
+      writable.__gridType = gridType;
+    }
+    if (imageList !== undefined) {
+      writable.__imageList = imageList;
+    }
+    if (columns !== undefined) {
+      writable.__columns = columns;
+    }
+    if (gridGap !== undefined) {
+      writable.__gridGap = gridGap;
+    }
+    if (columnMinWidth !== undefined) {
+      writable.__columnMinWidth = columnMinWidth;
+    }
     if (captionText !== undefined) {
       writable.__captionText = captionText;
     }
@@ -268,10 +395,14 @@ export class GalleryContainerNode extends DecoratorNode<JSX.Element> {
       <Suspense fallback={null}>
         <GalleryComponent
           imageList={this.__imageList}
+          gridType={this.__gridType}
+          columns={this.__columns}
+          captionText={this.__captionText}
           width={this.__width}
           maxWidth={this.__maxWidth}
+          gridGap={this.__gridGap}
+          columnMinWidth={this.__columnMinWidth}
           nodeKey={this.getKey()}
-          captionText={this.__captionText}
           resizable={true}
         />
       </Suspense>
@@ -281,10 +412,12 @@ export class GalleryContainerNode extends DecoratorNode<JSX.Element> {
 
 export function $createGalleryContainerNode({
   imageList,
+  gridType,
 }: {
   imageList: GalleryImage[];
+  gridType: GridType;
 }): GalleryContainerNode {
-  return $applyNodeReplacement(new GalleryContainerNode(imageList));
+  return $applyNodeReplacement(new GalleryContainerNode(imageList, gridType));
 }
 export function $isGalleryContainerNode(
   node: LexicalNode | null | undefined
