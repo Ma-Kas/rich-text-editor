@@ -53,7 +53,6 @@ const theme: EditorThemeClasses = {
   },
   image: 'editor-image',
   indent: 'EditorTheme__indent',
-  inlineImage: 'inline-editor-image',
   layoutContainer: 'EditorTheme__layoutContainer',
   layoutItem: 'EditorTheme__layoutItem',
   link: 'EditorTheme__link',

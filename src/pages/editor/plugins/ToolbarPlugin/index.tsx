@@ -75,7 +75,6 @@ import { sanitizeUrl } from '../../utils/url';
 import { EmbedConfigs } from '../../utils/embedConfigs.index';
 import { INSERT_COLLAPSIBLE_COMMAND } from '../CollapsiblePlugin';
 import { InsertImageDialog } from '../ImagesPlugin';
-import { InsertInlineImageDialog } from '../InlineImagePlugin';
 import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 import { InsertTableDialog } from '../TablePlugin';
 import FontSize from './fontSize';
@@ -1265,20 +1264,6 @@ function ToolbarPlugin({
             >
               <i className='icon gallery' />
               <span className='text'>Image Gallery</span>
-            </DropDownItem>
-            <DropDownItem
-              onClick={() => {
-                showModal('Insert Inline Image', (onClose) => (
-                  <InsertInlineImageDialog
-                    activeEditor={activeEditor}
-                    onClose={onClose}
-                  />
-                ));
-              }}
-              className='item'
-            >
-              <i className='icon image' />
-              <span className='text'>Inline Image</span>
             </DropDownItem>
             <DropDownItem
               onClick={() => {
