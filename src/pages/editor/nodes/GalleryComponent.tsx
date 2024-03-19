@@ -52,7 +52,6 @@ type GalleryInlineStyleType = {
 };
 
 const stringSchema = z.string();
-const imageSrcSchema = z.string();
 const imagePositionSchema = z.union([
   z.literal('center'),
   z.literal('left'),
@@ -213,18 +212,6 @@ export function UpdateGalleryDialog({
     input: unknown
   ): void => {
     switch (type) {
-      case 'src': {
-        const parseResult = imageSrcSchema.safeParse(input);
-        if (parseResult.success) {
-          const newSource = parseResult.data;
-          image.src = newSource;
-          const changedImageList = imageList.map((img) =>
-            img.id !== image.id ? img : image
-          );
-          setImageList(changedImageList);
-        }
-        break;
-      }
       case 'altText': {
         const parseResult = stringSchema.safeParse(input);
         if (parseResult.success) {
@@ -303,8 +290,8 @@ export function UpdateGalleryDialog({
   return (
     <>
       {/* Whole Gallery Edit */}
-      <div style={{ marginBottom: '1em' }}>
-        <p>Edit Whole Gallery:</p>
+      <div className='Input__galleryInputGroup'>
+        <div className='Input__galleryInputGroupTitle'>Edit Whole Gallery:</div>
         <Select
           value={gridType}
           label='Gallery Type'
@@ -395,18 +382,11 @@ export function UpdateGalleryDialog({
       </div>
 
       {/* Individual Image Edit */}
-      <div style={{ marginBottom: '1em' }}>
+      <div className='Input__galleryInputGroup'>
         {imageList.map((image, index) => {
           return (
             <div key={image.id}>
-              <p>{`Edit Image ${index + 1}:`}</p>
-              <TextInput
-                label='Source'
-                placeholder='Image Source'
-                onChange={(value) => handleImageChange(image, 'src', value)}
-                value={image.src}
-                data-test-id='gallery-image-modal-src-text-input'
-              />
+              <div className='Input__galleryInputGroupTitle'>{`Edit Image ${index + 1}:`}</div>
               <TextInput
                 label='Alt Text'
                 placeholder='Descriptive alternative text'

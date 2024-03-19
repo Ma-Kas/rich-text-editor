@@ -4,6 +4,15 @@
   align-items: center;
   margin-bottom: 10px;
 }
+.Input__galleryInputGroup {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #ccc;
+}
+.Input__galleryInputGroupTitle {
+  font-weight: bold;
+  color: #666;
+  padding-bottom: 1rem;
+}
 .Input__label {
   display: flex;
   flex: 1;

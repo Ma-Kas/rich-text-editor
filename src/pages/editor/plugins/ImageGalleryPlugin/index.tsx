@@ -16,6 +16,8 @@ import {
   LexicalEditor,
 } from 'lexical';
 import { useEffect, useRef, useState } from 'react';
+import { z } from 'zod';
+
 import { INSERT_GALLERY_COMMAND } from '../../utils/exportedCommands';
 import { CAN_USE_DOM } from '../../../shared/src/canUseDOM';
 
@@ -23,7 +25,7 @@ import landscapeImage from '../../images/landscape.jpg';
 import yellowFlowerImage from '../../images/yellow-flower.jpg';
 import Button from '../../ui/Button';
 import { DialogActions, DialogButtonsList } from '../../ui/Dialog';
-import FileInput from '../../ui/FileInput';
+import { MultiFileInput } from '../../ui/FileInput';
 import TextInput from '../../ui/TextInput';
 import { $createGalleryBlockNode } from '../../nodes/GalleryBlockNode';
 import {
@@ -35,6 +37,8 @@ import {
 
 export type InsertGalleryImagePayload = GalleryImage[];
 
+const stringSchema = z.string();
+
 const getDOMSelection = (targetWindow: Window | null): Selection | null =>
   CAN_USE_DOM ? (targetWindow || window).getSelection() : null;
 
@@ -43,32 +47,127 @@ export function InsertGalleryImagesUriDialogBody({
 }: {
   onClick: (payload: InsertGalleryImagePayload) => void;
 }) {
-  const [src, setSrc] = useState('');
-  const [altText, setAltText] = useState('');
+  const MIN_IMAGE_COUNT = 2;
+  const MAX_IMAGE_COUNT = 6;
+  // Set initial state to a new array of length MIN_IMAGE_COUNT with image.id
+  // set to increment starting from 1, and src and altText set to ''
+  const [imageList, setImageList] = useState<GalleryImage[]>(
+    Array.from({ length: MIN_IMAGE_COUNT }, (_, index) => index + 1).map(
+      (index) => {
+        return { id: index, src: '', altText: '' };
+      }
+    )
+  );
 
-  const isDisabled = src === '';
+  const incrementImageList = () => {
+    const currentLength = imageList.length;
+    if (currentLength >= MAX_IMAGE_COUNT) {
+      return;
+    }
+    setImageList([
+      ...imageList,
+      { id: currentLength + 1, src: '', altText: '' },
+    ]);
+  };
+
+  const removeLastImageFromList = () => {
+    const currentLength = imageList.length;
+    if (currentLength <= MIN_IMAGE_COUNT) {
+      return;
+    }
+    setImageList(imageList.filter((image) => image.id !== currentLength));
+  };
+
+  const handleChange = (
+    image: GalleryImage,
+    type: 'src' | 'altText',
+    input: unknown
+  ) => {
+    switch (type) {
+      case 'src': {
+        const parseResult = stringSchema.safeParse(input);
+        if (parseResult.success) {
+          const newSrc = parseResult.data;
+          image.src = newSrc;
+          const changedImageList = imageList.map((img) =>
+            img.id !== image.id ? img : image
+          );
+          setImageList(changedImageList);
+        }
+        break;
+      }
+      case 'altText': {
+        const parseResult = stringSchema.safeParse(input);
+        if (parseResult.success) {
+          const newAltText = parseResult.data;
+          image.altText = newAltText;
+          const changedImageList = imageList.map((img) =>
+            img.id !== image.id ? img : image
+          );
+          setImageList(changedImageList);
+        }
+        break;
+      }
+    }
+  };
+
+  const canSubmit = (): boolean => {
+    for (let i = 0; i < imageList.length; i++) {
+      if (imageList[i].src === '' || imageList[i].altText === '') {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const disabled = !canSubmit();
 
   return (
     <>
-      <TextInput
-        label='Image URL'
-        placeholder='i.e. https://source.unsplash.com/random'
-        onChange={setSrc}
-        value={src}
-        data-test-id='image-modal-url-input'
-      />
-      <TextInput
-        label='Alt Text'
-        placeholder='Random unsplash image'
-        onChange={setAltText}
-        value={altText}
-        data-test-id='image-modal-alt-text-input'
-      />
+      {imageList.map((image) => {
+        return (
+          <div key={image.id} className='Input__galleryInputGroup'>
+            <div className='Input__galleryInputGroupTitle'>{`Image ${image.id}:`}</div>
+            <TextInput
+              label='Image URL'
+              placeholder='i.e. https://source.unsplash.com/random'
+              onChange={(value) => handleChange(image, 'src', value)}
+              value={image.src}
+              data-test-id='gallery-image-modal-url-input'
+            />
+            <TextInput
+              label='Alt Text'
+              placeholder='Random unsplash image'
+              onChange={(value) => handleChange(image, 'altText', value)}
+              value={image.altText}
+              data-test-id='gallery-image-modal-alt-text-input'
+            />
+          </div>
+        );
+      })}
+
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Button
+          data-test-id='gallery-image-modal-add-btn'
+          disabled={imageList.length >= MAX_IMAGE_COUNT}
+          onClick={incrementImageList}
+        >
+          Add new image
+        </Button>
+        <Button
+          data-test-id='gallery-image-modal-add-btn'
+          disabled={imageList.length <= MIN_IMAGE_COUNT}
+          onClick={removeLastImageFromList}
+        >
+          Remove last image
+        </Button>
+      </div>
+
       <DialogActions>
         <Button
-          data-test-id='image-modal-confirm-btn'
-          disabled={isDisabled}
-          onClick={() => onClick([{ id: 1, altText, src }])}
+          data-test-id='gallery-image-modal-confirm-btn'
+          disabled={disabled}
+          onClick={() => onClick(imageList)}
         >
           Confirm
         </Button>
@@ -87,9 +186,10 @@ export function InsertGalleryImagesUploadedDialogBody({
 
   const isDisabled = src === '';
 
-  const loadImage = (files: FileList | null) => {
+  const loadImages = (files: FileList | null) => {
     const reader = new FileReader();
     reader.onload = function () {
+      console.log(reader.result);
       if (typeof reader.result === 'string') {
         setSrc(reader.result);
       }
@@ -102,9 +202,9 @@ export function InsertGalleryImagesUploadedDialogBody({
 
   return (
     <>
-      <FileInput
+      <MultiFileInput
         label='Image Upload'
-        onChange={loadImage}
+        onChange={loadImages}
         accept='image/*'
         data-test-id='image-modal-file-upload'
       />
@@ -190,13 +290,13 @@ export function InsertGalleryContainerDialog({
             Sample
           </Button>
           <Button
-            data-test-id='image-modal-option-url'
+            data-test-id='gallery-modal-option-url'
             onClick={() => setMode('url')}
           >
             URL
           </Button>
           <Button
-            data-test-id='image-modal-option-file'
+            data-test-id='gallery-modal-option-file'
             onClick={() => setMode('file')}
           >
             File
@@ -260,7 +360,7 @@ function onDrop(event: DragEvent, editor: LexicalEditor): boolean {
   if (!node) {
     return false;
   }
-  const data = getDragImageData(event);
+  const data = getDragGalleryData(event);
   if (!data) {
     return false;
   }
@@ -288,7 +388,9 @@ function getGalleryContainerNodeInSelection(): GalleryContainerNode | null {
   return $isGalleryContainerNode(node) ? node : null;
 }
 
-function getDragImageData(event: DragEvent): null | InsertGalleryImagePayload {
+function getDragGalleryData(
+  event: DragEvent
+): null | InsertGalleryImagePayload {
   const dragData = event.dataTransfer?.getData('application/x-lexical-drag');
   if (!dragData) {
     return null;
@@ -364,7 +466,7 @@ export default function ImageGalleryPlugin(): JSX.Element | null {
 
           $insertNodes([newGalleryContainer]);
 
-          // Add new paragraph node below created image
+          // Add new paragraph node below created image gallery
           const newParagraphNode = $createParagraphNode();
           newGalleryBlock.insertAfter(newParagraphNode).selectNext();
 
