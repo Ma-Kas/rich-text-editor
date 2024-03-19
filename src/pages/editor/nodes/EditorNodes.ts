@@ -17,7 +17,6 @@ import { ImageBlockNode } from './ImageBlockNode';
 import { GalleryBlockNode } from './GalleryBlockNode';
 import { GalleryContainerNode } from './GalleryContainerNode';
 import { ImageNode } from './ImageNode';
-import { InlineImageNode } from './InlineImageNode';
 import { LayoutContainerNode } from './LayoutContainerNode';
 import { LayoutItemNode } from './LayoutItemNode';
 import { StickyNode } from './StickyNode';
@@ -43,7 +42,6 @@ const EditorNodes: Array<Klass<LexicalNode>> = [
   GalleryBlockNode,
   GalleryContainerNode,
   ImageNode,
-  InlineImageNode,
   HorizontalRuleNode,
   TweetNode,
   YouTubeNode,
