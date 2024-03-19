@@ -75,6 +75,8 @@ const theme: EditorThemeClasses = {
   mark: 'EditorTheme__mark',
   markOverlap: 'EditorTheme__markOverlap',
   imageBlock: 'EditorTheme__imageBlock',
+  galleryBlock: 'EditorTheme__galleryBlock',
+  galleryContainer: 'EditorTheme__galleryContainer',
   paragraph: 'EditorTheme__paragraph',
   quote: 'EditorTheme__quote',
   rtl: 'EditorTheme__rtl',

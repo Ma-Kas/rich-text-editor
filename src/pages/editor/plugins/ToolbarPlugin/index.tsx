@@ -79,6 +79,7 @@ import { InsertInlineImageDialog } from '../InlineImagePlugin';
 import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 import { InsertTableDialog } from '../TablePlugin';
 import FontSize from './fontSize';
+import { InsertGalleryContainerDialog } from '../ImageGalleryPlugin';
 
 const IMPORT_TEST = '';
 const blockTypeToBlockName = {
@@ -112,14 +113,20 @@ function getCodeLanguageOptions(): [string, string][] {
   return options;
 }
 
-// To disallow reformat block as code block
-function containsImageNode(selection: BaseSelection): boolean {
+// To disallow reformat certain nodes (imageBlock, galleryBlock, imageNode)
+// as code block, list etc, as attempting to do so would crash
+function containsUnformattableNodes(selection: BaseSelection): boolean {
   const nodes = selection.getNodes();
   if (!nodes) {
     return true;
   }
   for (let i = 0; i < nodes.length; i++) {
-    if (nodes[i].__type === 'image-block' || nodes[i].__type === 'image') {
+    if (
+      nodes[i].__type === 'image-block' ||
+      nodes[i].__type === 'image' ||
+      nodes[i].__type === 'gallery-block' ||
+      nodes[i].__type === 'gallery-container'
+    ) {
       return true;
     }
   }
@@ -210,7 +217,7 @@ function BlockTypeListMenu({
   const formatBulletList = () => {
     editor.update(() => {
       const selection = $getSelection();
-      if (!selection || containsImageNode(selection)) {
+      if (!selection || containsUnformattableNodes(selection)) {
         return;
       }
       if (blockType !== 'bullet') {
@@ -224,7 +231,7 @@ function BlockTypeListMenu({
   const formatNumberedList = () => {
     editor.update(() => {
       const selection = $getSelection();
-      if (!selection || containsImageNode(selection)) {
+      if (!selection || containsUnformattableNodes(selection)) {
         return;
       }
       if (blockType !== 'number') {
@@ -249,7 +256,7 @@ function BlockTypeListMenu({
       editor.update(() => {
         let selection = $getSelection();
 
-        if (selection !== null && !containsImageNode(selection)) {
+        if (selection !== null && !containsUnformattableNodes(selection)) {
           if (selection.isCollapsed()) {
             $setBlocksType(selection, () => $createCodeNode());
           } else {
@@ -357,7 +364,7 @@ function BlockFormatDropDown({
   const formatBulletList = () => {
     editor.update(() => {
       const selection = $getSelection();
-      if (!selection || containsImageNode(selection)) {
+      if (!selection || containsUnformattableNodes(selection)) {
         return;
       }
       if (blockType !== 'bullet') {
@@ -371,7 +378,7 @@ function BlockFormatDropDown({
   const formatNumberedList = () => {
     editor.update(() => {
       const selection = $getSelection();
-      if (!selection || containsImageNode(selection)) {
+      if (!selection || containsUnformattableNodes(selection)) {
         return;
       }
       if (blockType !== 'number') {
@@ -396,7 +403,7 @@ function BlockFormatDropDown({
       editor.update(() => {
         let selection = $getSelection();
 
-        if (selection !== null && !containsImageNode(selection)) {
+        if (selection !== null && !containsUnformattableNodes(selection)) {
           if (selection.isCollapsed()) {
             $setBlocksType(selection, () => $createCodeNode());
           } else {
@@ -1244,6 +1251,20 @@ function ToolbarPlugin({
             >
               <i className='icon image' />
               <span className='text'>Image</span>
+            </DropDownItem>
+            <DropDownItem
+              onClick={() => {
+                showModal('Insert Image Gallery', (onClose) => (
+                  <InsertGalleryContainerDialog
+                    activeEditor={activeEditor}
+                    onClose={onClose}
+                  />
+                ));
+              }}
+              className='item'
+            >
+              <i className='icon gallery' />
+              <span className='text'>Image Gallery</span>
             </DropDownItem>
             <DropDownItem
               onClick={() => {
