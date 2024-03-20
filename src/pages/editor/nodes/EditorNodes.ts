@@ -13,6 +13,8 @@ import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
 import { CollapsibleContainerNode } from '../plugins/CollapsiblePlugin/CollapsibleContainerNode';
 import { CollapsibleContentNode } from '../plugins/CollapsiblePlugin/CollapsibleContentNode';
 import { CollapsibleTitleNode } from '../plugins/CollapsiblePlugin/CollapsibleTitleNode';
+import { EmbedBlockNode } from './EmbedBlockNode';
+import { EmbedNode } from './EmbedNode';
 import { ImageBlockNode } from './ImageBlockNode';
 import { GalleryBlockNode } from './GalleryBlockNode';
 import { GalleryContainerNode } from './GalleryContainerNode';
@@ -38,6 +40,8 @@ const EditorNodes: Array<Klass<LexicalNode>> = [
   LinkNode,
   OverflowNode,
   StickyNode,
+  EmbedBlockNode,
+  EmbedNode,
   ImageBlockNode,
   GalleryBlockNode,
   GalleryContainerNode,

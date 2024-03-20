@@ -29,9 +29,8 @@ import LinkPlugin from './plugins/LinkPlugin';
 import ListMaxIndentLevelPlugin from './plugins/ListMaxIndentLevelPlugin';
 import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableCellResizer from './plugins/TableCellResizer';
+import EmbedPlugin from './plugins/EmbedPlugin';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
-import TwitterPlugin from './plugins/TwitterPlugin';
-import YouTubePlugin from './plugins/YouTubePlugin';
 import ContentEditable from './ui/ContentEditable';
 import Placeholder from './ui/Placeholder';
 import FloatingBlockTypeToolbarPlugin from './plugins/FloatingBlockTypeToolbarPlugin';
@@ -108,8 +107,7 @@ export default function Editor(): JSX.Element {
           <ImagesPlugin />
           <ImageGalleryPlugin />
           <LinkPlugin />
-          <TwitterPlugin />
-          <YouTubePlugin />
+          <EmbedPlugin />
           {!isEditable && <LexicalClickableLinkPlugin />}
           <HorizontalRulePlugin />
           <TabIndentationPlugin />

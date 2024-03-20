@@ -79,6 +79,7 @@ import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 import { InsertTableDialog } from '../TablePlugin';
 import FontSize from './fontSize';
 import { InsertGalleryContainerDialog } from '../ImageGalleryPlugin';
+import { InsertEmbedDialog } from '../EmbedPlugin';
 
 const IMPORT_TEST = '';
 const blockTypeToBlockName = {
@@ -1265,6 +1266,21 @@ function ToolbarPlugin({
               <i className='icon gallery' />
               <span className='text'>Image Gallery</span>
             </DropDownItem>
+            <DropDownItem
+              onClick={() => {
+                showModal('Embed HTML', (onClose) => (
+                  <InsertEmbedDialog
+                    activeEditor={activeEditor}
+                    onClose={onClose}
+                  />
+                ));
+              }}
+              className='item'
+            >
+              <i className='icon embed' />
+              <span className='text'>Embed HTML</span>
+            </DropDownItem>
+
             <DropDownItem
               onClick={() => {
                 showModal('Insert Table', (onClose) => (

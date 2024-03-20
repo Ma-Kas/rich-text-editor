@@ -51,6 +51,7 @@ const theme: EditorThemeClasses = {
     h5: 'EditorTheme__h5',
     h6: 'EditorTheme__h6',
   },
+  embedContainer: 'editor-embed',
   image: 'editor-image',
   indent: 'EditorTheme__indent',
   layoutContainer: 'EditorTheme__layoutContainer',

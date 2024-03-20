@@ -375,7 +375,9 @@
   border-bottom: 2px solid rgba(255, 212, 0, 0.7);
 }
 .EditorTheme__embedBlock {
-  user-select: none;
+  margin: 0;
+  display: flex;
+  justify-content: center;
 }
 .EditorTheme__embedBlockFocus {
   outline: 2px solid rgb(60, 132, 244);

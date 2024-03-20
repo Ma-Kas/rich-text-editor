@@ -786,6 +786,65 @@ i.success {
   transform: translateX(20px);
 }
 
+.editor-shell div.editor-embed {
+  cursor: default;
+  position: relative;
+  min-width: 100px;
+}
+
+.editor-shell div.editor-embed:has(div.focused) {
+  outline: 4px solid rgb(60, 132, 244);
+  user-select: none;
+}
+
+.editor-shell div.editor-embed > .embed > :first-child {
+  pointer-events: none;
+}
+
+.editor-shell .editor-embed .embed-edit-button {
+  display: block;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.5);
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 35px;
+  min-width: 60px;
+  height: 35px;
+  margin: 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  padding: 6px 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.editor-shell .editor-embed .embed-edit-button:hover {
+  background-color: rgba(60, 132, 244, 0.5);
+}
+
+.editor-shell .editor-embed .embed-resizer {
+  display: block;
+  width: 12px;
+  height: 12px;
+  position: absolute;
+  background-color: white;
+  border: 2px solid rgb(60, 132, 244);
+  border-radius: 50%;
+}
+
+.editor-shell .editor-embed .embed-resizer.embed-resizer-e {
+  bottom: calc(50% - 6px);
+  right: -10px;
+  cursor: ew-resize;
+}
+
+.editor-shell .editor-embed .embed-resizer.embed-resizer-w {
+  bottom: calc(50% - 6px);
+  left: -10px;
+  cursor: ew-resize;
+}
+
 .editor-shell div.editor-image {
   cursor: default;
   position: relative;
