@@ -16,6 +16,7 @@ const Directions = {
 };
 
 export default function EmbedResizer({
+  embedType,
   onResizeStart,
   onResizeEnd,
   buttonRef,
@@ -24,6 +25,7 @@ export default function EmbedResizer({
   nodeKey,
   showModal,
 }: {
+  embedType: string;
   editor: LexicalEditor;
   buttonRef: { current: null | HTMLButtonElement };
   embedRef: { current: null | HTMLElement };
@@ -162,6 +164,7 @@ export default function EmbedResizer({
       document.addEventListener('pointerup', handlePointerUp);
     }
   };
+
   const handlePointerMove = (event: PointerEvent) => {
     const embed = embedRef.current;
     const editorEmbedDiv = embed?.parentElement;
@@ -185,6 +188,7 @@ export default function EmbedResizer({
       positioning.currentWidth = width;
     }
   };
+
   const handlePointerUp = () => {
     const embed = embedRef.current;
     const editorEmbedDiv = embed?.parentElement;
@@ -219,6 +223,7 @@ export default function EmbedResizer({
       document.removeEventListener('pointerup', handlePointerUp);
     }
   };
+
   return (
     <div ref={controlWrapperRef}>
       <button
@@ -237,18 +242,23 @@ export default function EmbedResizer({
         Edit
       </button>
 
-      <div
-        className='embed-resizer embed-resizer-e'
-        onPointerDown={(event) => {
-          handlePointerDown(event, Directions.north | Directions.east);
-        }}
-      />
-      <div
-        className='embed-resizer embed-resizer-w'
-        onPointerDown={(event) => {
-          handlePointerDown(event, Directions.north | Directions.west);
-        }}
-      />
+      {/* Don't allow resizing on twitter embed (would mess up widget) */}
+      {embedType !== 'twitter' && (
+        <div
+          className='embed-resizer embed-resizer-e'
+          onPointerDown={(event) => {
+            handlePointerDown(event, Directions.north | Directions.east);
+          }}
+        />
+      )}
+      {embedType !== 'twitter' && (
+        <div
+          className='embed-resizer embed-resizer-w'
+          onPointerDown={(event) => {
+            handlePointerDown(event, Directions.north | Directions.west);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -125,7 +125,9 @@ function containsUnformattableNodes(selection: BaseSelection): boolean {
       nodes[i].__type === 'image-block' ||
       nodes[i].__type === 'image' ||
       nodes[i].__type === 'gallery-block' ||
-      nodes[i].__type === 'gallery-container'
+      nodes[i].__type === 'gallery-container' ||
+      nodes[i].__type === 'embed-block' ||
+      nodes[i].__type === 'embed'
     ) {
       return true;
     }

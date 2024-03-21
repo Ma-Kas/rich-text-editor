@@ -354,6 +354,7 @@ export default function EmbedComponent({
       )}
       {resizable && $isNodeSelection(selection) && isFocused && (
         <EmbedResizer
+          embedType={embedType}
           editor={editor}
           buttonRef={buttonRef}
           embedRef={embedRef}
