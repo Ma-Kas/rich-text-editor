@@ -36,6 +36,15 @@ export type InsertEmbedPayload = Readonly<EmbedPayload>;
 const getDOMSelection = (targetWindow: Window | null): Selection | null =>
   CAN_USE_DOM ? (targetWindow || window).getSelection() : null;
 
+function getVideoIdFromSrc(src: string) {
+  const regex = /\/embed\/(.*?)\?si=/;
+  const result = src.match(regex);
+  if (result && result[1]) {
+    return result[1];
+  }
+  return '';
+}
+
 export function InsertEmbedDialog({
   activeEditor,
   onClose,
@@ -45,12 +54,27 @@ export function InsertEmbedDialog({
 }): JSX.Element {
   const [html, setHtml] = useState('');
   const [maxWidth, setMaxWidth] = useState<string | null>(null);
-  const [maxHeight, setMaxHeight] = useState<string | null>(null);
+  const [aspectRatio, setAspectRatio] = useState<string | null>(null);
 
   const isDisabled = html === '';
 
-  const transformYoutube = () => {
-    //
+  const transformYoutube = (value: string) => {
+    const div = document.createElement('div');
+    div.innerHTML = value;
+    const iframe = div.firstChild;
+    if (!iframe || !(iframe instanceof HTMLIFrameElement)) {
+      return;
+    }
+    const width = iframe.width;
+    const height = iframe.height;
+    const src = iframe.src;
+    const title = iframe.title;
+    setMaxWidth(width);
+    setAspectRatio(`${Number(width) / Number(height)} / 1`);
+    const videoID = getVideoIdFromSrc(src);
+    const newIframe = `<iframe width='100%' height='100%' src=https://www.youtube-nocookie.com/embed/${videoID} allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowFullScreen title=${title} referrerpolicy='strict-origin-when-cross-origin'/>`;
+
+    setHtml(newIframe);
   };
 
   const handleSubmit = (): void => {
@@ -58,8 +82,8 @@ export function InsertEmbedDialog({
       embedType: 'youtube',
       html: html,
       width: '100%',
-      maxWidth: '560px',
-      aspectRatio: '1.7777 / 1',
+      maxWidth: `${maxWidth}px`,
+      aspectRatio: aspectRatio,
     };
     activeEditor.dispatchCommand(INSERT_EMBED_COMMAND, payload);
     onClose();
@@ -70,7 +94,7 @@ export function InsertEmbedDialog({
       <TextInput
         label='HTML'
         placeholder='Your raw HTML'
-        onChange={setHtml}
+        onChange={(value) => transformYoutube(value)}
         value={html}
         data-test-id='embed-modal-html-input'
       />
