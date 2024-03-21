@@ -117,7 +117,6 @@ export function UpdateEmbedDialog({
 }
 
 export default function EmbedComponent({
-  embedType,
   html,
   nodeKey,
   resizable,
@@ -130,6 +129,7 @@ export default function EmbedComponent({
   maxWidth: string | null | undefined;
   height: string | null | undefined;
   maxHeight: string | null | undefined;
+  aspectRatio: string | null | undefined;
 }): JSX.Element {
   const embedRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -304,7 +304,12 @@ export default function EmbedComponent({
     setSelected,
   ]);
 
-  const onResizeEnd = (width: string, maxWidth: string) => {
+  const onResizeEnd = (
+    width: string,
+    maxWidth: string,
+    height: string,
+    maxHeight: string
+  ) => {
     // Delay hiding the resize bars for click case
     setTimeout(() => {
       setIsResizing(false);
@@ -316,6 +321,8 @@ export default function EmbedComponent({
       if ($isEmbedNode(node)) {
         node.setWidth(width);
         node.setMaxWidth(maxWidth);
+        node.setHeight(height);
+        node.setMaxHeight(maxHeight);
       }
     });
   };
@@ -330,7 +337,6 @@ export default function EmbedComponent({
       <div
         className={isFocused ? 'embed focused' : 'embed'}
         ref={embedRef}
-        data-embed-type={embedType}
         dangerouslySetInnerHTML={{ __html: html }}
       ></div>
       {resizable && $isNodeSelection(selection) && isFocused && (

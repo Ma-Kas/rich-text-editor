@@ -20,6 +20,7 @@ export interface EmbedPayload {
   maxWidth?: string | null | undefined;
   height?: string | null | undefined;
   maxHeight?: string | null | undefined;
+  aspectRatio?: string | null | undefined;
   key?: NodeKey;
 }
 
@@ -30,6 +31,7 @@ export interface UpdateEmbedPayload {
   maxWidth?: string | null | undefined;
   height?: string | null | undefined;
   maxHeight?: string | null | undefined;
+  aspectRatio?: string | null | undefined;
   key?: NodeKey;
 }
 
@@ -45,11 +47,8 @@ function convertEmbedElement(element: HTMLElement): DOMConversionOutput {
     if (element.style.maxWidth) {
       node.setMaxWidth(element.style.maxWidth);
     }
-    if (element.style.height) {
-      node.setHeight(element.style.height);
-    }
-    if (element.style.maxHeight) {
-      node.setMaxHeight(element.style.maxHeight);
+    if (element.style.aspectRatio) {
+      node.setAspectRatio(element.style.aspectRatio);
     }
   }
   return { node };
@@ -63,6 +62,7 @@ export type SerializedEmbedNode = Spread<
     maxWidth?: string | null | undefined;
     height?: string | null | undefined;
     maxHeight?: string | null | undefined;
+    aspectRatio?: string | null | undefined;
   },
   SerializedLexicalNode
 >;
@@ -74,6 +74,7 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
   __maxWidth: string | null | undefined;
   __height: string | null | undefined;
   __maxHeight: string | null | undefined;
+  __aspectRatio: string | null | undefined;
 
   static getType(): string {
     return 'embed';
@@ -87,12 +88,13 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
       node.__maxWidth,
       node.__height,
       node.__maxHeight,
+      node.__aspectRatio,
       node.__key
     );
   }
 
   static importJSON(serializedNode: SerializedEmbedNode): EmbedNode {
-    const { embedType, html, width, maxWidth, height, maxHeight } =
+    const { embedType, html, width, maxWidth, height, maxHeight, aspectRatio } =
       serializedNode;
     const node = $createEmbedNode({
       embedType,
@@ -101,6 +103,7 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
       maxWidth,
       height,
       maxHeight,
+      aspectRatio,
     });
     return node;
   }
@@ -121,6 +124,7 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
     maxWidth?: string | null | undefined,
     height?: string | null | undefined,
     maxHeight?: string | null | undefined,
+    aspectRatio?: string | null | undefined,
     key?: NodeKey
   ) {
     super(key);
@@ -130,6 +134,7 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
     this.__maxWidth = maxWidth;
     this.__height = height;
     this.__maxHeight = maxHeight;
+    this.__aspectRatio = aspectRatio;
   }
 
   exportDOM(): DOMExportOutput {
@@ -140,11 +145,8 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
     if (this.__maxWidth) {
       element.setAttribute('maxWidth', this.__maxWidth);
     }
-    if (this.__height) {
-      element.setAttribute('height', this.__height);
-    }
-    if (this.__maxHeight) {
-      element.setAttribute('maxHeight', this.__maxHeight);
+    if (this.__aspectRatio) {
+      element.setAttribute('aspectRatio', this.__aspectRatio);
     }
     element.innerHTML = this.__html;
 
@@ -159,6 +161,7 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
       maxWidth: this.__maxWidth,
       height: this.__height,
       maxHeight: this.__maxHeight,
+      aspectRatio: this.__aspectRatio,
       type: 'embed',
       version: 1,
     };
@@ -218,9 +221,19 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
     writable.__maxHeight = maxHeight;
   }
 
+  getAspectRatio(): string | null | undefined {
+    return this.__aspectRatio;
+  }
+
+  setAspectRatio(aspectRatio: string | null | undefined): void {
+    const writable = this.getWritable();
+    writable.__aspectRatio = aspectRatio;
+  }
+
   update(payload: UpdateEmbedPayload): void {
     const writable = this.getWritable();
-    const { embedType, html, width, maxWidth, height, maxHeight } = payload;
+    const { embedType, html, width, maxWidth, height, maxHeight, aspectRatio } =
+      payload;
     if (embedType !== undefined) {
       writable.__embedType = embedType;
     }
@@ -239,6 +252,9 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
     if (maxHeight !== undefined) {
       writable.__maxHeight = maxHeight;
     }
+    if (aspectRatio !== undefined) {
+      writable.__aspectRatio = aspectRatio;
+    }
   }
 
   // View
@@ -254,12 +270,10 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
     if (this.__maxWidth) {
       div.style.maxWidth = this.__maxWidth;
     }
-    if (this.__height) {
-      div.style.height = this.__height;
+    if (this.__aspectRatio) {
+      div.style.aspectRatio = this.__aspectRatio;
     }
-    if (this.__maxHeight) {
-      div.style.maxHeight = this.__maxHeight;
-    }
+    div.dataset.embedType = this.__embedType;
     return div;
   }
 
@@ -270,19 +284,15 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
   ): false {
     const width = this.__width;
     const maxWidth = this.__maxWidth;
-    const height = this.__height;
-    const maxHeight = this.__maxHeight;
+    const aspectRatio = this.__aspectRatio;
     if (width && width !== prevNode.__width) {
       dom.style.width = width;
     }
     if (maxWidth && maxWidth !== prevNode.__maxWidth) {
       dom.style.maxWidth = maxWidth;
     }
-    if (height && height !== prevNode.__height) {
-      dom.style.height = height;
-    }
-    if (maxHeight && maxHeight !== prevNode.__maxHeight) {
-      dom.style.maxHeight = maxHeight;
+    if (aspectRatio && aspectRatio !== prevNode.__aspectRatio) {
+      dom.style.aspectRatio = aspectRatio;
     }
 
     return false;
@@ -297,6 +307,7 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
         maxWidth={this.__maxWidth}
         height={this.__height}
         maxHeight={this.__maxHeight}
+        aspectRatio={this.__aspectRatio}
         nodeKey={this.getKey()}
         resizable={true}
       />
@@ -311,10 +322,20 @@ export function $createEmbedNode({
   maxWidth = null,
   height = null,
   maxHeight = null,
+  aspectRatio,
   key,
 }: EmbedPayload): EmbedNode {
   return $applyNodeReplacement(
-    new EmbedNode(embedType, html, width, maxWidth, height, maxHeight, key)
+    new EmbedNode(
+      embedType,
+      html,
+      width,
+      maxWidth,
+      height,
+      maxHeight,
+      aspectRatio,
+      key
+    )
   );
 }
 

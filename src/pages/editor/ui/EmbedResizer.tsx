@@ -27,7 +27,12 @@ export default function EmbedResizer({
   editor: LexicalEditor;
   buttonRef: { current: null | HTMLButtonElement };
   embedRef: { current: null | HTMLElement };
-  onResizeEnd: (width: string, maxWidth: string) => void;
+  onResizeEnd: (
+    width: string,
+    maxWidth: string,
+    height: string,
+    maxHeight: string
+  ) => void;
   onResizeStart: () => void;
   nodeKey: NodeKey;
   showModal: (
@@ -122,7 +127,6 @@ export default function EmbedResizer({
     }
 
     const embed = embedRef.current;
-    console.log(embedRef.current);
     const controlWrapper = controlWrapperRef.current;
     const editorEmbedDiv = embed?.parentElement;
 
@@ -152,6 +156,7 @@ export default function EmbedResizer({
       // as big as user chooses AS A MAX, but can shrink down on smaller screens
       editorEmbedDiv.style.maxWidth = `${width}px`;
       editorEmbedDiv.style.width = `100%`;
+      editorEmbedDiv.style.aspectRatio = `${positioning.ratio} / 1`;
 
       document.addEventListener('pointermove', handlePointerMove);
       document.addEventListener('pointerup', handlePointerUp);
@@ -187,6 +192,7 @@ export default function EmbedResizer({
     const controlWrapper = controlWrapperRef.current;
     if (embed && controlWrapper && editorEmbedDiv && positioning.isResizing) {
       const width = positioning.currentWidth;
+      const height = positioning.currentHeight;
       positioning.startWidth = 0;
       positioning.startHeight = 0;
       positioning.ratio = 0;
@@ -202,9 +208,9 @@ export default function EmbedResizer({
       if (width === maxWidthContainer) {
         editorEmbedDiv.style.maxWidth = '100%';
         // set values in EmbedNode here (will only be used when serializing)
-        onResizeEnd('100%', '100%');
+        onResizeEnd('100%', '100%', '100%', `${height}px`);
       } else {
-        onResizeEnd('100%', `${width}px`);
+        onResizeEnd('100%', `${width}px`, '100%', `${height}px`);
       }
 
       setEndCursor();

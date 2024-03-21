@@ -58,9 +58,8 @@ export function InsertEmbedDialog({
       embedType: 'youtube',
       html: html,
       width: '100%',
-      height: '100%',
-      maxWidth: maxWidth,
-      maxHeight: maxHeight,
+      maxWidth: '560px',
+      aspectRatio: '1.7777 / 1',
     };
     activeEditor.dispatchCommand(INSERT_EMBED_COMMAND, payload);
     onClose();

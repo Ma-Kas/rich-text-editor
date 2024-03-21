@@ -796,6 +796,13 @@ i.success {
   outline: 4px solid rgb(60, 132, 244);
   user-select: none;
 }
+.editor-shell div.editor-embed div.embed {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
 
 .editor-shell div.editor-embed > .embed > :first-child {
   pointer-events: none;
