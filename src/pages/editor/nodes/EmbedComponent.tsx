@@ -35,6 +35,8 @@ import useModal from '../hooks/useModal';
 import { Alignment, EmbedBlockNode } from './EmbedBlockNode';
 import EmbedResizer from '../ui/EmbedResizer';
 
+const TWITTER_WIDGET_SCRIPT_URL = 'https://platform.twitter.com/widgets.js';
+
 function getBlockParentNode(
   editorState: EditorState,
   node: EmbedNode
@@ -82,7 +84,7 @@ export function UpdateEmbedDialog({
 
   return (
     <>
-      {embedType !== 'youtube' && embedType !== 'youtube-short' && (
+      {embedType !== 'youtube' && embedType !== 'youtube-shorts' && (
         <div style={{ marginBottom: '1em' }}>
           <TextInput
             label='HTML'
@@ -120,6 +122,7 @@ export function UpdateEmbedDialog({
 }
 
 export default function EmbedComponent({
+  embedType,
   html,
   nodeKey,
   resizable,
@@ -307,6 +310,29 @@ export default function EmbedComponent({
     setSelected,
   ]);
 
+  // Insert and load twitter script when a tweet is embedded
+  useEffect(() => {
+    if (embedType !== 'twitter') {
+      return;
+    }
+    // If script alreay exists, don't create another one
+    const existingScript = document.querySelectorAll('[data-type="twitter"]');
+    if (!existingScript.length) {
+      const script = document.createElement('script');
+      script.src = TWITTER_WIDGET_SCRIPT_URL;
+      script.dataset.type = 'twitter';
+      script.async = true;
+      document.body?.appendChild(script);
+    }
+
+    // Force reload the widget to style embedded html code
+    // @ts-expect-error Twitter is attached to the window.
+    if (window.twttr) {
+      // @ts-expect-error Twitter is attached to the window.
+      window.twttr.widgets.load();
+    }
+  }, [embedType]);
+
   const onResizeEnd = (
     width: string,
     maxWidth: string,
@@ -335,13 +361,23 @@ export default function EmbedComponent({
   };
 
   const isFocused = isSelected || isResizing;
+
   return (
     <>
-      <div
-        className={isFocused ? 'embed focused' : 'embed'}
-        ref={embedRef}
-        dangerouslySetInnerHTML={{ __html: html }}
-      ></div>
+      {embedType !== 'twitter' && (
+        <div
+          className={isFocused ? 'embed focused' : 'embed'}
+          ref={embedRef}
+          dangerouslySetInnerHTML={{ __html: html }}
+        ></div>
+      )}
+      {embedType == 'twitter' && (
+        <div
+          className={isFocused ? 'embed focused' : 'embed'}
+          ref={embedRef}
+          dangerouslySetInnerHTML={{ __html: html }}
+        ></div>
+      )}
       {resizable && $isNodeSelection(selection) && isFocused && (
         <EmbedResizer
           editor={editor}

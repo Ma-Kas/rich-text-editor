@@ -49,7 +49,7 @@ function getVideoIdFromUrl(url: string, embedType: string) {
       }
       break;
     }
-    case 'youtube-short': {
+    case 'youtube-shorts': {
       const regex = /\/shorts\/(.*?)\?si=/;
       const result = url.match(regex);
       if (result && result[1]) {
@@ -195,6 +195,51 @@ export function InsertYoutubeShortDialog({
   );
 }
 
+export function InsertTwitterDialog({
+  onClick,
+  embedType,
+}: {
+  onClick: (payload: InsertEmbedPayload) => void;
+  embedType: string;
+}) {
+  const [html, setHtml] = useState('');
+
+  const isDisabled = html === '';
+
+  const transformTwitter = (value: string) => {
+    setHtml(value);
+  };
+
+  const handleSubmit = (): void => {
+    const payload = {
+      embedType: embedType,
+      html: html,
+    };
+    onClick(payload);
+  };
+
+  return (
+    <>
+      <TextInput
+        label='Tweet Embed'
+        placeholder='Paste raw HTML'
+        onChange={(value) => transformTwitter(value)}
+        value={html}
+        data-test-id='embed-modal-html-input'
+      />
+      <DialogActions>
+        <Button
+          data-test-id='embed-modal-confirm-btn'
+          disabled={isDisabled}
+          onClick={handleSubmit}
+        >
+          Confirm
+        </Button>
+      </DialogActions>
+    </>
+  );
+}
+
 export function InsertEmbedDialog({
   activeEditor,
   onClose,
@@ -205,7 +250,7 @@ export function InsertEmbedDialog({
   const [embedType, setMode] = useState<
     | null
     | 'youtube'
-    | 'youtube-short'
+    | 'youtube-shorts'
     | 'twitter'
     | 'instagram'
     | 'maps'
@@ -229,9 +274,15 @@ export function InsertEmbedDialog({
           </Button>
           <Button
             data-test-id='embed-modal-option-url'
-            onClick={() => setMode('youtube-short')}
+            onClick={() => setMode('youtube-shorts')}
           >
             Embed YouTube Short
+          </Button>
+          <Button
+            data-test-id='embed-modal-option-url'
+            onClick={() => setMode('twitter')}
+          >
+            Embed Tweet
           </Button>
         </DialogButtonsList>
       )}
@@ -239,8 +290,11 @@ export function InsertEmbedDialog({
       {embedType === 'youtube' && (
         <InsertYoutubeDialog onClick={onClick} embedType={embedType} />
       )}
-      {embedType === 'youtube-short' && (
+      {embedType === 'youtube-shorts' && (
         <InsertYoutubeShortDialog onClick={onClick} embedType={embedType} />
+      )}
+      {embedType === 'twitter' && (
+        <InsertTwitterDialog onClick={onClick} embedType={embedType} />
       )}
     </>
   );
