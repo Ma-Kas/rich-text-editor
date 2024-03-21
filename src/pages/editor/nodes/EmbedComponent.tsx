@@ -25,6 +25,7 @@ import {
 } from 'lexical';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Tweet } from 'react-tweet';
 
 import { $isEmbedNode, EmbedNode } from './EmbedNode';
 import TextInput from '../ui/TextInput';
@@ -34,8 +35,6 @@ import Button from '../ui/Button';
 import useModal from '../hooks/useModal';
 import { Alignment, EmbedBlockNode } from './EmbedBlockNode';
 import EmbedResizer from '../ui/EmbedResizer';
-
-const TWITTER_WIDGET_SCRIPT_URL = 'https://platform.twitter.com/widgets.js';
 
 function getBlockParentNode(
   editorState: EditorState,
@@ -84,7 +83,7 @@ export function UpdateEmbedDialog({
 
   return (
     <>
-      {embedType !== 'youtube' && embedType !== 'youtube-shorts' && (
+      {embedType === 'general' && (
         <div style={{ marginBottom: '1em' }}>
           <TextInput
             label='HTML'
@@ -310,29 +309,6 @@ export default function EmbedComponent({
     setSelected,
   ]);
 
-  // Insert and load twitter script when a tweet is embedded
-  useEffect(() => {
-    if (embedType !== 'twitter') {
-      return;
-    }
-    // If script alreay exists, don't create another one
-    const existingScript = document.querySelectorAll('[data-type="twitter"]');
-    if (!existingScript.length) {
-      const script = document.createElement('script');
-      script.src = TWITTER_WIDGET_SCRIPT_URL;
-      script.dataset.type = 'twitter';
-      script.async = true;
-      document.body?.appendChild(script);
-    }
-
-    // Force reload the widget to style embedded html code
-    // @ts-expect-error Twitter is attached to the window.
-    if (window.twttr) {
-      // @ts-expect-error Twitter is attached to the window.
-      window.twttr.widgets.load();
-    }
-  }, [embedType]);
-
   const onResizeEnd = (
     width: string,
     maxWidth: string,
@@ -372,11 +348,9 @@ export default function EmbedComponent({
         ></div>
       )}
       {embedType == 'twitter' && (
-        <div
-          className={isFocused ? 'embed focused' : 'embed'}
-          ref={embedRef}
-          dangerouslySetInnerHTML={{ __html: html }}
-        ></div>
+        <div className={isFocused ? 'embed focused' : 'embed'} ref={embedRef}>
+          <Tweet id={html} />
+        </div>
       )}
       {resizable && $isNodeSelection(selection) && isFocused && (
         <EmbedResizer

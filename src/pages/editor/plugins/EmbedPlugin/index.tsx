@@ -61,6 +61,15 @@ function getVideoIdFromUrl(url: string, embedType: string) {
   return '';
 }
 
+function getTweetIdFromInput(input: string) {
+  const regex = /\/status\/(.*?)$/;
+  const result = input.match(regex);
+  if (result && result[1]) {
+    return result[1];
+  }
+  return '';
+}
+
 export function InsertYoutubeDialog({
   onClick,
   embedType,
@@ -202,12 +211,24 @@ export function InsertTwitterDialog({
   onClick: (payload: InsertEmbedPayload) => void;
   embedType: string;
 }) {
+  const [input, setInput] = useState('');
   const [html, setHtml] = useState('');
 
   const isDisabled = html === '';
 
   const transformTwitter = (value: string) => {
-    setHtml(value);
+    const parseResult = urlSchema.safeParse(value);
+    if (!parseResult || parseResult.success !== true) {
+      setInput(value);
+      return;
+    }
+    const tweetID = getTweetIdFromInput(value);
+    if (!tweetID) {
+      setInput(value);
+      return;
+    }
+    setInput(value);
+    setHtml(tweetID);
   };
 
   const handleSubmit = (): void => {
@@ -221,10 +242,10 @@ export function InsertTwitterDialog({
   return (
     <>
       <TextInput
-        label='Tweet Embed'
-        placeholder='Paste raw HTML'
+        label='Tweet URL'
+        placeholder='e.g. https://twitter.com/user/status/1234567890'
         onChange={(value) => transformTwitter(value)}
-        value={html}
+        value={input}
         data-test-id='embed-modal-html-input'
       />
       <DialogActions>
