@@ -1268,7 +1268,7 @@ function ToolbarPlugin({
             </DropDownItem>
             <DropDownItem
               onClick={() => {
-                showModal('Embed HTML', (onClose) => (
+                showModal('Embed Content', (onClose) => (
                   <InsertEmbedDialog
                     activeEditor={activeEditor}
                     onClose={onClose}
@@ -1278,7 +1278,7 @@ function ToolbarPlugin({
               className='item'
             >
               <i className='icon embed' />
-              <span className='text'>Embed HTML</span>
+              <span className='text'>Embed Content</span>
             </DropDownItem>
 
             <DropDownItem

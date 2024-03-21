@@ -16,12 +16,13 @@ import {
   LexicalEditor,
 } from 'lexical';
 import { useEffect, useState } from 'react';
+import { z } from 'zod';
 
 import { INSERT_EMBED_COMMAND } from '../../utils/exportedCommands';
 
 import { CAN_USE_DOM } from '../../../shared/src/canUseDOM';
 import Button from '../../ui/Button';
-import { DialogActions } from '../../ui/Dialog';
+import { DialogActions, DialogButtonsList } from '../../ui/Dialog';
 import TextInput from '../../ui/TextInput';
 import {
   $createEmbedNode,
@@ -33,25 +34,41 @@ import { $createEmbedBlockNode } from '../../nodes/EmbedBlockNode';
 
 export type InsertEmbedPayload = Readonly<EmbedPayload>;
 
+const urlSchema = z.string().url();
+
 const getDOMSelection = (targetWindow: Window | null): Selection | null =>
   CAN_USE_DOM ? (targetWindow || window).getSelection() : null;
 
-function getVideoIdFromSrc(src: string) {
-  const regex = /\/embed\/(.*?)\?si=/;
-  const result = src.match(regex);
-  if (result && result[1]) {
-    return result[1];
+function getVideoIdFromUrl(url: string, embedType: string) {
+  switch (embedType) {
+    case 'youtube': {
+      const regex = /\/embed\/(.*?)\?si=/;
+      const result = url.match(regex);
+      if (result && result[1]) {
+        return result[1];
+      }
+      break;
+    }
+    case 'youtube-short': {
+      const regex = /\/shorts\/(.*?)\?si=/;
+      const result = url.match(regex);
+      if (result && result[1]) {
+        return result[1];
+      }
+      break;
+    }
   }
   return '';
 }
 
-export function InsertEmbedDialog({
-  activeEditor,
-  onClose,
+export function InsertYoutubeDialog({
+  onClick,
+  embedType,
 }: {
-  activeEditor: LexicalEditor;
-  onClose: () => void;
-}): JSX.Element {
+  onClick: (payload: InsertEmbedPayload) => void;
+  embedType: string;
+}) {
+  const [input, setInput] = useState('');
   const [html, setHtml] = useState('');
   const [maxWidth, setMaxWidth] = useState<string | null>(null);
   const [aspectRatio, setAspectRatio] = useState<string | null>(null);
@@ -63,6 +80,7 @@ export function InsertEmbedDialog({
     div.innerHTML = value;
     const iframe = div.firstChild;
     if (!iframe || !(iframe instanceof HTMLIFrameElement)) {
+      setInput(value);
       return;
     }
     const width = iframe.width;
@@ -71,31 +89,35 @@ export function InsertEmbedDialog({
     const title = iframe.title;
     setMaxWidth(width);
     setAspectRatio(`${Number(width) / Number(height)} / 1`);
-    const videoID = getVideoIdFromSrc(src);
-    const newIframe = `<iframe width='100%' height='100%' src=https://www.youtube-nocookie.com/embed/${videoID} allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowFullScreen title=${title} referrerpolicy='strict-origin-when-cross-origin'/>`;
+    const videoID = getVideoIdFromUrl(src, embedType);
+    if (!videoID) {
+      setInput(value);
+      return;
+    }
+    const newIframe = `<iframe width='100%' height='100%' src='https://www.youtube-nocookie.com/embed/${videoID}' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowFullScreen title=${title} referrerpolicy='strict-origin-when-cross-origin'/>`;
 
+    setInput(value);
     setHtml(newIframe);
   };
 
   const handleSubmit = (): void => {
     const payload = {
-      embedType: 'youtube',
+      embedType: embedType,
       html: html,
       width: '100%',
       maxWidth: `${maxWidth}px`,
       aspectRatio: aspectRatio,
     };
-    activeEditor.dispatchCommand(INSERT_EMBED_COMMAND, payload);
-    onClose();
+    onClick(payload);
   };
 
   return (
     <>
       <TextInput
-        label='HTML'
-        placeholder='Your raw HTML'
+        label='Embed HTML'
+        placeholder='Paste raw HTML'
         onChange={(value) => transformYoutube(value)}
-        value={html}
+        value={input}
         data-test-id='embed-modal-html-input'
       />
       <DialogActions>
@@ -107,6 +129,119 @@ export function InsertEmbedDialog({
           Confirm
         </Button>
       </DialogActions>
+    </>
+  );
+}
+
+export function InsertYoutubeShortDialog({
+  onClick,
+  embedType,
+}: {
+  onClick: (payload: InsertEmbedPayload) => void;
+  embedType: string;
+}) {
+  const [input, setInput] = useState('');
+  const [html, setHtml] = useState('');
+
+  const isDisabled = html === '';
+
+  const transformYoutubeShort = (value: string) => {
+    const parseResult = urlSchema.safeParse(value);
+    if (!parseResult || parseResult.success !== true) {
+      setInput(value);
+      return;
+    }
+    const videoID = getVideoIdFromUrl(value, embedType);
+    if (!videoID) {
+      setInput(value);
+      return;
+    }
+    const newIframe = `<iframe width='100%' height='100%' src='https://www.youtube-nocookie.com/embed/${videoID}' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowFullScreen title='YouTube Short Video' referrerpolicy='strict-origin-when-cross-origin'/>`;
+
+    setInput(value);
+    setHtml(newIframe);
+  };
+
+  const handleSubmit = (): void => {
+    const payload = {
+      embedType: embedType,
+      html: html,
+      width: '100%',
+      maxWidth: `315px`,
+      aspectRatio: `${315 / 560} / 1`,
+    };
+    onClick(payload);
+  };
+
+  return (
+    <>
+      <TextInput
+        label='Short Link'
+        placeholder='Paste the link to the short'
+        onChange={(value) => transformYoutubeShort(value)}
+        value={input}
+        data-test-id='embed-modal-html-input'
+      />
+      <DialogActions>
+        <Button
+          data-test-id='embed-modal-confirm-btn'
+          disabled={isDisabled}
+          onClick={handleSubmit}
+        >
+          Confirm
+        </Button>
+      </DialogActions>
+    </>
+  );
+}
+
+export function InsertEmbedDialog({
+  activeEditor,
+  onClose,
+}: {
+  activeEditor: LexicalEditor;
+  onClose: () => void;
+}): JSX.Element {
+  const [embedType, setMode] = useState<
+    | null
+    | 'youtube'
+    | 'youtube-short'
+    | 'twitter'
+    | 'instagram'
+    | 'maps'
+    | 'general'
+  >(null);
+
+  const onClick = (payload: InsertEmbedPayload): void => {
+    activeEditor.dispatchCommand(INSERT_EMBED_COMMAND, payload);
+    onClose();
+  };
+
+  return (
+    <>
+      {!embedType && (
+        <DialogButtonsList>
+          <Button
+            data-test-id='embed-modal-option-url'
+            onClick={() => setMode('youtube')}
+          >
+            Embed YouTube
+          </Button>
+          <Button
+            data-test-id='embed-modal-option-url'
+            onClick={() => setMode('youtube-short')}
+          >
+            Embed YouTube Short
+          </Button>
+        </DialogButtonsList>
+      )}
+
+      {embedType === 'youtube' && (
+        <InsertYoutubeDialog onClick={onClick} embedType={embedType} />
+      )}
+      {embedType === 'youtube-short' && (
+        <InsertYoutubeShortDialog onClick={onClick} embedType={embedType} />
+      )}
     </>
   );
 }

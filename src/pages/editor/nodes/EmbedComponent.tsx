@@ -56,6 +56,7 @@ export function UpdateEmbedDialog({
 }): JSX.Element {
   const editorState = activeEditor.getEditorState();
   const node = editorState.read(() => $getNodeByKey(nodeKey) as EmbedNode);
+  const embedType = node.getEmbedType();
   const [html, setHtml] = useState(node.getHtml());
 
   // Get the imageBlock node to set alignment there
@@ -81,15 +82,17 @@ export function UpdateEmbedDialog({
 
   return (
     <>
-      <div style={{ marginBottom: '1em' }}>
-        <TextInput
-          label='HTML'
-          placeholder='Your raw embed HTML'
-          onChange={setHtml}
-          value={html}
-          data-test-id='embed-modal-html-input'
-        />
-      </div>
+      {embedType !== 'youtube' && embedType !== 'youtube-short' && (
+        <div style={{ marginBottom: '1em' }}>
+          <TextInput
+            label='HTML'
+            placeholder='Your raw embed HTML'
+            onChange={setHtml}
+            value={html}
+            data-test-id='embed-modal-html-input'
+          />
+        </div>
+      )}
 
       <Select
         style={{ marginBottom: '1em', width: '208px' }}
