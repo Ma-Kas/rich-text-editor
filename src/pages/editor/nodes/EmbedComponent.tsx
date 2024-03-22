@@ -35,6 +35,7 @@ import Button from '../ui/Button';
 import useModal from '../hooks/useModal';
 import { Alignment, EmbedBlockNode } from './EmbedBlockNode';
 import EmbedResizer from '../ui/EmbedResizer';
+import EmbedMapsResizer from '../ui/EmbedMapsResizer';
 
 function getBlockParentNode(
   editorState: EditorState,
@@ -132,8 +133,6 @@ export default function EmbedComponent({
   resizable: boolean;
   width: string | null | undefined;
   maxWidth: string | null | undefined;
-  height: string | null | undefined;
-  maxHeight: string | null | undefined;
   aspectRatio: string | null | undefined;
 }): JSX.Element {
   const embedRef = useRef<HTMLDivElement>(null);
@@ -309,12 +308,7 @@ export default function EmbedComponent({
     setSelected,
   ]);
 
-  const onResizeEnd = (
-    width: string,
-    maxWidth: string,
-    height: string,
-    maxHeight: string
-  ) => {
+  const onResizeEnd = (width: string, maxWidth: string) => {
     // Delay hiding the resize bars for click case
     setTimeout(() => {
       setIsResizing(false);
@@ -326,8 +320,6 @@ export default function EmbedComponent({
       if ($isEmbedNode(node)) {
         node.setWidth(width);
         node.setMaxWidth(maxWidth);
-        node.setHeight(height);
-        node.setMaxHeight(maxHeight);
       }
     });
   };
@@ -352,18 +344,36 @@ export default function EmbedComponent({
           <Tweet id={html} />
         </div>
       )}
-      {resizable && $isNodeSelection(selection) && isFocused && (
-        <EmbedResizer
-          embedType={embedType}
-          editor={editor}
-          buttonRef={buttonRef}
-          embedRef={embedRef}
-          onResizeStart={onResizeStart}
-          onResizeEnd={onResizeEnd}
-          nodeKey={nodeKey}
-          showModal={showModal}
-        />
-      )}
+      {embedType === 'google-maps' &&
+        resizable &&
+        $isNodeSelection(selection) &&
+        isFocused && (
+          <EmbedMapsResizer
+            embedType={embedType}
+            editor={editor}
+            buttonRef={buttonRef}
+            embedRef={embedRef}
+            onResizeStart={onResizeStart}
+            onResizeEnd={onResizeEnd}
+            nodeKey={nodeKey}
+            showModal={showModal}
+          />
+        )}
+      {embedType !== 'google-maps' &&
+        resizable &&
+        $isNodeSelection(selection) &&
+        isFocused && (
+          <EmbedResizer
+            embedType={embedType}
+            editor={editor}
+            buttonRef={buttonRef}
+            embedRef={embedRef}
+            onResizeStart={onResizeStart}
+            onResizeEnd={onResizeEnd}
+            nodeKey={nodeKey}
+            showModal={showModal}
+          />
+        )}
       {modal}
     </>
   );

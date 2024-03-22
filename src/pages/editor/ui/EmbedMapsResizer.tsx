@@ -8,15 +8,14 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-const Directions = {
+const Direction = {
   east: 1 << 0,
   north: 1 << 3,
   south: 1 << 1,
   west: 1 << 2,
 };
 
-export default function EmbedResizer({
-  embedType,
+export default function EmbedMapsResizer({
   onResizeStart,
   onResizeEnd,
   buttonRef,
@@ -43,8 +42,8 @@ export default function EmbedResizer({
     value: 'default',
   });
   const positioningRef = useRef<{
-    currentHeight: 'inherit' | number;
-    currentWidth: 'inherit' | number;
+    currentHeight: number;
+    currentWidth: number;
     isResizing: boolean;
     ratio: number;
     startHeight: number;
@@ -80,13 +79,30 @@ export default function EmbedResizer({
   }
 
   const minWidth = 100;
+  const minHeight = 100;
 
-  const setStartCursor = () => {
+  const setStartCursor = (direction: number) => {
+    const ew = direction === Direction.east || direction === Direction.west;
+    const ns = direction === Direction.north || direction === Direction.south;
+    const nwse =
+      (direction & Direction.north && direction & Direction.west) ||
+      (direction & Direction.south && direction & Direction.east);
+
+    const cursorDir = ew ? 'ew' : ns ? 'ns' : nwse ? 'nwse' : 'nesw';
+
     if (editorRootElement !== null) {
-      editorRootElement.style.setProperty('cursor', `ew-resize`, 'important');
+      editorRootElement.style.setProperty(
+        'cursor',
+        `${cursorDir}-resize`,
+        'important'
+      );
     }
     if (document.body !== null) {
-      document.body.style.setProperty('cursor', `ew-resize`, 'important');
+      document.body.style.setProperty(
+        'cursor',
+        `${cursorDir}-resize`,
+        'important'
+      );
       userSelect.current.value = document.body.style.getPropertyValue(
         '-webkit-user-select'
       );
@@ -142,7 +158,7 @@ export default function EmbedResizer({
       positioning.isResizing = true;
       positioning.direction = direction;
 
-      setStartCursor();
+      setStartCursor(direction);
       onResizeStart();
 
       controlWrapper.classList.add('embed-control-wrapper--resizing');
@@ -165,22 +181,53 @@ export default function EmbedResizer({
     const editorEmbedDiv = embed?.parentElement;
     const positioning = positioningRef.current;
 
+    const isHorizontal =
+      positioning.direction & (Direction.east | Direction.west);
+    const isVertical =
+      positioning.direction & (Direction.south | Direction.north);
+
     if (embed && editorEmbedDiv && positioning.isResizing) {
-      let diff = Math.floor(positioning.startX - event.clientX);
-      // Is scaling through west or east handle?
-      diff = positioning.direction & Directions.east ? -diff : diff;
+      // Corner cursor
+      if (isHorizontal && isVertical) {
+        let diff = Math.floor(positioning.startX - event.clientX);
+        diff = positioning.direction & Direction.east ? -diff : diff;
 
-      const width = clamp(
-        positioning.startWidth + diff,
-        minWidth,
-        maxWidthContainer
-      );
+        const width = clamp(
+          positioning.startWidth + diff,
+          minWidth,
+          maxWidthContainer
+        );
 
-      const height = width / positioning.ratio;
-      editorEmbedDiv.style.maxWidth = `${width}px`;
-      editorEmbedDiv.style.width = `100%`;
-      positioning.currentHeight = height;
-      positioning.currentWidth = width;
+        const height = width / positioning.ratio;
+        editorEmbedDiv.style.maxWidth = `${width}px`;
+        editorEmbedDiv.style.width = `100%`;
+        positioning.currentHeight = height;
+        positioning.currentWidth = width;
+      } else if (isVertical) {
+        let diff = Math.floor(positioning.startY - event.clientY);
+        diff = positioning.direction & Direction.south ? -diff : diff;
+
+        const height = Math.max(positioning.startHeight + diff, minHeight);
+
+        positioning.ratio = positioning.currentWidth / height;
+        positioning.currentHeight = height;
+        editorEmbedDiv.style.aspectRatio = `${positioning.ratio} / 1`;
+      } else {
+        let diff = Math.floor(positioning.startX - event.clientX);
+        diff = positioning.direction & Direction.east ? -diff : diff;
+
+        const width = clamp(
+          positioning.startWidth + diff,
+          minWidth,
+          maxWidthContainer
+        );
+
+        positioning.ratio = width / positioning.currentHeight;
+        positioning.currentWidth = width;
+        editorEmbedDiv.style.aspectRatio = `${positioning.ratio} / 1`;
+        editorEmbedDiv.style.maxWidth = `${width}px`;
+        editorEmbedDiv.style.width = `100%`;
+      }
     }
   };
 
@@ -236,23 +283,54 @@ export default function EmbedResizer({
         Edit
       </button>
 
-      {/* Don't allow resizing on twitter embed (would mess up widget) */}
-      {embedType !== 'twitter' && (
-        <div
-          className='embed-resizer embed-resizer-e'
-          onPointerDown={(event) => {
-            handlePointerDown(event, Directions.north | Directions.east);
-          }}
-        />
-      )}
-      {embedType !== 'twitter' && (
-        <div
-          className='embed-resizer embed-resizer-w'
-          onPointerDown={(event) => {
-            handlePointerDown(event, Directions.north | Directions.west);
-          }}
-        />
-      )}
+      <div
+        className='embed-resizer embed-resizer-n'
+        onPointerDown={(event) => {
+          handlePointerDown(event, Direction.north);
+        }}
+      />
+      <div
+        className='embed-resizer embed-resizer-ne'
+        onPointerDown={(event) => {
+          handlePointerDown(event, Direction.north | Direction.east);
+        }}
+      />
+      <div
+        className='embed-resizer embed-resizer-e'
+        onPointerDown={(event) => {
+          handlePointerDown(event, Direction.east);
+        }}
+      />
+      <div
+        className='embed-resizer embed-resizer-se'
+        onPointerDown={(event) => {
+          handlePointerDown(event, Direction.south | Direction.east);
+        }}
+      />
+      <div
+        className='embed-resizer embed-resizer-s'
+        onPointerDown={(event) => {
+          handlePointerDown(event, Direction.south);
+        }}
+      />
+      <div
+        className='embed-resizer embed-resizer-sw'
+        onPointerDown={(event) => {
+          handlePointerDown(event, Direction.south | Direction.west);
+        }}
+      />
+      <div
+        className='embed-resizer embed-resizer-w'
+        onPointerDown={(event) => {
+          handlePointerDown(event, Direction.west);
+        }}
+      />
+      <div
+        className='embed-resizer embed-resizer-nw'
+        onPointerDown={(event) => {
+          handlePointerDown(event, Direction.north | Direction.west);
+        }}
+      />
     </div>
   );
 }

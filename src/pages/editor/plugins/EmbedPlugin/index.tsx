@@ -103,7 +103,7 @@ export function InsertYoutubeDialog({
       setInput(value);
       return;
     }
-    const newIframe = `<iframe width='100%' height='100%' src='https://www.youtube-nocookie.com/embed/${videoID}' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowFullScreen title=${title} referrerpolicy='strict-origin-when-cross-origin'/>`;
+    const newIframe = `<iframe width='100%' height='100%' credentialless src='https://www.youtube-nocookie.com/embed/${videoID}' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowFullScreen title=${title} referrerpolicy='strict-origin-when-cross-origin'/>`;
 
     setInput(value);
     setHtml(newIframe);
@@ -165,7 +165,7 @@ export function InsertYoutubeShortDialog({
       setInput(value);
       return;
     }
-    const newIframe = `<iframe width='100%' height='100%' src='https://www.youtube-nocookie.com/embed/${videoID}' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowFullScreen title='YouTube Short Video' referrerpolicy='strict-origin-when-cross-origin'/>`;
+    const newIframe = `<iframe width='100%' height='100%' credentialless src='https://www.youtube-nocookie.com/embed/${videoID}' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowFullScreen title='YouTube Short Video' referrerpolicy='strict-origin-when-cross-origin'/>`;
 
     setInput(value);
     setHtml(newIframe);
@@ -261,6 +261,77 @@ export function InsertTwitterDialog({
   );
 }
 
+export function InsertGoogleMapsDialog({
+  onClick,
+  embedType,
+}: {
+  onClick: (payload: InsertEmbedPayload) => void;
+  embedType: string;
+}) {
+  const [input, setInput] = useState('');
+  const [html, setHtml] = useState('');
+  const [maxWidth, setMaxWidth] = useState<string | null>(null);
+  const [aspectRatio, setAspectRatio] = useState<string | null>(null);
+
+  const isDisabled = html === '';
+
+  const transformGoogleMaps = (value: string) => {
+    const div = document.createElement('div');
+    div.innerHTML = value;
+    const iframe = div.firstChild;
+    if (!iframe || !(iframe instanceof HTMLIFrameElement)) {
+      setInput(value);
+      return;
+    }
+    const width = iframe.width;
+    const height = iframe.height;
+    const src = iframe.src;
+    const parseResult = urlSchema.safeParse(src);
+    if (!parseResult || parseResult.success !== true) {
+      setInput(value);
+      return;
+    }
+    setMaxWidth(width);
+    setAspectRatio(`${Number(width) / Number(height)} / 1`);
+    const newIframe = `<iframe width='100%' height='100%' src='${src}' credentialless allowFullScreen loading='lazy' title='Google Maps' referrerpolicy='strict-origin-when-cross-origin'/>`;
+
+    setInput(value);
+    setHtml(newIframe);
+  };
+
+  const handleSubmit = (): void => {
+    const payload = {
+      embedType: embedType,
+      html: html,
+      width: '100%',
+      maxWidth: `${maxWidth}px`,
+      aspectRatio: aspectRatio,
+    };
+    onClick(payload);
+  };
+
+  return (
+    <>
+      <TextInput
+        label='Embed HTML'
+        placeholder='Paste embed code here'
+        onChange={(value) => transformGoogleMaps(value)}
+        value={input}
+        data-test-id='embed-modal-html-input'
+      />
+      <DialogActions>
+        <Button
+          data-test-id='embed-modal-confirm-btn'
+          disabled={isDisabled}
+          onClick={handleSubmit}
+        >
+          Confirm
+        </Button>
+      </DialogActions>
+    </>
+  );
+}
+
 export function InsertEmbedDialog({
   activeEditor,
   onClose,
@@ -274,7 +345,7 @@ export function InsertEmbedDialog({
     | 'youtube-shorts'
     | 'twitter'
     | 'instagram'
-    | 'maps'
+    | 'google-maps'
     | 'general'
   >(null);
 
@@ -305,6 +376,12 @@ export function InsertEmbedDialog({
           >
             Embed Tweet
           </Button>
+          <Button
+            data-test-id='embed-modal-option-url'
+            onClick={() => setMode('google-maps')}
+          >
+            Embed Google Maps
+          </Button>
         </DialogButtonsList>
       )}
 
@@ -316,6 +393,9 @@ export function InsertEmbedDialog({
       )}
       {embedType === 'twitter' && (
         <InsertTwitterDialog onClick={onClick} embedType={embedType} />
+      )}
+      {embedType === 'google-maps' && (
+        <InsertGoogleMapsDialog onClick={onClick} embedType={embedType} />
       )}
     </>
   );
@@ -346,8 +426,6 @@ function onDragStart(event: DragEvent): boolean {
         html: node.__html,
         width: node.__width,
         maxWidth: node.__maxWidth,
-        height: node.__height,
-        maxHeight: node.__maxHeight,
       },
       type: 'embed',
     })

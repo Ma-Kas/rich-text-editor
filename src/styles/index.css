@@ -844,16 +844,52 @@ i.success {
   border-radius: 50%;
 }
 
+.editor-shell .editor-embed .embed-resizer.embed-resizer-n {
+  top: -10px;
+  left: calc(50% - 6px);
+  cursor: ns-resize;
+}
+
+.editor-shell .editor-embed .embed-resizer.embed-resizer-ne {
+  top: -10px;
+  right: -10px;
+  cursor: nesw-resize;
+}
+
 .editor-shell .editor-embed .embed-resizer.embed-resizer-e {
   bottom: calc(50% - 6px);
   right: -10px;
   cursor: ew-resize;
 }
 
+.editor-shell .editor-embed .embed-resizer.embed-resizer-se {
+  bottom: -10px;
+  right: -10px;
+  cursor: nwse-resize;
+}
+
+.editor-shell .editor-embed .embed-resizer.embed-resizer-s {
+  bottom: -10px;
+  left: calc(50% - 6px);
+  cursor: ns-resize;
+}
+
+.editor-shell .editor-embed .embed-resizer.embed-resizer-sw {
+  bottom: -10px;
+  left: -10px;
+  cursor: nesw-resize;
+}
+
 .editor-shell .editor-embed .embed-resizer.embed-resizer-w {
   bottom: calc(50% - 6px);
   left: -10px;
   cursor: ew-resize;
+}
+
+.editor-shell .editor-embed .embed-resizer.embed-resizer-nw {
+  top: -10px;
+  left: -10px;
+  cursor: nwse-resize;
 }
 
 .editor-shell div.editor-image {
