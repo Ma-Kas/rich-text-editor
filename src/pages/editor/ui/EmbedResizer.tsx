@@ -153,7 +153,18 @@ export default function EmbedResizer({
       // as big as user chooses AS A MAX, but can shrink down on smaller screens
       editorEmbedDiv.style.maxWidth = `${width}px`;
       editorEmbedDiv.style.width = `100%`;
-      editorEmbedDiv.style.aspectRatio = `${positioning.ratio} / 1`;
+
+      // HANDLE INSTAGRAM PECULIARITIER DUE TO LOADED EMBED.JS SCRIPT
+      if (embedType !== 'instagram') {
+        // Don't set aspect ratio as it collides with Instagram's own embed script
+        editorEmbedDiv.style.aspectRatio = `${positioning.ratio} / 1`;
+      } else {
+        // Remove the min-width set by instagram's own embed script, to allow user scaling
+        const instagram = embed.querySelector('.instagram-media');
+        if (instagram && instagram instanceof HTMLIFrameElement) {
+          instagram.style.removeProperty('min-width');
+        }
+      }
 
       document.addEventListener('pointermove', handlePointerMove);
       document.addEventListener('pointerup', handlePointerUp);

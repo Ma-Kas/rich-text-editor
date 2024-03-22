@@ -37,6 +37,8 @@ import { Alignment, EmbedBlockNode } from './EmbedBlockNode';
 import EmbedResizer from '../ui/EmbedResizer';
 import EmbedMapsResizer from '../ui/EmbedMapsResizer';
 
+const INSTAGRAM_SCRIPT_URL = 'http://www.instagram.com/embed.js';
+
 function getBlockParentNode(
   editorState: EditorState,
   node: EmbedNode
@@ -308,6 +310,29 @@ export default function EmbedComponent({
     setSelected,
   ]);
 
+  // Insert and load instagram script when a tweet is embedded
+  useEffect(() => {
+    if (embedType !== 'instagram') {
+      return;
+    }
+    // // If script alreay exists, don't create another one
+    const existingScript = document.querySelectorAll('[data-type="instagram"]');
+    if (!existingScript.length) {
+      const script = document.createElement('script');
+      script.src = INSTAGRAM_SCRIPT_URL;
+      script.dataset.type = 'instagram';
+      script.async = true;
+      document.body?.appendChild(script);
+    }
+
+    // Force reload the widget to style embedded html code
+    // @ts-expect-error Instagram is attached to the window.
+    if (window.instgrm) {
+      // @ts-expect-error Instagram is attached to the window.
+      window.instgrm.Embeds.process();
+    }
+  }, [embedType]);
+
   const onResizeEnd = (width: string, maxWidth: string) => {
     // Delay hiding the resize bars for click case
     setTimeout(() => {
@@ -339,7 +364,7 @@ export default function EmbedComponent({
           dangerouslySetInnerHTML={{ __html: html }}
         ></div>
       )}
-      {embedType == 'twitter' && (
+      {embedType === 'twitter' && (
         <div className={isFocused ? 'embed focused' : 'embed'} ref={embedRef}>
           <Tweet id={html} />
         </div>

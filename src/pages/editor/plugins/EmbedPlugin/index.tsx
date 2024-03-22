@@ -70,6 +70,11 @@ function getTweetIdFromInput(input: string) {
   return '';
 }
 
+// Remove the script tag from embed code, as it will be added programmatically
+function stripScriptFromInstagram(input: string): string {
+  return input.replace(/<script.*?<\/script>$/, '');
+}
+
 export function InsertYoutubeDialog({
   onClick,
   embedType,
@@ -261,6 +266,74 @@ export function InsertTwitterDialog({
   );
 }
 
+export function InsertInstagramDialog({
+  onClick,
+  embedType,
+}: {
+  onClick: (payload: InsertEmbedPayload) => void;
+  embedType: string;
+}) {
+  const [input, setInput] = useState('');
+  const [html, setHtml] = useState('');
+  const [maxWidth, setMaxWidth] = useState<string | null>(null);
+
+  const isDisabled = html === '';
+
+  const transformInstagram = (value: string) => {
+    const div = document.createElement('div');
+    div.innerHTML = value;
+    const blockquote = div.firstChild;
+    if (!blockquote || !(blockquote instanceof HTMLQuoteElement)) {
+      setInput(value);
+      return;
+    }
+    const maxWidth = blockquote.style.maxWidth;
+    if (maxWidth) {
+      setMaxWidth(maxWidth);
+      blockquote.style.removeProperty('max-width');
+    }
+    blockquote.style.removeProperty('min-width');
+    const embedString = stripScriptFromInstagram(div.innerHTML);
+    if (!embedString) {
+      setInput(value);
+      return;
+    }
+    setInput(embedString);
+    setHtml(embedString);
+  };
+
+  const handleSubmit = (): void => {
+    const payload = {
+      embedType: embedType,
+      html: html,
+      maxWidth: maxWidth,
+      width: '100%',
+    };
+    onClick(payload);
+  };
+
+  return (
+    <>
+      <TextInput
+        label='Embed HTML'
+        placeholder='Paste raw HTML embed code'
+        onChange={(value) => transformInstagram(value)}
+        value={input}
+        data-test-id='embed-modal-html-input'
+      />
+      <DialogActions>
+        <Button
+          data-test-id='embed-modal-confirm-btn'
+          disabled={isDisabled}
+          onClick={handleSubmit}
+        >
+          Confirm
+        </Button>
+      </DialogActions>
+    </>
+  );
+}
+
 export function InsertGoogleMapsDialog({
   onClick,
   embedType,
@@ -332,6 +405,47 @@ export function InsertGoogleMapsDialog({
   );
 }
 
+export function InsertGeneralDialog({
+  onClick,
+  embedType,
+}: {
+  onClick: (payload: InsertEmbedPayload) => void;
+  embedType: string;
+}) {
+  const [html, setHtml] = useState('');
+
+  const isDisabled = html === '';
+
+  const handleSubmit = (): void => {
+    const payload = {
+      embedType: embedType,
+      html: html,
+    };
+    onClick(payload);
+  };
+
+  return (
+    <>
+      <TextInput
+        label='Embed HTML'
+        placeholder='Paste raw HTML embed code'
+        onChange={setHtml}
+        value={html}
+        data-test-id='embed-modal-html-input'
+      />
+      <DialogActions>
+        <Button
+          data-test-id='embed-modal-confirm-btn'
+          disabled={isDisabled}
+          onClick={handleSubmit}
+        >
+          Confirm
+        </Button>
+      </DialogActions>
+    </>
+  );
+}
+
 export function InsertEmbedDialog({
   activeEditor,
   onClose,
@@ -378,9 +492,21 @@ export function InsertEmbedDialog({
           </Button>
           <Button
             data-test-id='embed-modal-option-url'
+            onClick={() => setMode('instagram')}
+          >
+            Embed Instagram Post
+          </Button>
+          <Button
+            data-test-id='embed-modal-option-url'
             onClick={() => setMode('google-maps')}
           >
             Embed Google Maps
+          </Button>
+          <Button
+            data-test-id='embed-modal-option-url'
+            onClick={() => setMode('general')}
+          >
+            Embed Other (might not work)
           </Button>
         </DialogButtonsList>
       )}
@@ -394,8 +520,14 @@ export function InsertEmbedDialog({
       {embedType === 'twitter' && (
         <InsertTwitterDialog onClick={onClick} embedType={embedType} />
       )}
+      {embedType === 'instagram' && (
+        <InsertInstagramDialog onClick={onClick} embedType={embedType} />
+      )}
       {embedType === 'google-maps' && (
         <InsertGoogleMapsDialog onClick={onClick} embedType={embedType} />
+      )}
+      {embedType === 'general' && (
+        <InsertGeneralDialog onClick={onClick} embedType={embedType} />
       )}
     </>
   );
