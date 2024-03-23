@@ -2,17 +2,8 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { mergeRegister } from '@lexical/utils';
 import {
   $createParagraphNode,
-  $createRangeSelection,
-  $getSelection,
   $insertNodes,
-  $isNodeSelection,
-  $setSelection,
   COMMAND_PRIORITY_EDITOR,
-  COMMAND_PRIORITY_HIGH,
-  COMMAND_PRIORITY_LOW,
-  DRAGOVER_COMMAND,
-  DRAGSTART_COMMAND,
-  DROP_COMMAND,
   LexicalEditor,
 } from 'lexical';
 import { useEffect, useState } from 'react';
@@ -20,13 +11,11 @@ import { z } from 'zod';
 
 import { INSERT_EMBED_COMMAND } from '../../utils/exportedCommands';
 
-import { CAN_USE_DOM } from '../../../shared/src/canUseDOM';
 import Button from '../../ui/Button';
 import { DialogActions, DialogButtonsList } from '../../ui/Dialog';
 import TextInput from '../../ui/TextInput';
 import {
   $createEmbedNode,
-  $isEmbedNode,
   EmbedNode,
   EmbedPayload,
 } from '../../nodes/EmbedNode';
@@ -35,9 +24,6 @@ import { $createEmbedBlockNode } from '../../nodes/EmbedBlockNode';
 export type InsertEmbedPayload = Readonly<EmbedPayload>;
 
 const urlSchema = z.string().url();
-
-const getDOMSelection = (targetWindow: Window | null): Selection | null =>
-  CAN_USE_DOM ? (targetWindow || window).getSelection() : null;
 
 function getVideoIdFromUrl(url: string, embedType: string) {
   switch (embedType) {
@@ -538,131 +524,6 @@ const TRANSPARENT_IMAGE =
 const img = document.createElement('img');
 img.src = TRANSPARENT_IMAGE;
 
-function onDragStart(event: DragEvent): boolean {
-  const node = getEmbedNodeInSelection();
-  if (!node) {
-    return false;
-  }
-  const dataTransfer = event.dataTransfer;
-  if (!dataTransfer) {
-    return false;
-  }
-  dataTransfer.setData('text/plain', '_');
-  dataTransfer.setDragImage(img, 0, 0);
-  dataTransfer.setData(
-    'application/x-lexical-drag',
-    JSON.stringify({
-      data: {
-        embedType: node.__embedType,
-        key: node.getKey(),
-        html: node.__html,
-        width: node.__width,
-        maxWidth: node.__maxWidth,
-      },
-      type: 'embed',
-    })
-  );
-
-  return true;
-}
-
-function onDragover(event: DragEvent): boolean {
-  const node = getEmbedNodeInSelection();
-  if (!node) {
-    return false;
-  }
-  if (!canDropImage(event)) {
-    event.preventDefault();
-  }
-  return true;
-}
-
-function onDrop(event: DragEvent, editor: LexicalEditor): boolean {
-  const node = getEmbedNodeInSelection();
-  if (!node) {
-    return false;
-  }
-  const data = getDragImageData(event);
-  if (!data) {
-    return false;
-  }
-  event.preventDefault();
-  if (canDropImage(event)) {
-    const range = getDragSelection(event);
-    node.remove();
-    const rangeSelection = $createRangeSelection();
-    if (range !== null && range !== undefined) {
-      rangeSelection.applyDOMRange(range);
-    }
-    $setSelection(rangeSelection);
-    editor.dispatchCommand(INSERT_EMBED_COMMAND, data);
-  }
-  return true;
-}
-
-function getEmbedNodeInSelection(): EmbedNode | null {
-  const selection = $getSelection();
-  if (!$isNodeSelection(selection)) {
-    return null;
-  }
-  const nodes = selection.getNodes();
-  const node = nodes[0];
-  return $isEmbedNode(node) ? node : null;
-}
-
-function getDragImageData(event: DragEvent): null | InsertEmbedPayload {
-  const dragData = event.dataTransfer?.getData('application/x-lexical-drag');
-  if (!dragData) {
-    return null;
-  }
-  const { type, data } = JSON.parse(dragData);
-  if (type !== 'image') {
-    return null;
-  }
-
-  return data;
-}
-
-declare global {
-  interface DragEvent {
-    rangeOffset?: number;
-    rangeParent?: Node;
-  }
-}
-
-function canDropImage(event: DragEvent): boolean {
-  const target = event.target;
-  return !!(
-    target &&
-    target instanceof HTMLElement &&
-    !target.closest('code, span.editor-image') &&
-    target.parentElement &&
-    target.parentElement.closest('div.ContentEditable__root')
-  );
-}
-
-function getDragSelection(event: DragEvent): Range | null | undefined {
-  let range;
-  const target = event.target as null | Element | Document;
-  const targetWindow =
-    target == null
-      ? null
-      : target.nodeType === 9
-        ? (target as Document).defaultView
-        : (target as Element).ownerDocument.defaultView;
-  const domSelection = getDOMSelection(targetWindow);
-  if (document.caretRangeFromPoint) {
-    range = document.caretRangeFromPoint(event.clientX, event.clientY);
-  } else if (event.rangeParent && domSelection !== null) {
-    domSelection.collapse(event.rangeParent, event.rangeOffset || 0);
-    range = domSelection.getRangeAt(0);
-  } else {
-    throw Error(`Cannot get the selection when dragging`);
-  }
-
-  return range;
-}
-
 export default function EmbedPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
@@ -688,27 +549,6 @@ export default function EmbedPlugin(): JSX.Element | null {
           return true;
         },
         COMMAND_PRIORITY_EDITOR
-      ),
-      editor.registerCommand<DragEvent>(
-        DRAGSTART_COMMAND,
-        (event) => {
-          return onDragStart(event);
-        },
-        COMMAND_PRIORITY_HIGH
-      ),
-      editor.registerCommand<DragEvent>(
-        DRAGOVER_COMMAND,
-        (event) => {
-          return onDragover(event);
-        },
-        COMMAND_PRIORITY_LOW
-      ),
-      editor.registerCommand<DragEvent>(
-        DROP_COMMAND,
-        (event) => {
-          return onDrop(event, editor);
-        },
-        COMMAND_PRIORITY_HIGH
       )
     );
   }, [editor]);
