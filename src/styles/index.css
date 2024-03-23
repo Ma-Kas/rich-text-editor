@@ -341,6 +341,10 @@ i.gallery {
   background-image: url(../assets/icons/grid.svg);
 }
 
+i.embed {
+  background-image: url(../assets/icons/embed.svg);
+}
+
 i.table {
   background-image: url(../assets/icons/table.svg);
 }
