@@ -356,65 +356,83 @@ export default function EmbedComponent({
 
   const isFocused = isSelected || isResizing;
 
+  // Switch returned components based on embedType
+  const createDOMFromEmbedType = () => {
+    switch (embedType) {
+      case 'twitter': {
+        return (
+          <>
+            <div
+              className={isFocused ? 'embed focused' : 'embed'}
+              ref={embedRef}
+            >
+              <Tweet id={html} />
+            </div>
+            {resizable && $isNodeSelection(selection) && isFocused && (
+              <EmbedTwitterResizer
+                editor={editor}
+                buttonRef={buttonRef}
+                embedRef={embedRef}
+                onResizeStart={onResizeStart}
+                onResizeEnd={onResizeEnd}
+                nodeKey={nodeKey}
+                showModal={showModal}
+              />
+            )}
+          </>
+        );
+      }
+      case 'google-maps': {
+        return (
+          <>
+            <div
+              className={isFocused ? 'embed focused' : 'embed'}
+              ref={embedRef}
+              dangerouslySetInnerHTML={{ __html: html }}
+            ></div>
+            {resizable && $isNodeSelection(selection) && isFocused && (
+              <EmbedMapsResizer
+                editor={editor}
+                buttonRef={buttonRef}
+                embedRef={embedRef}
+                onResizeStart={onResizeStart}
+                onResizeEnd={onResizeEnd}
+                nodeKey={nodeKey}
+                showModal={showModal}
+              />
+            )}
+          </>
+        );
+      }
+      default: {
+        return (
+          <>
+            <div
+              className={isFocused ? 'embed focused' : 'embed'}
+              ref={embedRef}
+              dangerouslySetInnerHTML={{ __html: html }}
+            ></div>
+            {resizable && $isNodeSelection(selection) && isFocused && (
+              <EmbedResizer
+                embedType={embedType}
+                editor={editor}
+                buttonRef={buttonRef}
+                embedRef={embedRef}
+                onResizeStart={onResizeStart}
+                onResizeEnd={onResizeEnd}
+                nodeKey={nodeKey}
+                showModal={showModal}
+              />
+            )}
+          </>
+        );
+      }
+    }
+  };
+
   return (
     <>
-      {embedType !== 'twitter' && (
-        <div
-          className={isFocused ? 'embed focused' : 'embed'}
-          ref={embedRef}
-          dangerouslySetInnerHTML={{ __html: html }}
-        ></div>
-      )}
-      {embedType === 'twitter' && (
-        <div className={isFocused ? 'embed focused' : 'embed'} ref={embedRef}>
-          <Tweet id={html} />
-        </div>
-      )}
-      {embedType === 'twitter' &&
-        resizable &&
-        $isNodeSelection(selection) &&
-        isFocused && (
-          <EmbedTwitterResizer
-            editor={editor}
-            buttonRef={buttonRef}
-            embedRef={embedRef}
-            onResizeStart={onResizeStart}
-            onResizeEnd={onResizeEnd}
-            nodeKey={nodeKey}
-            showModal={showModal}
-          />
-        )}
-      {embedType === 'google-maps' &&
-        resizable &&
-        $isNodeSelection(selection) &&
-        isFocused && (
-          <EmbedMapsResizer
-            embedType={embedType}
-            editor={editor}
-            buttonRef={buttonRef}
-            embedRef={embedRef}
-            onResizeStart={onResizeStart}
-            onResizeEnd={onResizeEnd}
-            nodeKey={nodeKey}
-            showModal={showModal}
-          />
-        )}
-      {embedType !== 'google-maps' &&
-        embedType !== 'twitter' &&
-        resizable &&
-        $isNodeSelection(selection) &&
-        isFocused && (
-          <EmbedResizer
-            embedType={embedType}
-            editor={editor}
-            buttonRef={buttonRef}
-            embedRef={embedRef}
-            onResizeStart={onResizeStart}
-            onResizeEnd={onResizeEnd}
-            nodeKey={nodeKey}
-            showModal={showModal}
-          />
-        )}
+      {createDOMFromEmbedType()}
       {modal}
     </>
   );

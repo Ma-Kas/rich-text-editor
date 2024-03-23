@@ -24,7 +24,6 @@ export default function EmbedMapsResizer({
   nodeKey,
   showModal,
 }: {
-  embedType: string;
   editor: LexicalEditor;
   buttonRef: { current: null | HTMLButtonElement };
   embedRef: { current: null | HTMLElement };
