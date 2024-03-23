@@ -892,6 +892,10 @@ i.success {
   cursor: nwse-resize;
 }
 
+.editor-shell .react-tweet-theme {
+  margin: 0;
+}
+
 .editor-shell div.editor-image {
   cursor: default;
   position: relative;

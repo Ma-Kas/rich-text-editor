@@ -36,6 +36,7 @@ import useModal from '../hooks/useModal';
 import { Alignment, EmbedBlockNode } from './EmbedBlockNode';
 import EmbedResizer from '../ui/EmbedResizer';
 import EmbedMapsResizer from '../ui/EmbedMapsResizer';
+import EmbedTwitterResizer from '../ui/EmbedTwitterResizer';
 
 const INSTAGRAM_SCRIPT_URL = 'http://www.instagram.com/embed.js';
 
@@ -369,6 +370,20 @@ export default function EmbedComponent({
           <Tweet id={html} />
         </div>
       )}
+      {embedType === 'twitter' &&
+        resizable &&
+        $isNodeSelection(selection) &&
+        isFocused && (
+          <EmbedTwitterResizer
+            editor={editor}
+            buttonRef={buttonRef}
+            embedRef={embedRef}
+            onResizeStart={onResizeStart}
+            onResizeEnd={onResizeEnd}
+            nodeKey={nodeKey}
+            showModal={showModal}
+          />
+        )}
       {embedType === 'google-maps' &&
         resizable &&
         $isNodeSelection(selection) &&
@@ -385,6 +400,7 @@ export default function EmbedComponent({
           />
         )}
       {embedType !== 'google-maps' &&
+        embedType !== 'twitter' &&
         resizable &&
         $isNodeSelection(selection) &&
         isFocused && (

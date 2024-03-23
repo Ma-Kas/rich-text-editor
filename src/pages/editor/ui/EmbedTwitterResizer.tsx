@@ -15,8 +15,7 @@ const Directions = {
   west: 1 << 2,
 };
 
-export default function EmbedResizer({
-  embedType,
+export default function EmbedTwitterResizer({
   onResizeStart,
   onResizeEnd,
   buttonRef,
@@ -25,7 +24,6 @@ export default function EmbedResizer({
   nodeKey,
   showModal,
 }: {
-  embedType: string;
   editor: LexicalEditor;
   buttonRef: { current: null | HTMLButtonElement };
   embedRef: { current: null | HTMLElement };
@@ -126,8 +124,9 @@ export default function EmbedResizer({
     const embed = embedRef.current;
     const controlWrapper = controlWrapperRef.current;
     const editorEmbedDiv = embed?.parentElement;
+    const tweet = embed?.querySelector('.react-tweet-theme') as HTMLElement;
 
-    if (embed && controlWrapper && editorEmbedDiv) {
+    if (embed && tweet && controlWrapper && editorEmbedDiv) {
       event.preventDefault();
 
       const { width, height } = editorEmbedDiv.getBoundingClientRect();
@@ -153,18 +152,7 @@ export default function EmbedResizer({
       // as big as user chooses AS A MAX, but can shrink down on smaller screens
       editorEmbedDiv.style.maxWidth = `${width}px`;
       editorEmbedDiv.style.width = `100%`;
-
-      // HANDLE INSTAGRAM PECULIARITIER DUE TO LOADED EMBED.JS SCRIPT
-      if (embedType !== 'instagram') {
-        // Don't set aspect ratio as it collides with Instagram's own embed script
-        editorEmbedDiv.style.aspectRatio = `${positioning.ratio} / 1`;
-      } else {
-        // Remove the min-width set by instagram's own embed script, to allow user scaling
-        const instagram = embed.querySelector('.instagram-media');
-        if (instagram && instagram instanceof HTMLIFrameElement) {
-          instagram.style.removeProperty('min-width');
-        }
-      }
+      tweet.style.maxWidth = '100%';
 
       document.addEventListener('pointermove', handlePointerMove);
       document.addEventListener('pointerup', handlePointerUp);
