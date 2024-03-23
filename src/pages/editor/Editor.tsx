@@ -12,12 +12,10 @@ import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import useLexicalEditable from '@lexical/react/useLexicalEditable';
 import { createContext, useState } from 'react';
 import { useSettings } from './context/SettingsContext';
-import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
 import CodeHighlightPlugin from './plugins/CodeHighlightPlugin';
 import CollapsiblePlugin from './plugins/CollapsiblePlugin';
-import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
@@ -29,9 +27,8 @@ import LinkPlugin from './plugins/LinkPlugin';
 import ListMaxIndentLevelPlugin from './plugins/ListMaxIndentLevelPlugin';
 import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableCellResizer from './plugins/TableCellResizer';
+import EmbedPlugin from './plugins/EmbedPlugin';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
-import TwitterPlugin from './plugins/TwitterPlugin';
-import YouTubePlugin from './plugins/YouTubePlugin';
 import ContentEditable from './ui/ContentEditable';
 import Placeholder from './ui/Placeholder';
 import FloatingBlockTypeToolbarPlugin from './plugins/FloatingBlockTypeToolbarPlugin';
@@ -79,8 +76,6 @@ export default function Editor(): JSX.Element {
       <div className={'editor-container'}>
         <DragDropPaste />
         <AutoFocusPlugin />
-        <ComponentPickerPlugin />
-        <AutoEmbedPlugin />
         <HashtagPlugin />
         <AutoLinkPlugin />
         <>
@@ -108,8 +103,7 @@ export default function Editor(): JSX.Element {
           <ImagesPlugin />
           <ImageGalleryPlugin />
           <LinkPlugin />
-          <TwitterPlugin />
-          <YouTubePlugin />
+          <EmbedPlugin />
           {!isEditable && <LexicalClickableLinkPlugin />}
           <HorizontalRulePlugin />
           <TabIndentationPlugin />

@@ -189,7 +189,6 @@ export function InsertGalleryImagesUploadedDialogBody({
   const loadImages = (files: FileList | null) => {
     const reader = new FileReader();
     reader.onload = function () {
-      console.log(reader.result);
       if (typeof reader.result === 'string') {
         setSrc(reader.result);
       }

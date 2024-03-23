@@ -9,10 +9,11 @@ import { OverflowNode } from '@lexical/overflow';
 import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
-
 import { CollapsibleContainerNode } from '../plugins/CollapsiblePlugin/CollapsibleContainerNode';
 import { CollapsibleContentNode } from '../plugins/CollapsiblePlugin/CollapsibleContentNode';
 import { CollapsibleTitleNode } from '../plugins/CollapsiblePlugin/CollapsibleTitleNode';
+import { EmbedBlockNode } from './EmbedBlockNode';
+import { EmbedNode } from './EmbedNode';
 import { ImageBlockNode } from './ImageBlockNode';
 import { GalleryBlockNode } from './GalleryBlockNode';
 import { GalleryContainerNode } from './GalleryContainerNode';
@@ -20,8 +21,6 @@ import { ImageNode } from './ImageNode';
 import { LayoutContainerNode } from './LayoutContainerNode';
 import { LayoutItemNode } from './LayoutItemNode';
 import { StickyNode } from './StickyNode';
-import { TweetNode } from './TweetNode';
-import { YouTubeNode } from './YouTubeNode';
 
 const EditorNodes: Array<Klass<LexicalNode>> = [
   HeadingNode,
@@ -38,13 +37,13 @@ const EditorNodes: Array<Klass<LexicalNode>> = [
   LinkNode,
   OverflowNode,
   StickyNode,
+  EmbedBlockNode,
+  EmbedNode,
   ImageBlockNode,
   GalleryBlockNode,
   GalleryContainerNode,
   ImageNode,
   HorizontalRuleNode,
-  TweetNode,
-  YouTubeNode,
   MarkNode,
   CollapsibleContainerNode,
   CollapsibleContentNode,

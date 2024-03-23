@@ -12,7 +12,6 @@ import {
   INSERT_UNORDERED_LIST_COMMAND,
   ListNode,
 } from '@lexical/list';
-import { INSERT_EMBED_COMMAND } from '@lexical/react/LexicalAutoEmbedPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isDecoratorBlockNode } from '@lexical/react/LexicalDecoratorBlockNode';
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode';
@@ -72,13 +71,13 @@ import DropDown, { DropDownItem } from '../../ui/DropDown';
 import DropdownColorPicker from '../../ui/DropdownColorPicker';
 import { getSelectedNode } from '../../utils/getSelectedNode';
 import { sanitizeUrl } from '../../utils/url';
-import { EmbedConfigs } from '../../utils/embedConfigs.index';
 import { INSERT_COLLAPSIBLE_COMMAND } from '../CollapsiblePlugin';
 import { InsertImageDialog } from '../ImagesPlugin';
 import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 import { InsertTableDialog } from '../TablePlugin';
 import FontSize from './fontSize';
 import { InsertGalleryContainerDialog } from '../ImageGalleryPlugin';
+import { InsertEmbedDialog } from '../EmbedPlugin';
 
 const IMPORT_TEST = '';
 const blockTypeToBlockName = {
@@ -124,7 +123,9 @@ function containsUnformattableNodes(selection: BaseSelection): boolean {
       nodes[i].__type === 'image-block' ||
       nodes[i].__type === 'image' ||
       nodes[i].__type === 'gallery-block' ||
-      nodes[i].__type === 'gallery-container'
+      nodes[i].__type === 'gallery-container' ||
+      nodes[i].__type === 'embed-block' ||
+      nodes[i].__type === 'embed'
     ) {
       return true;
     }
@@ -1267,6 +1268,21 @@ function ToolbarPlugin({
             </DropDownItem>
             <DropDownItem
               onClick={() => {
+                showModal('Embed Content', (onClose) => (
+                  <InsertEmbedDialog
+                    activeEditor={activeEditor}
+                    onClose={onClose}
+                  />
+                ));
+              }}
+              className='item'
+            >
+              <i className='icon embed' />
+              <span className='text'>Embed Content</span>
+            </DropDownItem>
+
+            <DropDownItem
+              onClick={() => {
                 showModal('Insert Table', (onClose) => (
                   <InsertTableDialog
                     activeEditor={activeEditor}
@@ -1315,21 +1331,6 @@ function ToolbarPlugin({
               <i className='icon list-expandable' />
               <span className='text'>Expandable List</span>
             </DropDownItem>
-            {EmbedConfigs.map((embedConfig) => (
-              <DropDownItem
-                key={embedConfig.type}
-                onClick={() => {
-                  activeEditor.dispatchCommand(
-                    INSERT_EMBED_COMMAND,
-                    embedConfig.type
-                  );
-                }}
-                className='item'
-              >
-                {embedConfig.icon}
-                <span className='text'>{embedConfig.contentName}</span>
-              </DropDownItem>
-            ))}
           </DropDown>
         </>
       )}

@@ -2,6 +2,11 @@ import { LexicalCommand, NodeKey, createCommand } from 'lexical';
 import { InsertImagePayload } from '../plugins/ImagesPlugin';
 import { InsertGalleryImagePayload } from '../plugins/ImageGalleryPlugin';
 import { InsertTableCommandPayload } from '../plugins/TablePlugin';
+import { EmbedPayload } from '../nodes/EmbedNode';
+
+export const INSERT_EMBED_COMMAND: LexicalCommand<EmbedPayload> = createCommand(
+  'INSERT_EMBED_COMMAND'
+);
 
 export const RIGHT_CLICK_IMAGE_COMMAND: LexicalCommand<MouseEvent> =
   createCommand('RIGHT_CLICK_IMAGE_COMMAND');
@@ -11,14 +16,6 @@ export const INSERT_IMAGE_COMMAND: LexicalCommand<InsertImagePayload> =
 
 export const INSERT_GALLERY_COMMAND: LexicalCommand<InsertGalleryImagePayload> =
   createCommand('INSERT_GALLERY_COMMAND');
-
-export const INSERT_YOUTUBE_COMMAND: LexicalCommand<string> = createCommand(
-  'INSERT_YOUTUBE_COMMAND'
-);
-
-export const INSERT_TWEET_COMMAND: LexicalCommand<string> = createCommand(
-  'INSERT_TWEET_COMMAND'
-);
 
 export const INSERT_NEW_TABLE_COMMAND: LexicalCommand<InsertTableCommandPayload> =
   createCommand('INSERT_NEW_TABLE_COMMAND');
