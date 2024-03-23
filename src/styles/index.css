@@ -237,6 +237,10 @@ i.gallery {
   background-image: url(../assets/icons/grid.svg);
 }
 
+i.carousel {
+  background-image: url(../assets/icons/carousel.svg);
+}
+
 i.embed {
   background-image: url(../assets/icons/embed.svg);
 }

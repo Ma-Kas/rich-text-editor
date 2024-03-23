@@ -78,6 +78,7 @@ import { InsertTableDialog } from '../TablePlugin';
 import FontSize from './fontSize';
 import { InsertGalleryContainerDialog } from '../ImageGalleryPlugin';
 import { InsertEmbedDialog } from '../EmbedPlugin';
+import { InsertCarouselContainerDialog } from '../ImageCarouselPlugin';
 
 const IMPORT_TEST = '';
 const blockTypeToBlockName = {
@@ -124,6 +125,8 @@ function containsUnformattableNodes(selection: BaseSelection): boolean {
       nodes[i].__type === 'image' ||
       nodes[i].__type === 'gallery-block' ||
       nodes[i].__type === 'gallery-container' ||
+      nodes[i].__type === 'carousel-block' ||
+      nodes[i].__type === 'carousel-container' ||
       nodes[i].__type === 'embed-block' ||
       nodes[i].__type === 'embed'
     ) {
@@ -1265,6 +1268,20 @@ function ToolbarPlugin({
             >
               <i className='icon gallery' />
               <span className='text'>Image Gallery</span>
+            </DropDownItem>
+            <DropDownItem
+              onClick={() => {
+                showModal('Insert Image Carousel', (onClose) => (
+                  <InsertCarouselContainerDialog
+                    activeEditor={activeEditor}
+                    onClose={onClose}
+                  />
+                ));
+              }}
+              className='item'
+            >
+              <i className='icon carousel' />
+              <span className='text'>Image Carousel</span>
             </DropDownItem>
             <DropDownItem
               onClick={() => {

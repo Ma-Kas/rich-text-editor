@@ -77,6 +77,8 @@ const theme: EditorThemeClasses = {
   imageBlock: 'EditorTheme__imageBlock',
   galleryBlock: 'EditorTheme__galleryBlock',
   galleryContainer: 'EditorTheme__galleryContainer',
+  carouselBlock: 'EditorTheme__carouselBlock',
+  carouselContainer: 'EditorTheme__carouselContainer',
   paragraph: 'EditorTheme__paragraph',
   quote: 'EditorTheme__quote',
   rtl: 'EditorTheme__rtl',
