@@ -56,8 +56,13 @@ function getTweetIdFromInput(input: string) {
   return '';
 }
 
+function getEmbeddedScript(input: string): string {
+  const result = input.match(/<script.*?<\/script>$/);
+  return result ? result[0] : '';
+}
+
 // Remove the script tag from embed code, as it will be added programmatically
-function stripScriptFromInstagram(input: string): string {
+function stripScriptFromEmbedCode(input: string): string {
   return input.replace(/<script.*?<\/script>$/, '');
 }
 
@@ -279,7 +284,7 @@ export function InsertInstagramDialog({
       blockquote.style.removeProperty('max-width');
     }
     blockquote.style.removeProperty('min-width');
-    const embedString = stripScriptFromInstagram(div.innerHTML);
+    const embedString = stripScriptFromEmbedCode(div.innerHTML);
     if (!embedString) {
       setInput(value);
       return;
@@ -398,9 +403,65 @@ export function InsertGeneralDialog({
   onClick: (payload: InsertEmbedPayload) => void;
   embedType: string;
 }) {
+  const [input, setInput] = useState('');
   const [html, setHtml] = useState('');
 
   const isDisabled = html === '';
+
+  const attemptToLoadScript = (script: string) => {
+    const div = document.createElement('div');
+    div.innerHTML = script;
+    const inputScript = div.firstChild;
+    if (inputScript && inputScript instanceof HTMLScriptElement) {
+      const newScript = document.createElement('script');
+      newScript.onload = () => console.log('loaded');
+      newScript.src = inputScript.src;
+      newScript.async = true;
+      newScript.dataset.type = inputScript.src;
+      // If script alreay exists, don't create another one
+      const existingScript = document.querySelectorAll(
+        `[data-type="${newScript.src}"]`
+      );
+      console.log(existingScript);
+      if (!existingScript.length) {
+        console.log(newScript);
+        document.body?.appendChild(newScript);
+      }
+    }
+  };
+
+  const transformGeneralEmbed = (value: string) => {
+    const div = document.createElement('div');
+    div.innerHTML = value;
+    const embedElement = div.firstChild;
+    if (!embedElement || !(embedElement instanceof HTMLElement)) {
+      setInput(value);
+      return;
+    }
+    const embeddedScript = getEmbeddedScript(div.innerHTML);
+    // CASE EMBED CODE HAS SCRIPT TAG, MEANING TRY TO LOAD IT
+    if (embeddedScript) {
+      attemptToLoadScript(embeddedScript);
+      const embedString = stripScriptFromEmbedCode(div.innerHTML);
+      if (!embedString) {
+        setInput(value);
+        return;
+      }
+      setInput(embedString);
+      setHtml(embedString);
+      // CASE EMBED IS AN IFRAME WITHOUT SCRIPT TAG
+    } else {
+      const div = document.createElement('div');
+      div.innerHTML = value;
+      const iframe = div.firstChild;
+      if (!iframe || !(iframe instanceof HTMLIFrameElement)) {
+        setInput(value);
+        return;
+      }
+      setInput(div.innerHTML);
+      setHtml(div.innerHTML);
+    }
+  };
 
   const handleSubmit = (): void => {
     const payload = {
@@ -415,8 +476,8 @@ export function InsertGeneralDialog({
       <TextInput
         label='Embed HTML'
         placeholder='Paste raw HTML embed code'
-        onChange={setHtml}
-        value={html}
+        onChange={transformGeneralEmbed}
+        value={input}
         data-test-id='embed-modal-html-input'
       />
       <DialogActions>

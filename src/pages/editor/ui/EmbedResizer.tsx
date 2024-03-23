@@ -247,19 +247,23 @@ export default function EmbedResizer({
         Edit
       </button>
 
-      <div
-        className='embed-resizer embed-resizer-e'
-        onPointerDown={(event) => {
-          handlePointerDown(event, Directions.north | Directions.east);
-        }}
-      />
+      {embedType !== 'general' && (
+        <div
+          className='embed-resizer embed-resizer-e'
+          onPointerDown={(event) => {
+            handlePointerDown(event, Directions.north | Directions.east);
+          }}
+        />
+      )}
 
-      <div
-        className='embed-resizer embed-resizer-w'
-        onPointerDown={(event) => {
-          handlePointerDown(event, Directions.north | Directions.west);
-        }}
-      />
+      {embedType !== 'general' && (
+        <div
+          className='embed-resizer embed-resizer-w'
+          onPointerDown={(event) => {
+            handlePointerDown(event, Directions.north | Directions.west);
+          }}
+        />
+      )}
     </div>
   );
 }
