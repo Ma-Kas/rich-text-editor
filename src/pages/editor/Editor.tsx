@@ -16,7 +16,6 @@ import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
 import CodeHighlightPlugin from './plugins/CodeHighlightPlugin';
 import CollapsiblePlugin from './plugins/CollapsiblePlugin';
-import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
@@ -77,7 +76,6 @@ export default function Editor(): JSX.Element {
       <div className={'editor-container'}>
         <DragDropPaste />
         <AutoFocusPlugin />
-        <ComponentPickerPlugin />
         <HashtagPlugin />
         <AutoLinkPlugin />
         <>
