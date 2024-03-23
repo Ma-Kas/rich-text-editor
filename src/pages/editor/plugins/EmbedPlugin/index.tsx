@@ -74,11 +74,11 @@ export function InsertYoutubeDialog({
   embedType: string;
 }) {
   const [input, setInput] = useState('');
-  const [html, setHtml] = useState('');
+  const [source, setSource] = useState('');
   const [maxWidth, setMaxWidth] = useState<string | null>(null);
   const [aspectRatio, setAspectRatio] = useState<string | null>(null);
 
-  const isDisabled = html === '';
+  const isDisabled = source === '';
 
   const transformYoutube = (value: string) => {
     const div = document.createElement('div');
@@ -102,13 +102,13 @@ export function InsertYoutubeDialog({
     const newIframe = `<iframe width='100%' height='100%' credentialless src='https://www.youtube-nocookie.com/embed/${videoID}' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowFullScreen title=${title} referrerpolicy='strict-origin-when-cross-origin'/>`;
 
     setInput(value);
-    setHtml(newIframe);
+    setSource(newIframe);
   };
 
   const handleSubmit = (): void => {
     const payload = {
       embedType: embedType,
-      html: html,
+      source: source,
       width: '100%',
       maxWidth: `${maxWidth}px`,
       aspectRatio: aspectRatio,
@@ -146,9 +146,9 @@ export function InsertYoutubeShortDialog({
   embedType: string;
 }) {
   const [input, setInput] = useState('');
-  const [html, setHtml] = useState('');
+  const [source, setSource] = useState('');
 
-  const isDisabled = html === '';
+  const isDisabled = source === '';
 
   const transformYoutubeShort = (value: string) => {
     const parseResult = urlSchema.safeParse(value);
@@ -164,13 +164,13 @@ export function InsertYoutubeShortDialog({
     const newIframe = `<iframe width='100%' height='100%' credentialless src='https://www.youtube-nocookie.com/embed/${videoID}' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowFullScreen title='YouTube Short Video' referrerpolicy='strict-origin-when-cross-origin'/>`;
 
     setInput(value);
-    setHtml(newIframe);
+    setSource(newIframe);
   };
 
   const handleSubmit = (): void => {
     const payload = {
       embedType: embedType,
-      html: html,
+      source: source,
       width: '100%',
       maxWidth: `315px`,
       aspectRatio: `${315 / 560} / 1`,
@@ -208,9 +208,9 @@ export function InsertTwitterDialog({
   embedType: string;
 }) {
   const [input, setInput] = useState('');
-  const [html, setHtml] = useState('');
+  const [source, setSource] = useState('');
 
-  const isDisabled = html === '';
+  const isDisabled = source === '';
 
   const transformTwitter = (value: string) => {
     const parseResult = urlSchema.safeParse(value);
@@ -224,13 +224,13 @@ export function InsertTwitterDialog({
       return;
     }
     setInput(value);
-    setHtml(tweetID);
+    setSource(tweetID);
   };
 
   const handleSubmit = (): void => {
     const payload = {
       embedType: embedType,
-      html: html,
+      source: source,
     };
     onClick(payload);
   };
@@ -265,10 +265,10 @@ export function InsertInstagramDialog({
   embedType: string;
 }) {
   const [input, setInput] = useState('');
-  const [html, setHtml] = useState('');
+  const [source, setSource] = useState('');
   const [maxWidth, setMaxWidth] = useState<string | null>(null);
 
-  const isDisabled = html === '';
+  const isDisabled = source === '';
 
   const transformInstagram = (value: string) => {
     const div = document.createElement('div');
@@ -290,13 +290,13 @@ export function InsertInstagramDialog({
       return;
     }
     setInput(embedString);
-    setHtml(embedString);
+    setSource(embedString);
   };
 
   const handleSubmit = (): void => {
     const payload = {
       embedType: embedType,
-      html: html,
+      source: source,
       maxWidth: maxWidth,
       width: '100%',
     };
@@ -333,11 +333,11 @@ export function InsertGoogleMapsDialog({
   embedType: string;
 }) {
   const [input, setInput] = useState('');
-  const [html, setHtml] = useState('');
+  const [source, setSource] = useState('');
   const [maxWidth, setMaxWidth] = useState<string | null>(null);
   const [aspectRatio, setAspectRatio] = useState<string | null>(null);
 
-  const isDisabled = html === '';
+  const isDisabled = source === '';
 
   const transformGoogleMaps = (value: string) => {
     const div = document.createElement('div');
@@ -360,13 +360,13 @@ export function InsertGoogleMapsDialog({
     const newIframe = `<iframe width='100%' height='100%' src='${src}' credentialless allowFullScreen loading='lazy' title='Google Maps' referrerpolicy='strict-origin-when-cross-origin'/>`;
 
     setInput(value);
-    setHtml(newIframe);
+    setSource(newIframe);
   };
 
   const handleSubmit = (): void => {
     const payload = {
       embedType: embedType,
-      html: html,
+      source: source,
       width: '100%',
       maxWidth: `${maxWidth}px`,
       aspectRatio: aspectRatio,
@@ -404,9 +404,9 @@ export function InsertGeneralDialog({
   embedType: string;
 }) {
   const [input, setInput] = useState('');
-  const [html, setHtml] = useState('');
+  const [source, setSource] = useState('');
 
-  const isDisabled = html === '';
+  const isDisabled = source === '';
 
   const attemptToLoadScript = (script: string) => {
     const div = document.createElement('div');
@@ -448,7 +448,7 @@ export function InsertGeneralDialog({
         return;
       }
       setInput(embedString);
-      setHtml(embedString);
+      setSource(embedString);
       // CASE EMBED IS AN IFRAME WITHOUT SCRIPT TAG
     } else {
       const div = document.createElement('div');
@@ -459,14 +459,14 @@ export function InsertGeneralDialog({
         return;
       }
       setInput(div.innerHTML);
-      setHtml(div.innerHTML);
+      setSource(div.innerHTML);
     }
   };
 
   const handleSubmit = (): void => {
     const payload = {
       embedType: embedType,
-      html: html,
+      source: source,
     };
     onClick(payload);
   };

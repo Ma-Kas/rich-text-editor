@@ -15,7 +15,7 @@ import EmbedComponent from './EmbedComponent';
 
 export interface EmbedPayload {
   embedType: string;
-  html: string;
+  source: string;
   width?: string | null | undefined;
   maxWidth?: string | null | undefined;
   aspectRatio?: string | null | undefined;
@@ -24,7 +24,7 @@ export interface EmbedPayload {
 
 export interface UpdateEmbedPayload {
   embedType?: string;
-  html?: string;
+  source?: string;
   width?: string | null | undefined;
   maxWidth?: string | null | undefined;
   aspectRatio?: string | null | undefined;
@@ -34,7 +34,7 @@ export interface UpdateEmbedPayload {
 function convertEmbedElement(element: HTMLElement): DOMConversionOutput {
   const node = $createEmbedNode({
     embedType: element.dataset.embedType!,
-    html: element.innerHTML,
+    source: element.innerHTML,
   });
   if (element.style) {
     if (element.style.width) {
@@ -53,7 +53,7 @@ function convertEmbedElement(element: HTMLElement): DOMConversionOutput {
 export type SerializedEmbedNode = Spread<
   {
     embedType: string;
-    html: string;
+    source: string;
     width?: string | null | undefined;
     maxWidth?: string | null | undefined;
     aspectRatio?: string | null | undefined;
@@ -63,7 +63,7 @@ export type SerializedEmbedNode = Spread<
 
 export class EmbedNode extends DecoratorNode<JSX.Element> {
   __embedType: string;
-  __html: string;
+  __source: string;
   __width: string | null | undefined;
   __maxWidth: string | null | undefined;
   __aspectRatio: string | null | undefined;
@@ -75,7 +75,7 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
   static clone(node: EmbedNode): EmbedNode {
     return new EmbedNode(
       node.__embedType,
-      node.__html,
+      node.__source,
       node.__width,
       node.__maxWidth,
 
@@ -85,10 +85,10 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
   }
 
   static importJSON(serializedNode: SerializedEmbedNode): EmbedNode {
-    const { embedType, html, width, maxWidth, aspectRatio } = serializedNode;
+    const { embedType, source, width, maxWidth, aspectRatio } = serializedNode;
     const node = $createEmbedNode({
       embedType,
-      html,
+      source,
       width,
       maxWidth,
       aspectRatio,
@@ -107,7 +107,7 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
 
   constructor(
     embedType: string,
-    html: string,
+    source: string,
     width?: string | null | undefined,
     maxWidth?: string | null | undefined,
     aspectRatio?: string | null | undefined,
@@ -115,7 +115,7 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
   ) {
     super(key);
     this.__embedType = embedType;
-    this.__html = html;
+    this.__source = source;
     this.__width = width;
     this.__maxWidth = maxWidth;
     this.__aspectRatio = aspectRatio;
@@ -132,7 +132,7 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
     if (this.__aspectRatio) {
       element.setAttribute('aspectRatio', this.__aspectRatio);
     }
-    element.innerHTML = this.__html;
+    element.innerHTML = this.__source;
 
     return { element };
   }
@@ -140,7 +140,7 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
   exportJSON(): SerializedEmbedNode {
     return {
       embedType: this.__embedType,
-      html: this.__html,
+      source: this.__source,
       width: this.__width,
       maxWidth: this.__maxWidth,
       aspectRatio: this.__aspectRatio,
@@ -158,13 +158,13 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
     writable.__embedType = embedType;
   }
 
-  getHtml(): string {
-    return this.__html;
+  getSource(): string {
+    return this.__source;
   }
 
-  setHtml(html: string): void {
+  setSource(source: string): void {
     const writable = this.getWritable();
-    writable.__html = html;
+    writable.__source = source;
   }
 
   getWidth(): string | null | undefined {
@@ -196,12 +196,12 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
 
   update(payload: UpdateEmbedPayload): void {
     const writable = this.getWritable();
-    const { embedType, html, width, maxWidth, aspectRatio } = payload;
+    const { embedType, source, width, maxWidth, aspectRatio } = payload;
     if (embedType !== undefined) {
       writable.__embedType = embedType;
     }
-    if (html !== undefined) {
-      writable.__html = html;
+    if (source !== undefined) {
+      writable.__source = source;
     }
     if (width !== undefined) {
       writable.__width = width;
@@ -259,7 +259,7 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
     return (
       <EmbedComponent
         embedType={this.__embedType}
-        html={this.__html}
+        source={this.__source}
         width={this.__width}
         maxWidth={this.__maxWidth}
         aspectRatio={this.__aspectRatio}
@@ -272,14 +272,14 @@ export class EmbedNode extends DecoratorNode<JSX.Element> {
 
 export function $createEmbedNode({
   embedType,
-  html,
+  source,
   width = null,
   maxWidth = null,
   aspectRatio,
   key,
 }: EmbedPayload): EmbedNode {
   return $applyNodeReplacement(
-    new EmbedNode(embedType, html, width, maxWidth, aspectRatio, key)
+    new EmbedNode(embedType, source, width, maxWidth, aspectRatio, key)
   );
 }
 

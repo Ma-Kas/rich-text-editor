@@ -62,7 +62,7 @@ export function UpdateEmbedDialog({
   const editorState = activeEditor.getEditorState();
   const node = editorState.read(() => $getNodeByKey(nodeKey) as EmbedNode);
   const embedType = node.getEmbedType();
-  const [html, setHtml] = useState(node.getHtml());
+  const [source, setSource] = useState(node.getSource());
 
   // Get the imageBlock node to set alignment there
   const parentBlockNode = getBlockParentNode(editorState, node);
@@ -75,7 +75,7 @@ export function UpdateEmbedDialog({
   };
 
   const handleOnConfirm = () => {
-    const payload = { html };
+    const payload = { source };
     if (node && parentBlockNode) {
       activeEditor.update(() => {
         node.update(payload);
@@ -92,8 +92,8 @@ export function UpdateEmbedDialog({
           <TextInput
             label='HTML'
             placeholder='Your raw embed HTML'
-            onChange={setHtml}
-            value={html}
+            onChange={setSource}
+            value={source}
             data-test-id='embed-modal-html-input'
           />
         </div>
@@ -126,12 +126,12 @@ export function UpdateEmbedDialog({
 
 export default function EmbedComponent({
   embedType,
-  html,
+  source,
   nodeKey,
   resizable,
 }: {
   embedType: string;
-  html: string;
+  source: string;
   nodeKey: NodeKey;
   resizable: boolean;
   width: string | null | undefined;
@@ -366,7 +366,7 @@ export default function EmbedComponent({
               className={isFocused ? 'embed focused' : 'embed'}
               ref={embedRef}
             >
-              <Tweet id={html} />
+              <Tweet id={source} />
             </div>
             {resizable && $isNodeSelection(selection) && isFocused && (
               <EmbedTwitterResizer
@@ -388,7 +388,7 @@ export default function EmbedComponent({
             <div
               className={isFocused ? 'embed focused' : 'embed'}
               ref={embedRef}
-              dangerouslySetInnerHTML={{ __html: html }}
+              dangerouslySetInnerHTML={{ __html: source }}
             ></div>
             {resizable && $isNodeSelection(selection) && isFocused && (
               <EmbedMapsResizer
@@ -410,7 +410,7 @@ export default function EmbedComponent({
             <div
               className={isFocused ? 'embed focused' : 'embed'}
               ref={embedRef}
-              dangerouslySetInnerHTML={{ __html: html }}
+              dangerouslySetInnerHTML={{ __html: source }}
             ></div>
             {resizable && $isNodeSelection(selection) && isFocused && (
               <EmbedResizer
