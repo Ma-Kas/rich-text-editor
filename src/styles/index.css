@@ -243,14 +243,6 @@ pre::-webkit-scrollbar-thumb {
   width: 200px;
 }
 
-.mentions-menu {
-  width: 250px;
-}
-
-.auto-embed-menu {
-  width: 150px;
-}
-
 i.palette {
   background-image: url(../assets/icons/palette.svg);
 }
@@ -355,14 +347,6 @@ i.close {
 
 i.columns {
   background-image: url(../assets/icons/3-columns.svg);
-}
-
-i.tweet {
-  background-image: url(../assets/icons/tweet.svg);
-}
-
-i.youtube {
-  background-image: url(../assets/icons/youtube.svg);
 }
 
 .icon.left-align,

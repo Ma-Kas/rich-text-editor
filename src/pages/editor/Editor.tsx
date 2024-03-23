@@ -12,7 +12,6 @@ import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import useLexicalEditable from '@lexical/react/useLexicalEditable';
 import { createContext, useState } from 'react';
 import { useSettings } from './context/SettingsContext';
-import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
 import CodeHighlightPlugin from './plugins/CodeHighlightPlugin';
@@ -79,7 +78,6 @@ export default function Editor(): JSX.Element {
         <DragDropPaste />
         <AutoFocusPlugin />
         <ComponentPickerPlugin />
-        <AutoEmbedPlugin />
         <HashtagPlugin />
         <AutoLinkPlugin />
         <>

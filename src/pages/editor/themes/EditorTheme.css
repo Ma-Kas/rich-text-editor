@@ -379,9 +379,6 @@
   display: flex;
   justify-content: center;
 }
-.EditorTheme__embedBlockFocus {
-  outline: 2px solid rgb(60, 132, 244);
-}
 .EditorTheme__layoutContainer {
   display: grid;
   gap: 10px;
