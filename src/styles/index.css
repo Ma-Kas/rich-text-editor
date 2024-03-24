@@ -994,10 +994,10 @@ i.success {
 /* IMAGE CAROUSEL STYLES */
 /******************************************************************************/
 
-.editor-shell div.EditorTheme__carouselContainer:has(.focused) {
+/* .editor-shell div.EditorTheme__carouselContainer:has(.focused) {
   outline: 4px solid rgb(60, 132, 244);
   user-select: none;
-}
+} */
 
 .editor-shell .EditorTheme__carouselContainer .carousel-container {
   margin: auto;
@@ -1010,8 +1010,8 @@ i.success {
   .carousel-image {
   min-width: 0;
   max-width: 100%;
-  flex: 0 0 50%;
-  padding-left: 1rem;
+  flex: 0 0 calc(50% - 0.25rem);
+  padding-left: 0.25rem;
   aspect-ratio: 1 / 1;
   object-fit: cover;
   object-position: center;

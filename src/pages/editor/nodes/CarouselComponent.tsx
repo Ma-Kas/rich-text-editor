@@ -47,10 +47,12 @@ type ImageStyleType = {
   objectPosition?: CarouselImageObjectPosition;
   width?: string;
   aspectRatio?: string;
+  flex?: string;
+  marginLeft?: string;
 };
 
 type CarouselInlineStyleType = {
-  gap?: string | undefined;
+  marginLeft?: string | undefined;
 };
 
 const stringSchema = z.string();
@@ -84,6 +86,8 @@ export function LazyImage({
   objectPosition,
   imageWidth,
   aspectRatio,
+  imagesInView,
+  imageGap,
 }: {
   altText: string;
   className: string | null;
@@ -91,6 +95,8 @@ export function LazyImage({
   objectPosition: CarouselImageObjectPosition | null | undefined;
   imageWidth: string | null | undefined;
   aspectRatio: string | null | undefined;
+  imagesInView: number | null | undefined;
+  imageGap: string | null | undefined;
 }): JSX.Element {
   useSuspenseImage(src);
   const style: ImageStyleType = {};
@@ -102,6 +108,16 @@ export function LazyImage({
   }
   if (aspectRatio) {
     style.aspectRatio = aspectRatio;
+  }
+  if (imagesInView) {
+    if (imageGap) {
+      style.flex = `0 0 calc(${100 / imagesInView}% - ${imageGap})`;
+    } else {
+      style.flex = `0 0 calc(${100 / imagesInView}% - 0.25rem)`;
+    }
+  }
+  if (imageGap) {
+    style.marginLeft = imageGap;
   }
 
   if (style) {
@@ -322,12 +338,13 @@ export function UpdateCarouselDialog({
           data-test-id='carousel-modal-caption-text-input'
         />
         <Select
-          value={imageGap ? imageGap : '0.5rem'}
+          value={imageGap ? imageGap : '0.25rem'}
           label='Grid Gap'
           name='grid-gap-all'
           id='grid-gap-all-select'
           onChange={handleImageGapChange}
         >
+          <option value='0'>0</option>
           <option value='0.25rem'>0.25</option>
           <option value='0.5rem'>0.5</option>
           <option value='0.75rem'>0.75</option>
@@ -437,6 +454,7 @@ export function UpdateCarouselDialog({
 export default function CarouselComponent({
   imageList,
   carouselType,
+  imagesInView,
   nodeKey,
   captionText,
   resizable,
@@ -683,7 +701,7 @@ export default function CarouselComponent({
   const setInlineStyleOverride = (): CarouselInlineStyleType => {
     const style: CarouselInlineStyleType = {};
     if (imageGap) {
-      style.gap = imageGap;
+      style.marginLeft = `-${imageGap}`;
     }
     return style;
   };
@@ -704,7 +722,12 @@ export default function CarouselComponent({
         }
         draggable='false'
       >
-        <EmblaCarousel slides={imageList} options={CAROUSEL_OPTIONS} />
+        <EmblaCarousel
+          imagesInView={imagesInView}
+          imageGap={imageGap}
+          slides={imageList}
+          options={CAROUSEL_OPTIONS}
+        />
       </div>
       {/* {resizable && $isNodeSelection(selection) && isFocused && (
         <CarouselResizer

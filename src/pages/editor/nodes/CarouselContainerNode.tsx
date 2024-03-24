@@ -141,7 +141,7 @@ export class CarouselContainerNode extends DecoratorNode<JSX.Element> {
     super(key);
     this.__imageList = imageList;
     this.__carouselType = carouselType;
-    this.__imagesInView = imagesInView;
+    this.__imagesInView = imagesInView ? imagesInView : 2;
     this.__width = width ? width : null;
     this.__maxWidth = maxWidth ? maxWidth : null;
     this.__captionText = captionText ? captionText : '';

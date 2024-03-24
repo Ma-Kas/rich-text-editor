@@ -11,12 +11,14 @@ import { CarouselImage } from '../../pages/editor/nodes/CarouselContainerNode';
 import { LazyImage } from '../../pages/editor/nodes/CarouselComponent';
 
 type PropType = {
+  imagesInView: number | null | undefined;
+  imageGap?: string | null | undefined;
   slides: CarouselImage[];
   options?: EmblaOptionsType;
 };
 
 const EmblaCarousel: React.FC<PropType> = (props) => {
-  const { slides, options } = props;
+  const { imagesInView, imageGap, slides, options } = props;
   const [emblaRef, emblaApi] = useEmblaCarousel(options);
 
   const { selectedIndex, scrollSnaps, onDotButtonClick } =
@@ -43,18 +45,14 @@ const EmblaCarousel: React.FC<PropType> = (props) => {
                 objectPosition={image.objectPosition}
                 imageWidth={image.imageWidth}
                 aspectRatio={image.aspectRatio}
+                imagesInView={imagesInView}
+                imageGap={imageGap}
               />
             );
           })}
         </div>
-      </div>
-
-      <div className='embla__controls'>
-        <div className='embla__buttons'>
-          <PrevButton onClick={onPrevButtonClick} disabled={prevBtnDisabled} />
-          <NextButton onClick={onNextButtonClick} disabled={nextBtnDisabled} />
-        </div>
-
+        <PrevButton onClick={onPrevButtonClick} disabled={prevBtnDisabled} />
+        <NextButton onClick={onNextButtonClick} disabled={nextBtnDisabled} />
         <div className='embla__dots'>
           {scrollSnaps.map((_, index) => (
             <DotButton
