@@ -19,25 +19,25 @@ import { MultiFileInput } from '../../ui/FileInput';
 import TextInput from '../../ui/TextInput';
 import { $createCarouselBlockNode } from '../../nodes/CarouselBlockNode';
 import {
-  $createGalleryContainerNode,
-  GalleryContainerNode,
-  GalleryImage,
-} from '../../nodes/GalleryContainerNode';
+  $createCarouselContainerNode,
+  CarouselContainerNode,
+  CarouselImage,
+} from '../../nodes/CarouselContainerNode';
 
-export type InsertGalleryImagePayload = GalleryImage[];
+export type InsertCarouselImagePayload = CarouselImage[];
 
 const stringSchema = z.string();
 
 export function InsertCarouselImagesUriDialogBody({
   onClick,
 }: {
-  onClick: (payload: InsertGalleryImagePayload) => void;
+  onClick: (payload: InsertCarouselImagePayload) => void;
 }) {
   const MIN_IMAGE_COUNT = 2;
   const MAX_IMAGE_COUNT = 6;
   // Set initial state to a new array of length MIN_IMAGE_COUNT with image.id
   // set to increment starting from 1, and src and altText set to ''
-  const [imageList, setImageList] = useState<GalleryImage[]>(
+  const [imageList, setImageList] = useState<CarouselImage[]>(
     Array.from({ length: MIN_IMAGE_COUNT }, (_, index) => index + 1).map(
       (index) => {
         return { id: index, src: '', altText: '' };
@@ -65,7 +65,7 @@ export function InsertCarouselImagesUriDialogBody({
   };
 
   const handleChange = (
-    image: GalleryImage,
+    image: CarouselImage,
     type: 'src' | 'altText',
     input: unknown
   ) => {
@@ -112,21 +112,21 @@ export function InsertCarouselImagesUriDialogBody({
     <>
       {imageList.map((image) => {
         return (
-          <div key={image.id} className='Input__galleryInputGroup'>
-            <div className='Input__galleryInputGroupTitle'>{`Image ${image.id}:`}</div>
+          <div key={image.id} className='Input__carouselInputGroup'>
+            <div className='Input__carouselInputGroupTitle'>{`Image ${image.id}:`}</div>
             <TextInput
               label='Image URL'
               placeholder='i.e. https://source.unsplash.com/random'
               onChange={(value) => handleChange(image, 'src', value)}
               value={image.src}
-              data-test-id='gallery-image-modal-url-input'
+              data-test-id='carousel-image-modal-url-input'
             />
             <TextInput
               label='Alt Text'
               placeholder='Random unsplash image'
               onChange={(value) => handleChange(image, 'altText', value)}
               value={image.altText}
-              data-test-id='gallery-image-modal-alt-text-input'
+              data-test-id='carousel-image-modal-alt-text-input'
             />
           </div>
         );
@@ -134,14 +134,14 @@ export function InsertCarouselImagesUriDialogBody({
 
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <Button
-          data-test-id='gallery-image-modal-add-btn'
+          data-test-id='carousel-image-modal-add-btn'
           disabled={imageList.length >= MAX_IMAGE_COUNT}
           onClick={incrementImageList}
         >
           Add new image
         </Button>
         <Button
-          data-test-id='gallery-image-modal-add-btn'
+          data-test-id='carousel-image-modal-add-btn'
           disabled={imageList.length <= MIN_IMAGE_COUNT}
           onClick={removeLastImageFromList}
         >
@@ -151,7 +151,7 @@ export function InsertCarouselImagesUriDialogBody({
 
       <DialogActions>
         <Button
-          data-test-id='gallery-image-modal-confirm-btn'
+          data-test-id='carousel-image-modal-confirm-btn'
           disabled={disabled}
           onClick={() => onClick(imageList)}
         >
@@ -165,7 +165,7 @@ export function InsertCarouselImagesUriDialogBody({
 export function InsertCarouselImagesUploadedDialogBody({
   onClick,
 }: {
-  onClick: (payload: InsertGalleryImagePayload) => void;
+  onClick: (payload: InsertCarouselImagePayload) => void;
 }) {
   const [src, setSrc] = useState('');
   const [altText, setAltText] = useState('');
@@ -234,7 +234,7 @@ export function InsertCarouselContainerDialog({
     };
   }, [activeEditor]);
 
-  const onClick = (payload: InsertGalleryImagePayload) => {
+  const onClick = (payload: InsertCarouselImagePayload) => {
     activeEditor.dispatchCommand(INSERT_CAROUSEL_COMMAND, payload);
     onClose();
   };
@@ -275,13 +275,13 @@ export function InsertCarouselContainerDialog({
             Sample
           </Button>
           <Button
-            data-test-id='gallery-modal-option-url'
+            data-test-id='carousel-modal-option-url'
             onClick={() => setMode('url')}
           >
             URL
           </Button>
           <Button
-            data-test-id='gallery-modal-option-file'
+            data-test-id='carousel-modal-option-file'
             onClick={() => setMode('file')}
           >
             File
@@ -307,28 +307,28 @@ export default function ImageCarouselPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
-    if (!editor.hasNodes([GalleryContainerNode])) {
+    if (!editor.hasNodes([CarouselContainerNode])) {
       throw new Error(
-        'ImageGalleryPlugin: GalleryContainerNode not registered on editor'
+        'ImageCarouselPlugin: CarouselContainerNode not registered on editor'
       );
     }
 
     return mergeRegister(
-      editor.registerCommand<InsertGalleryImagePayload>(
+      editor.registerCommand<InsertCarouselImagePayload>(
         INSERT_CAROUSEL_COMMAND,
         (payload) => {
-          const newGalleryBlock = $createCarouselBlockNode();
-          const newGalleryContainer = $createGalleryContainerNode({
+          const newCarouselBlock = $createCarouselBlockNode();
+          const newCarouselContainer = $createCarouselContainerNode({
             imageList: payload,
-            gridType: 'dynamic-type',
+            carouselType: 'slideshow',
           });
-          $insertNodes([newGalleryBlock]);
+          $insertNodes([newCarouselBlock]);
 
-          $insertNodes([newGalleryContainer]);
+          $insertNodes([newCarouselContainer]);
 
-          // Add new paragraph node below created image gallery
+          // Add new paragraph node below created image carousel
           const newParagraphNode = $createParagraphNode();
-          newGalleryBlock.insertAfter(newParagraphNode).selectNext();
+          newCarouselBlock.insertAfter(newParagraphNode).selectNext();
 
           return true;
         },

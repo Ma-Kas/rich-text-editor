@@ -18,6 +18,7 @@ import { ImageBlockNode } from './ImageBlockNode';
 import { GalleryBlockNode } from './GalleryBlockNode';
 import { GalleryContainerNode } from './GalleryContainerNode';
 import { CarouselBlockNode } from './CarouselBlockNode';
+import { CarouselContainerNode } from './CarouselContainerNode';
 import { ImageNode } from './ImageNode';
 import { LayoutContainerNode } from './LayoutContainerNode';
 import { LayoutItemNode } from './LayoutItemNode';
@@ -44,6 +45,7 @@ const EditorNodes: Array<Klass<LexicalNode>> = [
   GalleryBlockNode,
   GalleryContainerNode,
   CarouselBlockNode,
+  CarouselContainerNode,
   ImageNode,
   HorizontalRuleNode,
   MarkNode,
