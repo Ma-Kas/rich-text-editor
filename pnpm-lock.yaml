@@ -47,6 +47,9 @@ dependencies:
   '@lexical/utils':
     specifier: ^0.13.1
     version: 0.13.1(lexical@0.13.1)
+  embla-carousel:
+    specifier: ^8.0.0
+    version: 8.0.0
   embla-carousel-react:
     specifier: ^8.0.0
     version: 8.0.0(react@18.2.0)

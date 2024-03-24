@@ -39,6 +39,9 @@ import CarouselResizer from '../ui/CarouselResizer';
 import useModal from '../hooks/useModal';
 
 import { CarouselImageObjectPosition } from './CarouselContainerNode';
+import EmblaCarousel from '../../../components/Carousel/EmblaCarousel';
+import '../../../components/Carousel/styles.css';
+import { EmblaOptionsType } from 'embla-carousel';
 
 type ImageStyleType = {
   objectPosition?: CarouselImageObjectPosition;
@@ -74,7 +77,7 @@ function useSuspenseImage(src: string) {
   }
 }
 
-function LazyImage({
+export function LazyImage({
   altText,
   className,
   src,
@@ -687,6 +690,8 @@ export default function CarouselComponent({
 
   const containerInlineStyle = setInlineStyleOverride();
 
+  const CAROUSEL_OPTIONS: EmblaOptionsType = { align: 'start' };
+
   const isFocused = isSelected || isResizing;
   return (
     <Suspense fallback={null}>
@@ -699,21 +704,9 @@ export default function CarouselComponent({
         }
         draggable='false'
       >
-        {imageList.map((image) => {
-          return (
-            <LazyImage
-              key={image.id}
-              className='carousel-image'
-              src={image.src}
-              altText={image.altText}
-              objectPosition={image.objectPosition}
-              imageWidth={image.imageWidth}
-              aspectRatio={image.aspectRatio}
-            />
-          );
-        })}
+        <EmblaCarousel slides={imageList} options={CAROUSEL_OPTIONS} />
       </div>
-      {resizable && $isNodeSelection(selection) && isFocused && (
+      {/* {resizable && $isNodeSelection(selection) && isFocused && (
         <CarouselResizer
           editor={editor}
           buttonRef={buttonRef}
@@ -723,7 +716,7 @@ export default function CarouselComponent({
           nodeKey={nodeKey}
           showModal={showModal}
         />
-      )}
+      )} */}
       {captionText && (
         <div className='carousel-caption-container'>{captionText}</div>
       )}
