@@ -47,12 +47,6 @@ type ImageStyleType = {
   objectPosition?: CarouselImageObjectPosition;
   width?: string;
   aspectRatio?: string;
-  flex?: string;
-  marginLeft?: string;
-};
-
-type CarouselInlineStyleType = {
-  marginLeft?: string | undefined;
 };
 
 const stringSchema = z.string();
@@ -84,10 +78,7 @@ export function LazyImage({
   className,
   src,
   objectPosition,
-  imageWidth,
   aspectRatio,
-  imagesInView,
-  imageGap,
 }: {
   altText: string;
   className: string | null;
@@ -103,22 +94,9 @@ export function LazyImage({
   if (objectPosition) {
     style.objectPosition = objectPosition;
   }
-  if (imageWidth) {
-    style.width = imageWidth;
-  }
   if (aspectRatio) {
     style.aspectRatio = aspectRatio;
   }
-  // if (imagesInView) {
-  //   if (imageGap) {
-  //     style.flex = `0 0 calc(${100 / imagesInView}% - ${imageGap})`;
-  //   } else {
-  //     style.flex = `0 0 calc(${100 / imagesInView}% - 0.25rem)`;
-  //   }
-  // }
-  // if (imageGap) {
-  //   style.marginLeft = imageGap;
-  // }
 
   if (style) {
     return (
@@ -696,18 +674,6 @@ export default function CarouselComponent({
     setIsResizing(true);
   };
 
-  // If user has overriden stylesheet with inline properties, set them here
-  // to apply to component
-  const setInlineStyleOverride = (): CarouselInlineStyleType => {
-    const style: CarouselInlineStyleType = {};
-    if (imageGap) {
-      style.marginLeft = `-${imageGap}`;
-    }
-    return style;
-  };
-
-  const containerInlineStyle = setInlineStyleOverride();
-
   const CAROUSEL_OPTIONS: EmblaOptionsType = {
     align: 'start',
   };
@@ -716,7 +682,6 @@ export default function CarouselComponent({
   return (
     <Suspense fallback={null}>
       <div
-        style={containerInlineStyle}
         className={
           isFocused
             ? `carousel-container ${carouselType} focused`
@@ -725,13 +690,14 @@ export default function CarouselComponent({
         draggable='false'
       >
         <EmblaCarousel
+          carouselType={carouselType}
           imagesInView={imagesInView}
           imageGap={imageGap}
           slides={imageList}
           options={CAROUSEL_OPTIONS}
         />
       </div>
-      {/* {resizable && $isNodeSelection(selection) && isFocused && (
+      {resizable && $isNodeSelection(selection) && isFocused && (
         <CarouselResizer
           editor={editor}
           buttonRef={buttonRef}
@@ -741,7 +707,7 @@ export default function CarouselComponent({
           nodeKey={nodeKey}
           showModal={showModal}
         />
-      )} */}
+      )}
       {captionText && (
         <div className='carousel-caption-container'>{captionText}</div>
       )}

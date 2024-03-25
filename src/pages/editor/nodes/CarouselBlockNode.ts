@@ -124,7 +124,7 @@ export class CarouselBlockNode extends ElementNode {
     return {
       ...super.exportJSON(),
       alignment: this.__alignment,
-      type: 'gallery-block',
+      type: 'carousel-block',
       version: 1,
     };
   }

@@ -3,7 +3,6 @@ import type { LexicalEditor, NodeKey } from 'lexical';
 import * as React from 'react';
 import { useRef } from 'react';
 import { UpdateCarouselDialog } from '../nodes/CarouselComponent';
-import { getMinColumnWidth } from '../utils/getMinColumnWidth';
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -15,36 +14,6 @@ const Directions = {
   south: 1 << 1,
   west: 1 << 2,
 };
-
-// Return the definition of the grid-container from parsed stylesheet
-// or from inline style if it was overwritten
-function getGridDefinitionRule(
-  containerRef: HTMLElement | null
-): string | null {
-  const gridContainer = containerRef!.querySelector(
-    '.grid-container'
-  ) as HTMLElement;
-
-  if (gridContainer.style && gridContainer.style.gridTemplateColumns) {
-    return gridContainer.style.gridTemplateColumns;
-  }
-
-  let definition: string | undefined;
-
-  Array.from(document.styleSheets).forEach((css) => {
-    Array.from(css.rules).forEach((rule) => {
-      if (
-        rule instanceof CSSStyleRule &&
-        rule.selectorText &&
-        gridContainer.matches(rule.selectorText) &&
-        rule.style.gridTemplateColumns
-      ) {
-        definition = rule.style.gridTemplateColumns;
-      }
-    });
-  });
-  return definition ? definition : null;
-}
 
 export default function CarouselResizer({
   onResizeStart,
@@ -109,13 +78,7 @@ export default function CarouselResizer({
       ? editorRootElement.getBoundingClientRect().width
       : 100;
   }
-
-  // Dynamically set the minimum allowed shrink size of carousel based on the
-  // grid column definition
-  const minimumColumnWidth = getMinColumnWidth(
-    getGridDefinitionRule(containerRef.current)
-  );
-  const minWidth = minimumColumnWidth ? minimumColumnWidth : 150;
+  const minWidth = 100;
 
   const setStartCursor = () => {
     if (editorRootElement !== null) {
@@ -231,7 +194,7 @@ export default function CarouselResizer({
       // If carousel is full width, set it to percentage based instead pixel value
       if (width === maxWidthContainer) {
         carouselContainer.style.maxWidth = '100%';
-        // set values in ImageNode here (will only be used when serializing)
+        // set values in CarouselContainerNode here (will only be used when serializing)
         onResizeEnd('100%', '100%');
       } else {
         onResizeEnd('100%', `${width}px`);

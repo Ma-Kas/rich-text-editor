@@ -1,23 +1,21 @@
-:root {
-  --text-body: rgb(54, 49, 61);
-  --detail-high-contrast: rgb(192, 192, 192);
-  --detail-medium-contrast: rgb(234, 234, 234);
-  --text-high-contrast-rgb-value: 49, 49, 49;
-}
 .embla__viewport {
-  max-width: 100%;
   overflow: hidden;
 }
 .embla__container {
-  max-width: 100%;
   backface-visibility: hidden;
   display: flex;
   touch-action: pan-y;
-  margin-left: -0.25rem;
+}
+.embla__slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 0 0 100%;
+  min-width: 0;
 }
 .embla__button {
   position: absolute;
-  -webkit-tap-highlight-color: rgba(var(--text-high-contrast-rgb-value), 0.5);
+  -webkit-tap-highlight-color: rgba(49, 49, 49, 0.5);
   -webkit-appearance: none;
   appearance: none;
   background-color: transparent;
@@ -41,13 +39,13 @@
 .embla__button--prev {
   transform: scaleX(-1) scaleY(1);
   top: calc(50% - 1.2rem);
-  left: 0;
+  left: 1rem;
 }
 
 .embla__button--next {
   transform: scaleX(1) scaleY(1);
   top: calc(50% - 1.2rem);
-  right: 0;
+  right: 1rem;
 }
 
 .embla__button:disabled {

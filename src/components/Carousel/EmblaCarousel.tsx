@@ -6,18 +6,31 @@ import {
   usePrevNextButtons,
 } from './EmblaCarouselArrowButtons';
 import useEmblaCarousel from 'embla-carousel-react';
-import { CarouselImage } from '../../pages/editor/nodes/CarouselContainerNode';
+import {
+  CarouselImage,
+  CarouselType,
+} from '../../pages/editor/nodes/CarouselContainerNode';
 import { LazyImage } from '../../pages/editor/nodes/CarouselComponent';
 
 type PropType = {
+  carouselType: CarouselType;
   imagesInView: number | null | undefined;
   imageGap?: string | null | undefined;
   slides: CarouselImage[];
   options?: EmblaOptionsType;
 };
 
+type InlineStyleType = {
+  container: {
+    marginLeft?: string | undefined;
+  };
+  slide: {
+    paddingLeft?: string | undefined;
+  };
+};
+
 const EmblaCarousel: React.FC<PropType> = (props) => {
-  const { imagesInView, imageGap, slides, options } = props;
+  const { carouselType, imagesInView, imageGap, slides, options } = props;
   const [emblaRef, emblaApi] = useEmblaCarousel(options);
 
   const {
@@ -27,23 +40,41 @@ const EmblaCarousel: React.FC<PropType> = (props) => {
     onNextButtonClick,
   } = usePrevNextButtons(emblaApi);
 
+  // If user has overriden stylesheet with inline properties, set them here
+  // to apply to component
+  const setInlineStyleOverride = (): InlineStyleType => {
+    const style: InlineStyleType = { container: {}, slide: {} };
+    if (imageGap && carouselType === 'slider') {
+      style.container.marginLeft = `-${imageGap}`;
+      style.slide.paddingLeft = `-${imageGap}`;
+    }
+    return style;
+  };
+
+  const inlineStyle = setInlineStyleOverride();
+
   return (
     <>
       <div className='embla__viewport' ref={emblaRef}>
-        <div className='embla__container'>
+        <div className='embla__container' style={inlineStyle.container}>
           {slides.map((image) => {
             return (
-              <LazyImage
+              <div
+                className='embla__slide'
+                style={inlineStyle.container}
                 key={image.id}
-                className='carousel-image'
-                src={image.src}
-                altText={image.altText}
-                objectPosition={image.objectPosition}
-                imageWidth={image.imageWidth}
-                aspectRatio={image.aspectRatio}
-                imagesInView={imagesInView}
-                imageGap={imageGap}
-              />
+              >
+                <LazyImage
+                  className='carousel-image'
+                  src={image.src}
+                  altText={image.altText}
+                  objectPosition={image.objectPosition}
+                  imageWidth={image.imageWidth}
+                  aspectRatio={image.aspectRatio}
+                  imagesInView={imagesInView}
+                  imageGap={imageGap}
+                />
+              </div>
             );
           })}
         </div>
