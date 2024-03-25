@@ -26,6 +26,7 @@ type InlineStyleType = {
   };
   slide: {
     paddingLeft?: string | undefined;
+    flex?: string | undefined;
   };
 };
 
@@ -44,9 +45,18 @@ const EmblaCarousel: React.FC<PropType> = (props) => {
   // to apply to component
   const setInlineStyleOverride = (): InlineStyleType => {
     const style: InlineStyleType = { container: {}, slide: {} };
-    if (imageGap && carouselType === 'slider') {
+    if (carouselType !== 'slider') {
+      return style;
+    }
+    if (imageGap) {
       style.container.marginLeft = `-${imageGap}`;
-      style.slide.paddingLeft = `-${imageGap}`;
+      style.slide.paddingLeft = `${imageGap}`;
+    }
+    if (imagesInView) {
+      style.slide.flex =
+        imageGap !== '0'
+          ? `0 0 calc(${100 / imagesInView}% - ${imageGap})`
+          : `0 0 calc(${100 / imagesInView}%`;
     }
     return style;
   };
@@ -61,7 +71,7 @@ const EmblaCarousel: React.FC<PropType> = (props) => {
             return (
               <div
                 className='embla__slide'
-                style={inlineStyle.container}
+                style={inlineStyle.slide}
                 key={image.id}
               >
                 <LazyImage

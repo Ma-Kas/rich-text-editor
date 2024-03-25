@@ -285,7 +285,7 @@ export function UpdateCarouselDialog({
         {carouselType !== 'slideshow' && (
           <Select
             value={imagesInView ? imagesInView : '1'}
-            label='Images'
+            label='Max Images in View'
             name='images-in-view-all'
             id='images-in-view-all-select'
             onChange={handleImagesInViewChange}
@@ -293,6 +293,7 @@ export function UpdateCarouselDialog({
             <option value='1'>1</option>
             <option value='2'>2</option>
             <option value='3'>3</option>
+            <option value='4'>4</option>
           </Select>
         )}
         <TextInput
@@ -376,7 +377,7 @@ export function UpdateCarouselDialog({
               </Select>
               {carouselType !== 'slideshow' && (
                 <Select
-                  value={image.aspectRatio ? image.aspectRatio : '1 / 1'}
+                  value={image.aspectRatio ? image.aspectRatio : '4 / 3'}
                   label='Aspect Ratio'
                   name='aspect-ratio'
                   id='aspect-ratio-select'
@@ -652,9 +653,7 @@ export default function CarouselComponent({
     setIsResizing(true);
   };
 
-  const CAROUSEL_OPTIONS: EmblaOptionsType = {
-    align: 'start',
-  };
+  const CAROUSEL_OPTIONS: EmblaOptionsType = {};
 
   const isFocused = isSelected || isResizing;
   return (

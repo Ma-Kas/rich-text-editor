@@ -143,7 +143,7 @@ export class CarouselContainerNode extends DecoratorNode<JSX.Element> {
     this.__width = width ? width : null;
     this.__maxWidth = maxWidth ? maxWidth : null;
     this.__captionText = captionText ? captionText : '';
-    this.__imageGap = imageGap ? imageGap : null;
+    this.__imageGap = imageGap ? imageGap : '0.5rem';
   }
 
   // View
