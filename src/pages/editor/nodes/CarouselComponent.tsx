@@ -109,16 +109,16 @@ export function LazyImage({
   if (aspectRatio) {
     style.aspectRatio = aspectRatio;
   }
-  if (imagesInView) {
-    if (imageGap) {
-      style.flex = `0 0 calc(${100 / imagesInView}% - ${imageGap})`;
-    } else {
-      style.flex = `0 0 calc(${100 / imagesInView}% - 0.25rem)`;
-    }
-  }
-  if (imageGap) {
-    style.marginLeft = imageGap;
-  }
+  // if (imagesInView) {
+  //   if (imageGap) {
+  //     style.flex = `0 0 calc(${100 / imagesInView}% - ${imageGap})`;
+  //   } else {
+  //     style.flex = `0 0 calc(${100 / imagesInView}% - 0.25rem)`;
+  //   }
+  // }
+  // if (imageGap) {
+  //   style.marginLeft = imageGap;
+  // }
 
   if (style) {
     return (
@@ -317,7 +317,7 @@ export function UpdateCarouselDialog({
           onChange={handleCarouselTypeChange}
         >
           <option value='slideshow'>Slideshow</option>
-          <option value='carousel'>Carousel</option>
+          <option value='slider'>Slider</option>
         </Select>
         <Select
           value={imagesInView ? imagesInView : '1'}
@@ -339,9 +339,9 @@ export function UpdateCarouselDialog({
         />
         <Select
           value={imageGap ? imageGap : '0.25rem'}
-          label='Grid Gap'
-          name='grid-gap-all'
-          id='grid-gap-all-select'
+          label='Image Gap'
+          name='image-gap-all'
+          id='image-gap-all-select'
           onChange={handleImageGapChange}
         >
           <option value='0'>0</option>
@@ -708,7 +708,9 @@ export default function CarouselComponent({
 
   const containerInlineStyle = setInlineStyleOverride();
 
-  const CAROUSEL_OPTIONS: EmblaOptionsType = { align: 'start' };
+  const CAROUSEL_OPTIONS: EmblaOptionsType = {
+    align: 'start',
+  };
 
   const isFocused = isSelected || isResizing;
   return (

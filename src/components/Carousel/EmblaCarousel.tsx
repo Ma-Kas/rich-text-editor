@@ -1,6 +1,5 @@
 import React from 'react';
 import { EmblaOptionsType } from 'embla-carousel';
-import { DotButton, useDotButton } from './EmblaCarouselDotButton';
 import {
   PrevButton,
   NextButton,
@@ -20,9 +19,6 @@ type PropType = {
 const EmblaCarousel: React.FC<PropType> = (props) => {
   const { imagesInView, imageGap, slides, options } = props;
   const [emblaRef, emblaApi] = useEmblaCarousel(options);
-
-  const { selectedIndex, scrollSnaps, onDotButtonClick } =
-    useDotButton(emblaApi);
 
   const {
     prevBtnDisabled,
@@ -53,17 +49,6 @@ const EmblaCarousel: React.FC<PropType> = (props) => {
         </div>
         <PrevButton onClick={onPrevButtonClick} disabled={prevBtnDisabled} />
         <NextButton onClick={onNextButtonClick} disabled={nextBtnDisabled} />
-        <div className='embla__dots'>
-          {scrollSnaps.map((_, index) => (
-            <DotButton
-              key={index}
-              onClick={() => onDotButtonClick(index)}
-              className={'embla__dot'.concat(
-                index === selectedIndex ? ' embla__dot--selected' : ''
-              )}
-            />
-          ))}
-        </div>
       </div>
     </>
   );

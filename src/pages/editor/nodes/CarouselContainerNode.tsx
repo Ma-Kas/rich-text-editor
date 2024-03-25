@@ -32,7 +32,7 @@ export interface CarouselImage {
   aspectRatio?: string | null | undefined;
 }
 
-export type CarouselType = 'slideshow' | 'carousel';
+export type CarouselType = 'slideshow' | 'slider';
 
 export interface CarouselContainerPayload {
   key?: NodeKey;
