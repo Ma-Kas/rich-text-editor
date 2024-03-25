@@ -69,7 +69,6 @@ const EmblaCarousel: React.FC<PropType> = (props) => {
                   src={image.src}
                   altText={image.altText}
                   objectPosition={image.objectPosition}
-                  imageWidth={image.imageWidth}
                   aspectRatio={image.aspectRatio}
                   imagesInView={imagesInView}
                   imageGap={imageGap}

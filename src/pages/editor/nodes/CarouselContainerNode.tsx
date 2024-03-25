@@ -28,7 +28,6 @@ export interface CarouselImage {
   altText: string;
   src: string;
   objectPosition?: CarouselImageObjectPosition | null | undefined;
-  imageWidth?: string | null | undefined;
   aspectRatio?: string | null | undefined;
 }
 
@@ -41,7 +40,6 @@ export interface CarouselContainerPayload {
   imagesInView?: number | null | undefined;
   captionText?: string;
   width?: string | null | undefined;
-  maxWidth?: string | null | undefined;
   imageGap?: string | null | undefined;
 }
 

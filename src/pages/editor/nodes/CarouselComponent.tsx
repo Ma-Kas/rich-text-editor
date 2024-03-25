@@ -84,7 +84,6 @@ export function LazyImage({
   className: string | null;
   src: string;
   objectPosition: CarouselImageObjectPosition | null | undefined;
-  imageWidth: string | null | undefined;
   aspectRatio: string | null | undefined;
   imagesInView: number | null | undefined;
   imageGap: string | null | undefined;
@@ -232,20 +231,6 @@ export function UpdateCarouselDialog({
         }
         break;
       }
-      case 'width': {
-        const event = input as React.ChangeEvent<HTMLSelectElement>;
-        const value = event.target.value;
-        const parseResult = stringSchema.safeParse(value);
-        if (parseResult.success) {
-          const newWidth = parseResult.data;
-          image.imageWidth = newWidth;
-          const changedImageList = imageList.map((img) =>
-            img.id !== image.id ? img : image
-          );
-          setImageList(changedImageList);
-        }
-        break;
-      }
       case 'aspect-ratio': {
         const event = input as React.ChangeEvent<HTMLSelectElement>;
         const value = event.target.value;
@@ -297,17 +282,19 @@ export function UpdateCarouselDialog({
           <option value='slideshow'>Slideshow</option>
           <option value='slider'>Slider</option>
         </Select>
-        <Select
-          value={imagesInView ? imagesInView : '1'}
-          label='Images'
-          name='images-in-view-all'
-          id='images-in-view-all-select'
-          onChange={handleImagesInViewChange}
-        >
-          <option value='1'>1</option>
-          <option value='2'>2</option>
-          <option value='3'>3</option>
-        </Select>
+        {carouselType !== 'slideshow' && (
+          <Select
+            value={imagesInView ? imagesInView : '1'}
+            label='Images'
+            name='images-in-view-all'
+            id='images-in-view-all-select'
+            onChange={handleImagesInViewChange}
+          >
+            <option value='1'>1</option>
+            <option value='2'>2</option>
+            <option value='3'>3</option>
+          </Select>
+        )}
         <TextInput
           label='Caption'
           placeholder='Add a caption here'
@@ -315,22 +302,24 @@ export function UpdateCarouselDialog({
           value={captionText}
           data-test-id='carousel-modal-caption-text-input'
         />
-        <Select
-          value={imageGap ? imageGap : '0.25rem'}
-          label='Image Gap'
-          name='image-gap-all'
-          id='image-gap-all-select'
-          onChange={handleImageGapChange}
-        >
-          <option value='0'>0</option>
-          <option value='0.25rem'>0.25</option>
-          <option value='0.5rem'>0.5</option>
-          <option value='0.75rem'>0.75</option>
-          <option value='1rem'>1</option>
-          <option value='1.25rem'>1.25</option>
-          <option value='1.5rem'>1.5</option>
-          <option value='2rem'>2</option>
-        </Select>
+        {carouselType !== 'slideshow' && (
+          <Select
+            value={imageGap ? imageGap : '0.25rem'}
+            label='Image Gap'
+            name='image-gap-all'
+            id='image-gap-all-select'
+            onChange={handleImageGapChange}
+          >
+            <option value='0'>0</option>
+            <option value='0.25rem'>0.25</option>
+            <option value='0.5rem'>0.5</option>
+            <option value='0.75rem'>0.75</option>
+            <option value='1rem'>1</option>
+            <option value='1.25rem'>1.25</option>
+            <option value='1.5rem'>1.5</option>
+            <option value='2rem'>2</option>
+          </Select>
+        )}
         <Select
           style={{ marginBottom: '1em', width: '208px' }}
           value={blockAlignment}
@@ -344,7 +333,7 @@ export function UpdateCarouselDialog({
           <option value='right'>Right</option>
         </Select>
         <Select
-          value={imageList[0].aspectRatio ? imageList[0].aspectRatio : '1 / 1'}
+          value={imageList[0].aspectRatio ? imageList[0].aspectRatio : '4 / 3'}
           label='Aspect Ratio'
           name='aspect-ratio-all'
           id='aspect-ratio-all-select'
@@ -385,33 +374,22 @@ export function UpdateCarouselDialog({
                 <option value='top'>Top</option>
                 <option value='bottom'>Bottom</option>
               </Select>
-              <Select
-                value={image.aspectRatio ? image.aspectRatio : '1 / 1'}
-                label='Aspect Ratio'
-                name='aspect-ratio'
-                id='aspect-ratio-select'
-                onChange={(e) => handleImageChange(image, 'aspect-ratio', e)}
-              >
-                <option value='1 / 1'>1:1</option>
-                <option value=' 3 / 4'>3:4</option>
-                <option value='4 / 5'>4:5</option>
-                <option value=' 4 / 3'>4:3</option>
-                <option value=' 1.91 / 1'>1.91:1</option>
-                <option value=' 16 / 9'>16:9</option>
-              </Select>
-              <Select
-                style={{ marginBottom: '1em', width: '208px' }}
-                value={image.imageWidth ? image.imageWidth : '100%'}
-                label='Width'
-                name='width'
-                id='width-select'
-                onChange={(e) => handleImageChange(image, 'width', e)}
-              >
-                <option value='100%'>100%</option>
-                <option value='75%'>75%</option>
-                <option value='50%'>50%</option>
-                <option value='25%'>25%</option>
-              </Select>
+              {carouselType !== 'slideshow' && (
+                <Select
+                  value={image.aspectRatio ? image.aspectRatio : '1 / 1'}
+                  label='Aspect Ratio'
+                  name='aspect-ratio'
+                  id='aspect-ratio-select'
+                  onChange={(e) => handleImageChange(image, 'aspect-ratio', e)}
+                >
+                  <option value='1 / 1'>1:1</option>
+                  <option value=' 3 / 4'>3:4</option>
+                  <option value='4 / 5'>4:5</option>
+                  <option value=' 4 / 3'>4:3</option>
+                  <option value=' 1.91 / 1'>1.91:1</option>
+                  <option value=' 16 / 9'>16:9</option>
+                </Select>
+              )}
             </div>
           );
         })}
