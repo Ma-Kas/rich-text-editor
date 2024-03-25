@@ -22,6 +22,7 @@ import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 import FloatingTextFormatToolbarPlugin from './plugins/FloatingTextFormatToolbarPlugin';
 import ImagesPlugin from './plugins/ImagesPlugin';
 import ImageGalleryPlugin from './plugins/ImageGalleryPlugin';
+import ImageCarouselPlugin from './plugins/ImageCarouselPlugin';
 import { LayoutPlugin } from './plugins/LayoutPlugin/LayoutPlugin';
 import LinkPlugin from './plugins/LinkPlugin';
 import ListMaxIndentLevelPlugin from './plugins/ListMaxIndentLevelPlugin';
@@ -102,6 +103,7 @@ export default function Editor(): JSX.Element {
           <TableCellResizer />
           <ImagesPlugin />
           <ImageGalleryPlugin />
+          <ImageCarouselPlugin />
           <LinkPlugin />
           <EmbedPlugin />
           {!isEditable && <LexicalClickableLinkPlugin />}
